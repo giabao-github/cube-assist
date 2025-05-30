@@ -18,6 +18,13 @@ export const metadata: Metadata = {
   description: "Cube Assist is an intelligent AI agent built to enhance your SaaS platform. Whether it’s streamlining workflows, automating tasks, or delivering actionable insights, Cube Assist empowers teams to work smarter and faster — all within an intuitive web interface designed for seamless integration and maximum productivity.",
 };
 
+/**
+ * Defines the root layout for the application, applying global fonts and rendering the main content.
+ *
+ * Wraps all pages with the configured Geist fonts, sets the language to English, and includes a notification toaster.
+ *
+ * @param children - The content to be rendered within the layout.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
