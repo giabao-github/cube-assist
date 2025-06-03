@@ -208,7 +208,7 @@
     animation-fill-mode: both;
   }
   .animate-marquee {
-    animation: marque 25s linear infinite;
+    animation: marquee 25s linear infinite;
   }
   .animate-fade-in-up {
     animation: fadeInUp 0.6s ease-out;

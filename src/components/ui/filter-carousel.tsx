@@ -73,11 +73,11 @@ export const FilterCarousel = ({
       >
         <CarouselContent className="-ml-3">
           {!isLoading &&
-            data.map((item, index) => {
+            data.map((item) => {
               return (
                 <CarouselItem
-                  key={item.id ?? +index}
-                  onClick={() => onSelect(Number(item.id ?? +index).toString())}
+                  key={item.id}
+                  onClick={() => onSelect(item.id)}
                   className="pl-3 basis-auto relative cursor-pointer group"
                 >
                   {/* Desktop image */}
