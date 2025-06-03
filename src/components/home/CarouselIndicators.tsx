@@ -18,6 +18,7 @@ const CarouselIndicators: FC<CarouselIndicatorsProps> = ({
   <div className="flex justify-center space-x-2">
     {items.map((item, index) => (
       <button
+        type="button"
         key={index}
         title={getTitle ? getTitle(item) : `Slide ${index + 1}`}
         onClick={() => onSelect(index)}

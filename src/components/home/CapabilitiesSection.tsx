@@ -12,9 +12,9 @@ const CapabilitiesSection = () => (
       />
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-8">
-        {capabilities.map((capability, index) => (
+        {capabilities.map((capability) => (
           <div
-            key={index}
+            key={capability.id}
             className="p-4 transition-all duration-300 bg-white border border-gray-100 shadow-lg md:p-6 group rounded-2xl hover:shadow-xl hover:-translate-y-2"
           >
             <div className="space-y-4 md:space-y-6">

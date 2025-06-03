@@ -52,6 +52,7 @@ const Header: FC<HeaderProps> = ({ isMenuOpen, setIsMenuOpen }) => {
 
           {/* Mobile Menu Button */}
           <Button
+            type="button"
             className="p-2 transition-colors rounded-lg cursor-pointer md:hidden hover:bg-custom-900 active:bg-custom-900"
             onClick={() => setIsMenuOpen && setIsMenuOpen(!isMenuOpen)}
           >
