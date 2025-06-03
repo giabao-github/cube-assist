@@ -37,6 +37,15 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-custom-100: #E6ECFA;
+  --color-custom-200: #C1D4F4;
+  --color-custom-300: #9CBCEA;
+  --color-custom-400: #769FE0;
+  --color-custom-500: #4F83D2;
+  --color-custom-600: #356ABD;
+  --color-custom-700: #2C5AA3;
+  --color-custom-800: #23488A;
+  --color-custom-900: #1A376F;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -110,6 +119,100 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
+}
+
+@layer utilities {
+  /* Border radius */
+  .rounded-lg {
+    border-radius: var(--radius);
+  }
+  .rounded-md {
+    border-radius: calc(var(--radius) - 2px);
+  }
+  .rounded-sm {
+    border-radius: calc(var(--radius) - 4px);
+  }
+
+  /* Custom animations */
+  @keyframes float {
+    0%, 100% { 
+      transform: translateY(0px); 
+    }
+    50% { 
+      transform: translateY(-20px);
+    }
+  }
+  @keyframes slideLeft {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes bannerMobile {
+    0% {
+      opacity: 0;
+      transform: translateY(48px);
+    }
+    8.33% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    33.33% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    41.66% {
+      opacity: 0;
+      transform: translateY(-48px);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-48px);
+    }
+  }
+  @keyframes marquee {
+    0% { 
+      transform: translateX(0px); 
+    }
+    100% { 
+      transform: translateX(-50%); 
+    }
+  }
+  @keyframes fadeInUp {
+    0% { 
+      opacity: 0; 
+      transform: translateY(30px); 
+    }
+    100% { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
+  .animate-bounce-slow {
+    animation: bounce 3s infinite;
+  }
+  .animate-pulse-slow {
+    animation: pulse 4s infinite;
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .animate-slide-left {
+    animation: slideLeft 14s linear infinite;
+  }
+  .animate-banner-mobile {
+    animation: bannerMobile infinite;
+    animation-fill-mode: both;
+  }
+  .animate-marquee {
+    animation: marque 25s linear infinite;
+  }
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
 }
 
 @layer base {
