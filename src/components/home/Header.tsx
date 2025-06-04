@@ -97,10 +97,10 @@ const Header: FC<HeaderProps> = ({ isMenuOpen, setIsMenuOpen }) => {
         <div className="border-t border-gray-200 shadow-lg md:hidden">
           <div className="container px-4 py-6 mx-auto space-y-6">
             <nav className="flex flex-col space-y-4">
-              {["Features", "Pricing", "FAQ", "Contact"].map((item) => (
+              {["Dashboard", "Pricing", "FAQ", "Contact"].map((item) => (
                 <NavLink
                   key={item}
-                  href={`#${item.toLowerCase()}`}
+                  href={`${item.toLowerCase() === "dashboard" ? dashboardLink : `#${item.toLowerCase()}`}`}
                   className="py-2"
                   onClick={() => setIsMenuOpen && setIsMenuOpen(false)}
                 >

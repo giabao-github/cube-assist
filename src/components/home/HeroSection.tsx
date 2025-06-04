@@ -22,7 +22,7 @@ const HeroSection = () => (
             </p>
           </div>
 
-          <div className="flex flex-row justify-center gap-6 md:justify-start">
+          <div className="flex flex-col justify-center gap-6 md:flex-row md:justify-start">
             <ActionButton
               onClick={() => {}}
               variant="primary"
