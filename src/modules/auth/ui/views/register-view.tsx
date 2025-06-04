@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlertIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
 
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -37,6 +38,7 @@ const formSchema = z
   });
 
 export const RegisterView = () => {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -59,11 +61,12 @@ export const RegisterView = () => {
         name: data.name,
         email: data.email,
         password: data.password,
-        callbackURL: "/",
+        callbackURL: "/dashboard",
       },
       {
         onSuccess: () => {
           setPending(false);
+          router.push("/login");
         },
         onError: ({ error }) => {
           setPending(false);
@@ -80,7 +83,7 @@ export const RegisterView = () => {
     authClient.signIn.social(
       {
         provider,
-        callbackURL: "/",
+        callbackURL: "/dashboard",
       },
       {
         onSuccess: () => {
@@ -96,6 +99,7 @@ export const RegisterView = () => {
 
   return (
     <div className="flex flex-col gap-6">
+      <title>Sign up - Cube Assist</title>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <Form {...form}>
@@ -196,7 +200,7 @@ export const RegisterView = () => {
                   type="submit"
                   className="w-full cursor-pointer"
                 >
-                  Sign in
+                  Sign up
                 </Button>
                 <div className="relative text-center text-sm after:border-border after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                   <span className="bg-card text-muted-foreground relative z-10 px-2">
@@ -227,7 +231,7 @@ export const RegisterView = () => {
                   Already have an account?{" "}
                   <Link
                     href="/login"
-                    className="font-semibold hover:text-[#2C5AA3]"
+                    className="font-semibold hover:text-custom-700"
                   >
                     Sign in
                   </Link>
@@ -235,7 +239,7 @@ export const RegisterView = () => {
               </div>
             </form>
           </Form>
-          <div className="bg-radial from-[#4F83D2] to-[#2C5AA3] relative hidden md:flex flex-col gap-y-2 items-center justify-center">
+          <div className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-2 items-center justify-center">
             <Image
               src="/logo.svg"
               alt="Logo"
@@ -248,7 +252,7 @@ export const RegisterView = () => {
         </CardContent>
       </Card>
 
-      <div className="text-muted-foreground text-center text-xs text-balance *:[a]:hover:text-[#2C5AA3]">
+      <div className="text-muted-foreground text-center text-xs text-balance *:[a]:hover:text-custom-700">
         By continuing, you are agreeing to our{" "}
         <Link href="#" className="font-semibold">
           Terms of Service

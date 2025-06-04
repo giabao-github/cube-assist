@@ -1,14 +1,16 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useEffect, useMemo } from "react";
 
 import { Menu, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import ActionButton from "@/components/home/ActionButton";
 import Logo from "@/components/home/Logo";
 import NavLink from "@/components/home/NavLink";
 import { Button } from "@/components/ui/button";
+
+import { authClient } from "@/lib/auth-client";
 
 interface HeaderProps {
   isMenuOpen?: boolean;
@@ -16,6 +18,21 @@ interface HeaderProps {
 }
 const Header: FC<HeaderProps> = ({ isMenuOpen, setIsMenuOpen }) => {
   const router = useRouter();
+  const pathname = usePathname();
+  const { data: session } = authClient.useSession();
+  const dashboardLink = useMemo(() => {
+    if (session) {
+      return "/dashboard";
+    } else {
+      return "/login";
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (!session && pathname.includes("/dashboard")) {
+      window.location.replace("/");
+    }
+  }, [pathname, session]);
 
   return (
     <header className="sticky top-0 z-30 border-b border-gray-200 shadow-sm bg-neutral-50 backdrop-blur-md">
@@ -25,8 +42,11 @@ const Header: FC<HeaderProps> = ({ isMenuOpen, setIsMenuOpen }) => {
 
           {/* Desktop Navigation */}
           <nav className="items-center hidden space-x-28 md:flex">
-            {["Features", "Pricing", "FAQ", "Contact"].map((item) => (
-              <NavLink key={item} href={`#${item.toLowerCase()}`}>
+            {["Dashboard", "Pricing", "FAQ", "Contact"].map((item) => (
+              <NavLink
+                key={item}
+                href={`${item.toLowerCase() === "dashboard" ? dashboardLink : `#${item.toLowerCase()}`}`}
+              >
                 {item}
               </NavLink>
             ))}
