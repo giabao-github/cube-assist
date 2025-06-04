@@ -49,7 +49,7 @@ export const LoginView = () => {
       {
         email: data.email,
         password: data.password,
-        callbackURL: "/",
+        callbackURL: "/dashboard",
       },
       {
         onSuccess: () => {
@@ -70,7 +70,7 @@ export const LoginView = () => {
     authClient.signIn.social(
       {
         provider,
-        callbackURL: "/",
+        callbackURL: "/dashboard",
       },
       {
         onSuccess: () => {
@@ -86,6 +86,7 @@ export const LoginView = () => {
 
   return (
     <div className="flex flex-col gap-6">
+      <title>Sign in - Cube Assist</title>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <Form {...form}>
@@ -177,7 +178,7 @@ export const LoginView = () => {
                   Don&apos;t have an account?{" "}
                   <Link
                     href="/register"
-                    className="font-semibold hover:text-[#2C5AA3]"
+                    className="font-semibold hover:text-custom-700"
                   >
                     Sign up
                   </Link>
@@ -185,7 +186,7 @@ export const LoginView = () => {
               </div>
             </form>
           </Form>
-          <div className="bg-radial from-[#4F83D2] to-[#2C5AA3] relative hidden md:flex flex-col gap-y-2 items-center justify-center">
+          <div className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-2 items-center justify-center">
             <Image
               src="/logo.svg"
               alt="Logo"
@@ -198,7 +199,7 @@ export const LoginView = () => {
         </CardContent>
       </Card>
 
-      <div className="text-muted-foreground text-center text-xs text-balance *:[a]:hover:text-[#2C5AA3]">
+      <div className="text-muted-foreground text-center text-xs text-balance *:[a]:hover:text-custom-700">
         By continuing, you are agreeing to our{" "}
         <Link href="#" className="font-semibold">
           Terms of Service

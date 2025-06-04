@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import { Geist, Geist_Mono, Montserrat, Poppins } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
 
@@ -20,10 +20,16 @@ const poppins = Poppins({
   subsets: ["latin", "latin-ext"],
 });
 
+const montserrat = Montserrat({
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+});
+
 export const metadata: Metadata = {
-  title: "Cube Assist — your smart SaaS AI agent",
+  title: "Cube Assist - your smart SaaS AI agent",
   description:
-    "Cube Assist is an intelligent AI agent built to enhance your SaaS platform. Whether it’s streamlining workflows, automating tasks, or delivering actionable insights, Cube Assist empowers teams to work smarter and faster — all within an intuitive web interface designed for seamless integration and maximum productivity.",
+    "Cube Assist is an intelligent AI agent built to enhance your SaaS platform. Whether it's streamlining workflows, automating tasks, or delivering actionable insights, Cube Assist empowers teams to work smarter and faster — all within an intuitive web interface designed for seamless integration and maximum productivity.",
 };
 
 export default function RootLayout({
@@ -34,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${poppins.className} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${poppins.className} ${montserrat.variable} antialiased`}
       >
         <Toaster />
         {children}
