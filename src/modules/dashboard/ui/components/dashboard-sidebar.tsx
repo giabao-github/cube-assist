@@ -27,12 +27,12 @@ const firstSection = [
   {
     icon: VideoIcon,
     label: "Meetings",
-    href: "/meetings",
+    href: "/dashboard/meetings",
   },
   {
     icon: BsRobot,
     label: "Agents",
-    href: "/agents",
+    href: "/dashboard/agents",
   },
 ];
 
@@ -40,7 +40,7 @@ const secondSection = [
   {
     icon: StarIcon,
     label: "Upgrade",
-    href: "/upgrade",
+    href: "/dashboard/upgrade",
   },
 ];
 

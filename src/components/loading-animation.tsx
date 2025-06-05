@@ -2,7 +2,11 @@ import { BsRobot } from "react-icons/bs";
 
 const ANIMATION_DURATION = "1s";
 
-export const DashboardLoadingAnimation = () => {
+interface DLAProps {
+  loadingText: string;
+}
+
+export const LoadingAnimation = ({ loadingText }: DLAProps) => {
   return (
     <div className="flex flex-col items-center justify-center my-auto gap-y-6">
       {/* Spinner */}
@@ -45,7 +49,7 @@ export const DashboardLoadingAnimation = () => {
             letterSpacing: "0.05em",
           }}
         >
-          Loading dashboard
+          {loadingText}
         </div>
       </div>
     </div>
