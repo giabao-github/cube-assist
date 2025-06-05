@@ -23,15 +23,22 @@ export const ErrorState = ({
   showRetry = true,
 }: ErrorStateProps) => {
   return (
-    <div className="flex items-center justify-center min-h-[400px]">
+    <div
+      className="flex items-center justify-center min-h-[400px]"
+      role="alert"
+      aria-live="polite"
+    >
       <Card className="w-full max-w-md duration-500 border-rose-200 bg-rose-50/50 animate-in fade-in-50">
         <CardContent className="flex flex-col items-center py-2 space-y-6 text-center">
           {/* Error Icon with subtle pulse */}
           <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-rose-300 opacity-30 animate-ping" />
-            <div className="absolute inset-0 rounded-full bg-rose-200 opacity-40 animate-pulse" />
+            <div className="absolute inset-0 rounded-full bg-rose-300 opacity-30 animate-ping motion-reduce:animate-none" />
+            <div className="absolute inset-0 rounded-full bg-rose-200 opacity-40 animate-pulse motion-reduce:animate-none" />
             <div className="relative p-3 rounded-full bg-rose-100">
-              <AlertCircle className="w-8 h-8 text-rose-600" />
+              <AlertCircle
+                className="w-8 h-8 text-rose-600"
+                aria-hidden="true"
+              />
             </div>
           </div>
 
