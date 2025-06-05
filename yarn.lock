@@ -1764,6 +1764,18 @@
     postcss "^8.4.41"
     tailwindcss "4.1.8"
 
+"@tanstack/query-core@5.80.5":
+  version "5.80.5"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.80.5.tgz#b4fc78101cbd0d2eddb1424e2fa0712e8b13cf2b"
+  integrity sha512-kFWXdQOUcjL/Ugk3GrI9eMuG3DsKBGaLIgyOLekR2UOrRrJgkLgPUNzZ10i8FCkfi4SgLABhOtQhx1HjoB9EZQ==
+
+"@tanstack/react-query@^5.80.5":
+  version "5.80.5"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.80.5.tgz#73f2136e60c6daaaadb8fd3f429f76d7a0660883"
+  integrity sha512-C0d+pvIahk6fJK5bXxyf36r9Ft6R9O0mwl781CjBrYGRJc76XRJcKhkVpxIo68cjMy3i47gd4O1EGooAke/OCQ==
+  dependencies:
+    "@tanstack/query-core" "5.80.5"
+
 "@trivago/prettier-plugin-sort-imports@^5.2.2":
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/@trivago/prettier-plugin-sort-imports/-/prettier-plugin-sort-imports-5.2.2.tgz#38983f0b83490a0a7d974a6f1e409fb4bf678d02"
@@ -1775,6 +1787,21 @@
     "@babel/types" "^7.26.7"
     javascript-natural-sort "^0.7.1"
     lodash "^4.17.21"
+
+"@trpc/client@^11.3.0":
+  version "11.3.0"
+  resolved "https://registry.yarnpkg.com/@trpc/client/-/client-11.3.0.tgz#960fb6c08e24ee429da93a15af3f6d1c23ce0e6f"
+  integrity sha512-O8fih4Tj+mGqN7bPM1inXJ7/3SFYI3/0D/AKYDc/G6Bq7GNNX+1st0YMMdtFk+Vv3e8K95h6233ZOwRX0qiwOg==
+
+"@trpc/server@^11.3.0":
+  version "11.3.0"
+  resolved "https://registry.yarnpkg.com/@trpc/server/-/server-11.3.0.tgz#54cc164d36c9269a1e40dfb4020a56c1accdb547"
+  integrity sha512-E5y94QLxgYr+T5FOWiMqNrCW0d2CJfhxNB7bS9xQzPfPMQeo4dpX8/s3nAxITJ9ARrORhK3Efpqs3/bPI9UOTQ==
+
+"@trpc/tanstack-react-query@^11.3.0":
+  version "11.3.0"
+  resolved "https://registry.yarnpkg.com/@trpc/tanstack-react-query/-/tanstack-react-query-11.3.0.tgz#48bdf63acdc72d87239b9c481bc39ce7436d88eb"
+  integrity sha512-mFS28ZTEkaisnG4gl4PrkbBurWzGHBxJTwPtfHNd0AIc/Gb+VRhpi5NioZY1pOGuqHMP/2lZQCSAX/AfeNtFjQ==
 
 "@tybys/wasm-util@^0.9.0":
   version "0.9.0"
@@ -2360,7 +2387,7 @@ class-variance-authority@^0.7.1:
   dependencies:
     clsx "^2.1.1"
 
-client-only@0.0.1:
+client-only@0.0.1, client-only@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/client-only/-/client-only-0.0.1.tgz#38bba5d403c41ab150bff64a95c85013cf73bca1"
   integrity sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==
@@ -4409,6 +4436,11 @@ semver@^7.6.0, semver@^7.7.1, semver@^7.7.2:
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.7.2.tgz#67d99fdcd35cec21e6f8b87a7fd515a33f982b58"
   integrity sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==
 
+server-only@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/server-only/-/server-only-0.0.1.tgz#0f366bb6afb618c37c9255a314535dc412cd1c9e"
+  integrity sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==
+
 set-cookie-parser@^2.7.1:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/set-cookie-parser/-/set-cookie-parser-2.7.1.tgz#3016f150072202dfbe90fadee053573cc89d2943"
@@ -4996,7 +5028,12 @@ yocto-queue@^0.1.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
-zod@^3.24.1, zod@^3.25.36:
+zod@^3.24.1:
   version "3.25.41"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.25.41.tgz#53dbe51e5f69fb521dd7ccbfbf3c829ddad22962"
   integrity sha512-8+sDJTGtCYIDBhdqDygp0ffj8kzziRKqAJPhpYObbElJ+3TRe/mnlnwH+/OMa3kKhueS4Drm5UMW00/u1p07zA==
+
+zod@^3.25.51:
+  version "3.25.51"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.25.51.tgz#aa2cf648e54f6f060f139cf77b694819f63c9f3a"
+  integrity sha512-TQSnBldh+XSGL+opiSIq0575wvDPqu09AqWe1F7JhUMKY+M91/aGlK4MhpVNO7MgYfHcVCB1ffwAUTJzllKJqg==

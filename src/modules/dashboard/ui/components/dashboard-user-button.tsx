@@ -2,8 +2,6 @@ import { ChevronDownIcon, CreditCardIcon, LogOutIcon } from "lucide-react";
 import { Lexend_Deca } from "next/font/google";
 import { useRouter } from "next/navigation";
 
-import { GeneratedAvatar } from "@/components/generated-avatar";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -26,6 +24,8 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { authClient } from "@/lib/auth-client";
+import { UserAvatar } from "@/modules/dashboard/ui/components/dashboard-user-avatar";
+import { DUBSkeleton } from "@/modules/dashboard/ui/components/dub-skeleton";
 
 const lexend = Lexend_Deca({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -48,27 +48,14 @@ export const DashboardUserButton = () => {
   };
 
   if (isPending || !data?.user) {
-    return null;
+    return <DUBSkeleton />;
   }
 
   if (isMobile) {
     return (
       <Drawer>
         <DrawerTrigger className="flex items-center justify-between w-full px-2 py-3 space-x-2 overflow-hidden border rounded-lg cursor-pointer border-border/10 bg-white/10 hover:bg-white/20">
-          {data.user.image ? (
-            <Avatar className="select-none">
-              <AvatarImage
-                src={data.user.image}
-                alt={data.user.name || "User avatar"}
-              />
-            </Avatar>
-          ) : (
-            <GeneratedAvatar
-              seed={data.user.name || data.user.email || "Anonymous User"}
-              variant="initials"
-              className="select-none size-10"
-            />
-          )}
+          <UserAvatar user={data.user} />
           <div className="flex flex-col gap-0.5 text-left overflow-hidden flex-1 min-w-0">
             <p className="w-full text-sm font-medium truncate">
               {data.user.name}
@@ -100,25 +87,12 @@ export const DashboardUserButton = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center justify-between w-full px-2 py-3 space-x-2 overflow-hidden border rounded-lg cursor-pointer border-border/10 bg-white/10 hover:bg-white/20">
-        {data.user.image ? (
-          <Avatar className="select-none">
-            <AvatarImage
-              src={data.user.image}
-              alt={data.user.name || "User avatar"}
-            />
-          </Avatar>
-        ) : (
-          <GeneratedAvatar
-            seed={data.user.name || data.user.email || "Anonymous User"}
-            variant="initials"
-            className="select-none size-10"
-          />
-        )}
+        <UserAvatar user={data.user} />
         <div className="flex flex-col gap-0.5 text-left overflow-hidden flex-1 min-w-0">
-          <p className="w-full text-sm font-medium truncate">
+          <p className="w-full text-sm font-medium truncate h-fit">
             {data.user.name}
           </p>
-          <p className="w-full text-xs truncate">{data.user.email}</p>
+          <p className="w-full text-xs truncate h-fit">{data.user.email}</p>
         </div>
         <ChevronDownIcon strokeWidth={3} className="size-5 shrink-0" />
       </DropdownMenuTrigger>

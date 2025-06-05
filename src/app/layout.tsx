@@ -3,6 +3,8 @@ import { Poppins } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
 
+import { TRPCReactProvider } from "@/trpc/client";
+
 import "./globals.css";
 
 const poppins = Poppins({
@@ -22,11 +24,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${poppins.className} antialiased`}>
-        <Toaster />
-        {children}
-      </body>
-    </html>
+    <TRPCReactProvider>
+      <html lang="en">
+        <body className={`${poppins.className} antialiased`}>
+          <Toaster />
+          {children}
+        </body>
+      </html>
+    </TRPCReactProvider>
   );
 }
