@@ -62,7 +62,7 @@ export const ErrorState = ({
             <Button
               onClick={onRetry}
               variant="outline"
-              className="cursor-pointer select-none group mt-4 border-rose-300 text-rose-500 hover:bg-rose-100 hover:border-rose-400 hover:text-rose-600 active:bg-rose-100 active:border-rose-400 active:text-rose-600 transition-colors hover:shadow-sm active:shadow-sm hover:scale-[1.02] active:scale-[1.02]"
+              className="select-none group mt-4 border-rose-300 text-rose-500 hover:bg-rose-100 hover:border-rose-400 hover:text-rose-600 active:bg-rose-100 active:border-rose-400 active:text-rose-600 transition-colors hover:shadow-sm active:shadow-sm hover:scale-[1.02] active:scale-[1.02]"
             >
               <RefreshCw className="w-4 h-4 mr-2 transition-transform group-hover:rotate-180 group-active:rotate-180" />
               {retryLabel}

@@ -22,7 +22,7 @@ const CarouselIndicators: FC<CarouselIndicatorsProps> = ({
         key={index}
         title={getTitle ? getTitle(item) : `Slide ${index + 1}`}
         onClick={() => onSelect(index)}
-        className={`w-3 h-3 cursor-pointer rounded-full transition-all ${
+        className={`w-3 h-3 rounded-full transition-all ${
           index === currentIndex
             ? "bg-custom-600 scale-110"
             : "bg-gray-300 hover:bg-gray-400"

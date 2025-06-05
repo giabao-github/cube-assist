@@ -57,14 +57,14 @@ const Header: FC<HeaderProps> = ({ isMenuOpen, setIsMenuOpen }) => {
             <ActionButton
               variant="secondary"
               onClick={() => router.push("/login")}
-              className="text-base px-6 py-5"
+              className="px-6 py-5 text-base"
             >
               Log in
             </ActionButton>
             <ActionButton
               variant="primary"
               onClick={() => router.push("/register")}
-              className="text-base px-6 py-5"
+              className="px-6 py-5 text-base"
             >
               Sign up
             </ActionButton>
@@ -73,7 +73,7 @@ const Header: FC<HeaderProps> = ({ isMenuOpen, setIsMenuOpen }) => {
           {/* Mobile Menu Button */}
           <Button
             type="button"
-            className="p-2 transition-colors rounded-lg cursor-pointer md:hidden hover:bg-custom-900 active:bg-custom-900"
+            className="p-2 transition-colors rounded-lg md:hidden hover:bg-custom-900 active:bg-custom-900"
             onClick={() => setIsMenuOpen && setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? (

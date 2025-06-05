@@ -22,7 +22,7 @@ const Logo: FC<LogoProps> = ({
     <div className={`flex items-center space-x-3 ${className}`}>
       <div
         onClick={() => router.push("/")}
-        className="flex items-center justify-center w-10 h-10 cursor-pointer select-none bg-gradient-to-br from-custom-500 to-custom-900 rounded-xl"
+        className="flex items-center justify-center w-10 h-10 select-none bg-gradient-to-br from-custom-500 to-custom-900 rounded-xl"
       >
         <Image
           src={isWhite ? "/white-logo.svg" : "/logo.svg"}
