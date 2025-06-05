@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -91,7 +90,6 @@
   --sidebar-accent-foreground: var(--color-custom-100);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
-  --font-montserrat: 'Montserrat', sans-serif;
 }
 
 .dark {
