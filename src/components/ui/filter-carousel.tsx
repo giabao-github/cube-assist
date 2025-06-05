@@ -78,10 +78,10 @@ export const FilterCarousel = ({
                 <CarouselItem
                   key={item.id}
                   onClick={() => onSelect(item.id)}
-                  className="pl-3 basis-auto relative cursor-pointer group"
+                  className="relative pl-3 basis-auto group"
                 >
                   {/* Desktop image */}
-                  <div className="hidden md:block relative overflow-hidden rounded-md">
+                  <div className="relative hidden overflow-hidden rounded-md md:block">
                     <Image
                       src={item.image}
                       alt={item.title ?? ""}
@@ -91,16 +91,16 @@ export const FilterCarousel = ({
                         "object-cover transition-transform duration-300 select-none",
                       )}
                     />
-                    <div className="absolute space-y-0 text-white md:space-y-1 bottom-6 left-6 right-6 bg-neutral-100/90 w-fit p-4 rounded-lg">
-                      <h3 className="text-base text-gray-800 font-bold md:text-lg">
+                    <div className="absolute p-4 space-y-0 text-white rounded-lg md:space-y-1 bottom-6 left-6 right-6 bg-neutral-100/90 w-fit">
+                      <h3 className="text-base font-bold text-gray-800 md:text-lg">
                         {item.title}
                       </h3>
-                      <p className="text-xs text-gray-800 leading-tight md:leading-relaxed md:text-sm">
+                      <p className="text-xs leading-tight text-gray-800 md:leading-relaxed md:text-sm">
                         {item.description}
                       </p>
                     </div>
                   </div>
-                  <div className="md:hidden relative overflow-hidden rounded-md">
+                  <div className="relative overflow-hidden rounded-md md:hidden">
                     {/* Mobile image */}
                     <Image
                       src={item.image}
@@ -116,8 +116,8 @@ export const FilterCarousel = ({
               );
             })}
         </CarouselContent>
-        <CarouselPrevious className="cursor-pointer ml-3 md:ml-2 left-0 z-10 bg-white/50 text-black/70 hover:bg-white hover:text-black active:bg-white/70 active:text-black/70" />
-        <CarouselNext className="cursor-pointer mr-3 md:mr-2 right-0 z-10 bg-white/50 text-black/70 hover:bg-white hover:text-black active:bg-white/70 active:text-black/70" />
+        <CarouselPrevious className="left-0 z-10 ml-3 md:ml-2 bg-white/50 text-black/70 hover:bg-white hover:text-black active:bg-white/70 active:text-black/70" />
+        <CarouselNext className="right-0 z-10 mr-3 md:mr-2 bg-white/50 text-black/70 hover:bg-white hover:text-black active:bg-white/70 active:text-black/70" />
       </Carousel>
     </div>
   );

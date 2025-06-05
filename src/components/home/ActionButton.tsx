@@ -16,7 +16,7 @@ const ActionButton: FC<ActionButtonProps> = ({
   className = "",
 }) => {
   const baseClasses =
-    "rounded-full font-semibold transition-colors transform hover:scale-[102%] active:scale-[102%] cursor-pointer";
+    "rounded-full font-semibold transition-colors transform hover:scale-[102%] active:scale-[102%]";
   const variants = {
     primary:
       "bg-custom-600 hover:bg-custom-700 active:bg-custom-700/85 text-white",

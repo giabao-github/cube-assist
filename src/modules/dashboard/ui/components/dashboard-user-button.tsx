@@ -54,7 +54,7 @@ export const DashboardUserButton = () => {
   if (isMobile) {
     return (
       <Drawer>
-        <DrawerTrigger className="flex items-center justify-between w-full px-2 py-3 space-x-2 overflow-hidden border rounded-lg cursor-pointer border-border/10 bg-white/10 hover:bg-white/20">
+        <DrawerTrigger className="flex items-center justify-between w-full px-2 py-3 space-x-2 overflow-hidden border rounded-lg border-border/10 bg-white/10 hover:bg-white/20">
           <UserAvatar user={data.user} />
           <div className="flex flex-col gap-0.5 text-left overflow-hidden flex-1 min-w-0">
             <p className="w-full text-sm font-medium truncate">
@@ -86,7 +86,7 @@ export const DashboardUserButton = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center justify-between w-full px-2 py-3 space-x-2 overflow-hidden border rounded-lg cursor-pointer border-border/10 bg-white/10 hover:bg-white/20">
+      <DropdownMenuTrigger className="flex items-center justify-between w-full px-2 py-3 space-x-2 overflow-hidden border rounded-lg border-border/10 bg-white/10 hover:bg-white/20">
         <UserAvatar user={data.user} />
         <div className="flex flex-col gap-0.5 text-left overflow-hidden flex-1 min-w-0">
           <p className="w-full text-sm font-medium truncate h-fit">

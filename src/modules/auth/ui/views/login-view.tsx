@@ -86,12 +86,12 @@ export const LoginView = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card className="overflow-hidden p-0">
+      <Card className="p-0 overflow-hidden">
         <CardContent className="grid p-0 md:grid-cols-2">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
               <div className="flex flex-col gap-6">
-                <div className="flex flex-col gap-y-2 mb-4 items-center text-center">
+                <div className="flex flex-col items-center mb-4 text-center gap-y-2">
                   <h1 className="text-2xl font-bold">Welcome back</h1>
                   <p className="text-muted-foreground text-balance">
                     Login to your account
@@ -136,20 +136,16 @@ export const LoginView = () => {
                   />
                 </div>
                 {!!error && (
-                  <Alert className="bg-destructive/10 border-none">
+                  <Alert className="border-none bg-destructive/10">
                     <CircleAlertIcon className="h-4 w-4 !text-destructive" />
                     <AlertTitle>{error}</AlertTitle>
                   </Alert>
                 )}
-                <Button
-                  disabled={pending}
-                  type="submit"
-                  className="w-full cursor-pointer"
-                >
+                <Button disabled={pending} type="submit" className="w-full">
                   Sign in
                 </Button>
-                <div className="relative text-center text-sm after:border-border after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                  <span className="bg-card text-muted-foreground relative z-10 px-2">
+                <div className="relative text-sm text-center after:border-border after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+                  <span className="relative z-10 px-2 bg-card text-muted-foreground">
                     Or continue with
                   </span>
                 </div>
@@ -159,7 +155,7 @@ export const LoginView = () => {
                     onClick={() => onLoginSocial("google")}
                     type="button"
                     variant="outline"
-                    className="w-full cursor-pointer"
+                    className="w-full"
                   >
                     Google
                   </Button>
@@ -168,12 +164,12 @@ export const LoginView = () => {
                     onClick={() => onLoginSocial("github")}
                     type="button"
                     variant="outline"
-                    className="w-full cursor-pointer"
+                    className="w-full"
                   >
                     Github
                   </Button>
                 </div>
-                <div className="text-center text-sm">
+                <div className="text-sm text-center">
                   Don&apos;t have an account?{" "}
                   <Link
                     href="/register"
@@ -185,13 +181,13 @@ export const LoginView = () => {
               </div>
             </form>
           </Form>
-          <div className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-2 items-center justify-center">
+          <div className="relative flex-col items-center justify-center hidden bg-radial from-sidebar-accent to-sidebar md:flex gap-y-2">
             <Image
               src="/logo.svg"
               alt="Logo"
               width={96}
               height={96}
-              className="h-24 w-24"
+              className="w-24 h-24"
             />
             <p className="text-2xl font-semibold text-white">Cube Assist</p>
           </div>
