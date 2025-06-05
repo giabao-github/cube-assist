@@ -44,9 +44,11 @@ export const ErrorState = ({
           </p>
 
           {/* Error code */}
-          <p className="max-w-sm text-sm leading-relaxed text-rose-500">
-            Error code: {code}
-          </p>
+          {code && (
+            <p className="max-w-sm text-sm leading-relaxed text-rose-500">
+              Error code: {code}
+            </p>
+          )}
 
           {/* Retry Button */}
           {showRetry && (
