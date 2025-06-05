@@ -1,11 +1,10 @@
 import CarouselIndicators from "@/components/home/CarouselIndicators";
 import SectionHeader from "@/components/home/SectionHeader";
+import { FilterCarousel } from "@/components/ui/filter-carousel";
 
 import { useCarousel } from "@/hooks/use-carousel";
 
 import { slides } from "@/advertisements";
-
-import { FilterCarousel } from "../ui/filter-carousel";
 
 const InteractiveCarousel = () => {
   const { currentIndex, setCurrentIndex, goTo: goToSlide } = useCarousel();
@@ -16,12 +15,12 @@ const InteractiveCarousel = () => {
         <SectionHeader
           title="See Cube Assist in Action"
           subtitle="Explore our platform's powerful features through interactive screenshots and real use cases"
-          className="pb-12 space-y-6 md:pb-16 px-2 md:px-0"
+          className="px-2 pb-12 space-y-6 md:pb-16 md:px-0"
         />
 
-        <div className="max-w-6xl mx-auto flex justify-center">
+        <div className="flex justify-center max-w-6xl mx-auto">
           <div className="relative md:w-2/3">
-            <div className="overflow-hidden shadow-md md:shadow-xl border border-gray-200 rounded-2xl">
+            <div className="overflow-hidden border border-gray-200 shadow-md md:shadow-xl rounded-2xl">
               <FilterCarousel
                 onSelect={(value) => setCurrentIndex(Number(value))}
                 data={slides.map((slide) => ({

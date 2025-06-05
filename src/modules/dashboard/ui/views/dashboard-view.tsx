@@ -23,8 +23,8 @@ export const DashboardView = () => {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
-      <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto gap-y-8">
+    <main className="h-screen flex items-center justify-center p-4">
+      <div className="flex flex-col items-center justify-center max-w-md mx-auto gap-y-8">
         <h1 className="text-xl font-semibold text-center">
           Hello, {session.user.name}!
         </h1>

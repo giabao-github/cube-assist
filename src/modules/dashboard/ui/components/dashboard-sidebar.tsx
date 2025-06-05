@@ -48,7 +48,7 @@ export const DashboardSidebar = () => {
   const pathname = usePathname();
 
   return (
-    <Sidebar className="w-72" collapsible="icon">
+    <Sidebar>
       <SidebarHeader className="text-sidebar-accent-foreground">
         <Link
           href="/"

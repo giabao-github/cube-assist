@@ -15,18 +15,18 @@ const CTASection = () => (
           </p>
         </div>
 
-        <div className="flex flex-row justify-center gap-6">
+        <div className="flex flex-col justify-center gap-6 md:flex-row">
           <ActionButton
             onClick={() => {}}
             variant="cta"
-            className="px-8 py-6 text-base md:text-lg"
+            className="px-8 py-6 text-lg"
           >
             Start Free Trial
           </ActionButton>
           <ActionButton
             onClick={() => {}}
             variant="outline"
-            className="px-8 py-6 text-base md:text-lg"
+            className="px-8 py-6 text-lg"
           >
             Schedule Demo
           </ActionButton>

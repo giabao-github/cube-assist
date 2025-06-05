@@ -86,7 +86,6 @@ export const LoginView = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <title>Sign in - Cube Assist</title>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <Form {...form}>
