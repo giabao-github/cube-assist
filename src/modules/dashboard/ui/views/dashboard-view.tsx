@@ -2,7 +2,7 @@
 
 import { toast } from "sonner";
 
-import { LoadingAnimation } from "@/components/loading-animation";
+import { LoadingState } from "@/components/loading-state";
 import { Button } from "@/components/ui/button";
 
 import { authClient } from "@/lib/auth-client";
@@ -12,7 +12,7 @@ export const DashboardView = () => {
   const { data: session, isPending } = authClient.useSession();
 
   if (isPending) {
-    return <LoadingAnimation loadingText="Loading dashboard" />;
+    return <LoadingState loadingText="Loading dashboard" />;
   }
 
   if (!session) {

@@ -3,7 +3,7 @@
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { ErrorState } from "@/components/error-state";
-import { LoadingAnimation } from "@/components/loading-animation";
+import { LoadingState } from "@/components/loading-state";
 
 import { useTRPC } from "@/trpc/client";
 
@@ -16,7 +16,7 @@ export const AgentsView = () => {
 };
 
 export const AgentsViewLoading = () => {
-  return <LoadingAnimation loadingText="Loading agents" />;
+  return <LoadingState loadingText="Loading agents" />;
 };
 
 export const AgentsViewError = () => {

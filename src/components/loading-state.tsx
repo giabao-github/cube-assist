@@ -2,11 +2,11 @@ import { BsRobot } from "react-icons/bs";
 
 const ANIMATION_DURATION = "1s";
 
-interface DLAProps {
+interface LoadingStateProps {
   loadingText: string;
 }
 
-export const LoadingAnimation = ({ loadingText }: DLAProps) => {
+export const LoadingState = ({ loadingText }: LoadingStateProps) => {
   return (
     <div className="flex flex-col items-center justify-center my-auto gap-y-6">
       {/* Spinner */}
