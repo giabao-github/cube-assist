@@ -25,8 +25,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 import { authClient } from "@/lib/auth-client";
 import { UserAvatar } from "@/modules/dashboard/ui/components/dashboard-user-avatar";
-
-import { DUBSkeleton } from "./dub-skeleton";
+import { DUBSkeleton } from "@/modules/dashboard/ui/components/dub-skeleton";
 
 const lexend = Lexend_Deca({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],

@@ -13,9 +13,10 @@ import { useTRPC } from "@/trpc/client";
 export const DashboardView = () => {
   const trpc = useTRPC();
   const { data: session, isPending } = authClient.useSession();
-  const { data } = useQuery(
-    trpc.hello.queryOptions({ text: session?.user.name || "" }),
-  );
+  const { data, error, isError } = useQuery({
+    ...trpc.hello.queryOptions({ text: session?.user.name || "" }),
+    enabled: !isPending && !!session,
+  });
 
   if (isPending) {
     return <DashboardLoadingAnimation />;
@@ -25,10 +26,23 @@ export const DashboardView = () => {
     return <HomeView />;
   }
 
+  if (isError) {
+    return (
+      <main className="flex items-center justify-center p-4 my-auto">
+        <div className="text-center">
+          <p className="text-rose-500">Failed to load message</p>
+          <p className="text-sm text-gray-500">{error?.message}</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="flex items-center justify-center p-4 my-auto">
       <div className="flex flex-col items-center justify-center w-full max-w-md gap-y-8">
-        <h1 className="text-xl font-semibold text-center">{data?.greeting}</h1>
+        <h1 className="text-xl font-semibold text-center">
+          {data?.greeting || `Hello, ${session.user.name}!`}
+        </h1>
         <Button
           type="button"
           onClick={async () => {

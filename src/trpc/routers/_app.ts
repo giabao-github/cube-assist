@@ -6,12 +6,12 @@ export const appRouter = createTRPCRouter({
   hello: baseProcedure
     .input(
       z.object({
-        text: z.string(),
+        text: z.string().min(0).max(100),
       }),
     )
     .query((opts) => {
       return {
-        greeting: `Hello ${opts.input.text}!`,
+        greeting: `Hello, ${opts.input.text}!`,
       };
     }),
 });

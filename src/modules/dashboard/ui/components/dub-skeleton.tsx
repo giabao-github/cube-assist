@@ -4,7 +4,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export const DUBSkeleton = () => {
   return (
-    <div className="flex items-center justify-between w-full px-2 py-3 space-x-2 overflow-hidden border rounded-lg border-border/10 bg-white/10">
+    <div
+      className="flex items-center justify-between w-full px-2 py-3 space-x-2 overflow-hidden border rounded-lg border-border/10 bg-white/10"
+      role="status"
+      aria-label="Loading user information"
+    >
       {/* User Avatar Skeleton */}
       <Skeleton className="w-8 h-8 rounded-full" />
 

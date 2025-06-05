@@ -31,8 +31,13 @@ function getUrl() {
     if (process.env.VERCEL_URL) {
       return `https://${process.env.VERCEL_URL}`;
     }
-    return process.env.NEXT_PUBLIC_APP_URL;
+    return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   })();
+
+  if (!base && typeof window === "undefined") {
+    console.warn("No base URL configured for server-side tRPC calls");
+  }
+
   return `${base}/api/trpc`;
 }
 export function TRPCReactProvider(

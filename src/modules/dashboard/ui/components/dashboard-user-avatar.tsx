@@ -10,7 +10,7 @@ export const UserAvatar = ({
 }) =>
   user.image ? (
     <Avatar className="select-none">
-      <AvatarImage src={user.image} alt={user.name || "User avatar"} />
+      <AvatarImage src={user.image} alt={user.name || "Anonymous User"} />
     </Avatar>
   ) : (
     <GeneratedAvatar
