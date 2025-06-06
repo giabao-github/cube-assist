@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 
-import CTASection from "@/components/home/CTASection";
-import CapabilitiesSection from "@/components/home/CapabilitiesSection";
-import Footer from "@/components/home/Footer";
-import Header from "@/components/home/Header";
-import HeroSection from "@/components/home/HeroSection";
-import InteractiveCarousel from "@/components/home/InteractiveCarousel";
-import RunningBanner from "@/components/home/RunningBanner";
-import TestimonialsSection from "@/components/home/TestimonialsSection";
+import CapabilitiesSection from "@/components/home/capabilities-section";
+import CTASection from "@/components/home/cta-section";
+import Footer from "@/components/home/footer";
+import Header from "@/components/home/header";
+import HeroSection from "@/components/home/hero-section";
+import InteractiveCarousel from "@/components/home/interactive-carousel";
+import RunningBanner from "@/components/home/running-banner";
+import TestimonialsSection from "@/components/home/testimonials-section";
 
 const HomeView = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

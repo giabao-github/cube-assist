@@ -29,8 +29,10 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     }
 
     try {
+      const controller = new AbortController();
       const response = await fetch(
         `/api/search?q=${encodeURIComponent(query || "")}`,
+        { signal: controller.signal },
       );
 
       if (!response.ok) {
@@ -39,23 +41,17 @@ export const useSearchStore = create<SearchState>((set, get) => ({
 
       const data = await response.json();
 
+      const lowerQuery = query.toLowerCase();
+
       // Sort suggestions to prioritize those starting with the query
       const sortedSuggestions: string[] = data.suggestions.sort(
         (a: string, b: string) => {
           if (!query.trim()) {
             return 0;
           }
-
-          const aStartsWith = a.toLowerCase().startsWith(query.toLowerCase());
-          const bStartsWith = b.toLowerCase().startsWith(query.toLowerCase());
-
-          if (aStartsWith && !bStartsWith) {
-            return -1;
-          }
-          if (!aStartsWith && bStartsWith) {
-            return 1;
-          }
-          return 0;
+          const aStarts = a.toLowerCase().startsWith(lowerQuery);
+          const bStarts = b.toLowerCase().startsWith(lowerQuery);
+          return Number(bStarts) - Number(aStarts);
         },
       );
 

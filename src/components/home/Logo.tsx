@@ -33,11 +33,11 @@ const Logo: FC<LogoProps> = ({
           className="h-7 w-7"
         />
       </div>
-      <span
+      <div
         className={`text-xl font-extrabold tracking-[0.01em] select-none focus-visible:outline-none ${isWhite ? "text-white" : "text-custom-900"} ${isUppercase ? "uppercase" : ""}`}
       >
         Cube Assist
-      </span>
+      </div>
     </div>
   );
 };

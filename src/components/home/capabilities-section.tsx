@@ -1,4 +1,4 @@
-import SectionHeader from "@/components/home/SectionHeader";
+import SectionHeader from "@/components/home/section-header";
 
 import { capabilities } from "@/advertisements";
 

@@ -38,16 +38,20 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q");
 
-  // Simulate API delay
-  // await new Promise((resolve) =>
-  //   setTimeout(resolve, 100 + Math.random() * 200),
-  // );
-
   // If no query, return all suggestions
   if (!query) {
     return NextResponse.json({
       suggestions: mockSuggestions.slice(0, 8),
       query: "",
+    });
+  }
+
+  // Validate query length
+  if (query.length > 100) {
+    return NextResponse.json({
+      suggestions: [],
+      query: query,
+      error: "Search input is limited to 100 characters",
     });
   }
 

@@ -107,10 +107,17 @@ export const SearchBar = () => {
     }
   }, []);
 
+  const handleClickOutsideRef = useRef<((event: MouseEvent) => void) | null>(
+    null,
+  );
+  handleClickOutsideRef.current = handleClickOutside;
+
   useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [handleClickOutside]);
+    const handler = (event: MouseEvent) =>
+      handleClickOutsideRef.current?.(event);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const resetSelectionState = useCallback(() => {
     justSelectedRef.current = false;
@@ -235,6 +242,16 @@ export const SearchBar = () => {
     }
   }, [selectedIndex]);
 
+  const queryParts = query.trim().split(/\s+/).filter(Boolean);
+  const regexPattern = queryParts
+    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("\\s+");
+
+  const regex = useMemo(
+    () => new RegExp(`(${regexPattern})`, "i"),
+    [regexPattern],
+  );
+
   const highlightedSuggestions = useMemo(() => {
     if (!query.trim()) {
       return suggestions.map((suggestion) => [
@@ -246,19 +263,12 @@ export const SearchBar = () => {
     }
 
     return suggestions.map((suggestion) => {
-      const queryParts = query.trim().split(/\s+/).filter(Boolean);
-      const regexPattern = queryParts
-        .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-        .join("\\s+");
-
-      const regex = new RegExp(`(${regexPattern})`, "i");
-
       return suggestion.split(regex).map((part) => ({
         text: part,
         isMatch: regex.test(part),
       }));
     });
-  }, [suggestions, query]);
+  }, [query, suggestions, regex]);
 
   const shouldShowNoResults =
     !isLoading && suggestions.length === 0 && query.trim() && isFocused;
@@ -266,7 +276,7 @@ export const SearchBar = () => {
   return (
     <div
       ref={containerRef}
-      className={`font-medium relative w-4/5 md:w-1/3 ${quicksand.className}`}
+      className={cn("font-medium relative w-4/5 md:w-1/3", quicksand.className)}
     >
       <div className="relative flex flex-row">
         <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
@@ -284,17 +294,25 @@ export const SearchBar = () => {
           ref={inputRef}
           type="text"
           value={query}
+          maxLength={100}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
           onClick={handleClick}
+          role="combobox"
+          aria-label="Search for meetings or agents"
+          aria-autocomplete="list"
+          aria-expanded={isOpen}
+          aria-controls="search-suggestions"
+          aria-activedescendant={
+            selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined
+          }
           placeholder={
             isMobile
               ? "Search meeting or agent"
               : "Search for a meeting or an agent"
           }
-          className="relative py-5 pl-12 pr-12 text-sm md:text-base transition-all duration-200 border border-gray-200 rounded-full shadow-lg focus:!outline-none focus:!ring-1 focus:border-transparent placeholder:text-gray-400 placeholder:text-sm placeholder:md:text-base"
-          style={{ backgroundColor: "transparent" }}
+          className="relative py-5 pl-12 pr-12 text-sm md:text-base transition-all duration-200 border border-gray-200 rounded-full shadow-lg focus:!outline-none focus:!ring-1 focus:border-transparent placeholder:text-gray-400 placeholder:text-sm placeholder:md:text-base bg-transparent"
         />
 
         <div className="absolute inset-y-0 right-0 z-10 flex items-center gap-2 pr-4">
@@ -333,35 +351,38 @@ export const SearchBar = () => {
                 <div className="px-4 pt-3 pb-2 text-sm text-gray-500 cursor-default">
                   Trending searches
                 </div>
-                <ul ref={listRef} className="overflow-y-auto max-h-80">
+                <ul
+                  ref={listRef}
+                  id="search-suggestions"
+                  className="overflow-y-auto max-h-80"
+                >
                   {suggestions.map((suggestion, index) => (
-                    <li key={`${suggestion}-${index}`}>
-                      <button
-                        onClick={() => handleSelectSuggestion(suggestion)}
-                        className={cn(
-                          "w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-b-0",
-                          selectedIndex === index && "bg-blue-50 text-blue-700",
-                        )}
-                      >
-                        <TrendingUp className="flex-shrink-0 w-4 h-4 text-gray-400" />
-                        <span className="truncate">
-                          {highlightedSuggestions[index]?.map((part, i) => (
-                            <span
-                              key={i}
-                              className={part.isMatch ? "font-bold" : ""}
-                            >
-                              {part.text}
-                            </span>
-                          )) || suggestion}
-                        </span>
-                      </button>
+                    <li
+                      key={`${suggestion}-${index}`}
+                      id={`suggestion-${index}`}
+                      className={cn(
+                        "w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-b-0 cursor-pointer",
+                        selectedIndex === index && "bg-blue-50 text-blue-700",
+                      )}
+                    >
+                      <TrendingUp className="flex-shrink-0 w-4 h-4 text-gray-400" />
+                      <span className="truncate">
+                        {highlightedSuggestions[index]?.map((part, i) => (
+                          <span
+                            key={i}
+                            className={part.isMatch ? "font-bold" : ""}
+                          >
+                            {part.text}
+                          </span>
+                        )) || suggestion}
+                      </span>
                     </li>
                   ))}
                 </ul>
               </>
             )}
 
-            {shouldShowNoResults && (
+            {shouldShowNoResults && !error && (
               <div className="flex flex-row items-center justify-center p-5 text-gray-500 gap-x-2">
                 <Search className="text-gray-400 size-5" />
                 <p className="text-sm">{`No suggestions found for "${query.trim()}"`}</p>

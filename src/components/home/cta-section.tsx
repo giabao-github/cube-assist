@@ -1,4 +1,4 @@
-import ActionButton from "@/components/home/ActionButton";
+import ActionButton from "@/components/home/action-button";
 
 const CTASection = () => (
   <section className="relative py-16 overflow-hidden sm:py-20 bg-gradient-to-r from-custom-600 to-custom-900">

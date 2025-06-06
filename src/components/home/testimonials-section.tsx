@@ -3,8 +3,8 @@ import { useCallback, useState } from "react";
 import { Star } from "lucide-react";
 import Image from "next/image";
 
-import CarouselIndicators from "@/components/home/CarouselIndicators";
-import SectionHeader from "@/components/home/SectionHeader";
+import CarouselIndicators from "@/components/home/carousel-indicators";
+import SectionHeader from "@/components/home/section-header";
 
 import { useCarousel } from "@/hooks/use-carousel";
 
