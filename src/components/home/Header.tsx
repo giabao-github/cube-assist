@@ -5,9 +5,9 @@ import { FC, useEffect, useMemo } from "react";
 import { Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
-import ActionButton from "@/components/home/ActionButton";
-import Logo from "@/components/home/Logo";
-import NavLink from "@/components/home/NavLink";
+import ActionButton from "@/components/home/action-button";
+import Logo from "@/components/home/logo";
+import NavLink from "@/components/home/nav-link";
 import { Button } from "@/components/ui/button";
 
 import { authClient } from "@/lib/auth-client";

@@ -1,5 +1,5 @@
-import CarouselIndicators from "@/components/home/CarouselIndicators";
-import SectionHeader from "@/components/home/SectionHeader";
+import CarouselIndicators from "@/components/home/carousel-indicators";
+import SectionHeader from "@/components/home/section-header";
 import { FilterCarousel } from "@/components/ui/filter-carousel";
 
 import { useCarousel } from "@/hooks/use-carousel";

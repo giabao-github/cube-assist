@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import Logo from "@/components/home/Logo";
+import Logo from "@/components/home/logo";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 

@@ -1,6 +1,6 @@
 import { Bot } from "lucide-react";
 
-import ActionButton from "@/components/home/ActionButton";
+import ActionButton from "@/components/home/action-button";
 
 const HeroSection = () => (
   <section className="relative py-16 overflow-hidden md:py-32">

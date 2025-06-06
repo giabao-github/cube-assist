@@ -1,7 +1,7 @@
 import { ClientOptions, InferUserFromClient } from "better-auth";
 
-import { GeneratedAvatar } from "@/components/generated-avatar";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
 export const UserAvatar = ({
   user,

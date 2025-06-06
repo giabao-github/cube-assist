@@ -2,14 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-import {
-  PanelLeftCloseIcon,
-  PanelLeftOpenIcon,
-  SearchIcon,
-} from "lucide-react";
+import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
+import { SearchBar } from "@/components/utils/search-bar";
 
 import { DashboardCommand } from "@/modules/dashboard/ui/components/dashboard-command";
 
@@ -32,7 +29,7 @@ export const DashboardNavbar = () => {
   return (
     <>
       <DashboardCommand open={commandOpen} setOpen={setCommandOpen} />
-      <nav className="flex items-center px-4 py-3 border-b gap-x-2 bg-background">
+      <nav className="flex items-center px-4 py-3 border-b gap-x-2 md:gap-x-4 bg-background">
         <Button className="size-9" variant="outline" onClick={toggleSidebar}>
           {state === "collapsed" || isMobile ? (
             <PanelLeftOpenIcon className="size-4" />
@@ -40,7 +37,7 @@ export const DashboardNavbar = () => {
             <PanelLeftCloseIcon className="size-4" />
           )}
         </Button>
-        <Button
+        {/* <Button
           onClick={() => setCommandOpen((open) => !open)}
           variant="outline"
           size="sm"
@@ -51,7 +48,8 @@ export const DashboardNavbar = () => {
           <kbd className="inline-flex items-center h-5 gap-1 ml-auto border rounded pointer-events-none select-none bg-muted px-1.5 text-[12px] font-medium text-muted-foreground">
             <span className="text-xs">&#8984;</span>K
           </kbd>
-        </Button>
+        </Button> */}
+        <SearchBar />
       </nav>
     </>
   );

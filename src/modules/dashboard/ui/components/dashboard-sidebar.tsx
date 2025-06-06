@@ -2,7 +2,7 @@
 
 import { BsRobot } from "react-icons/bs";
 
-import { StarIcon, VideoIcon } from "lucide-react";
+import { LucideLayoutDashboard, StarIcon, VideoIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,6 +24,11 @@ import { cn } from "@/lib/utils";
 import { DashboardUserButton } from "@/modules/dashboard/ui/components/dashboard-user-button";
 
 const firstSection = [
+  {
+    icon: LucideLayoutDashboard,
+    label: "Dashboard",
+    href: "/dashboard",
+  },
   {
     icon: VideoIcon,
     label: "Meetings",
@@ -52,7 +57,7 @@ export const DashboardSidebar = () => {
       <SidebarHeader className="text-sidebar-accent-foreground">
         <Link
           href="/"
-          className="flex items-center gap-3 px-2 pt-4 select-none"
+          className="flex items-center gap-3 px-2 mt-4 select-none w-fit focus-visible:outline-none"
         >
           <Image src="/logo.svg" alt="Cube Assist" height={32} width={32} />
           <p className="text-xl font-semibold">Cube Assist</p>
