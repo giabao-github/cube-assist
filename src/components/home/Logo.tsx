@@ -22,7 +22,7 @@ const Logo: FC<LogoProps> = ({
     <div className={`flex items-center space-x-3 ${className}`}>
       <div
         onClick={() => router.push("/")}
-        className="flex items-center justify-center w-10 h-10 cursor-pointer select-none bg-gradient-to-br from-custom-500 to-custom-900 rounded-xl"
+        className="flex items-center justify-center w-10 h-10 cursor-pointer select-none bg-gradient-to-br from-custom-500 to-custom-900 rounded-xl focus-visible:outline-none"
       >
         <Image
           src={isWhite ? "/white-logo.svg" : "/logo.svg"}
@@ -34,7 +34,7 @@ const Logo: FC<LogoProps> = ({
         />
       </div>
       <span
-        className={`text-xl font-extrabold tracking-[0.01em] select-none ${isWhite ? "text-white" : "text-custom-900"} ${isUppercase ? "uppercase" : ""}`}
+        className={`text-xl font-extrabold tracking-[0.01em] select-none focus-visible:outline-none ${isWhite ? "text-white" : "text-custom-900"} ${isUppercase ? "uppercase" : ""}`}
       >
         Cube Assist
       </span>
