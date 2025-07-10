@@ -14,7 +14,7 @@ const Footer = () => {
       <div className="container px-4 mx-auto sm:px-6 lg:px-8">
         <div className={`${isMobile ? "space-y-24" : "flex justify-between"}`}>
           {/* Brand Section */}
-          <div className={`${isMobile ? "" : "max-w-sm"} space-y-6`}>
+          <div className={`${isMobile ? "":"max-w-sm space-y-6"}`}>
             <Logo isWhite className="justify-center sm:justify-start" />
             <p className="leading-relaxed text-center text-gray-300 sm:text-left">
               Empowering businesses with intelligent AI agents that work around

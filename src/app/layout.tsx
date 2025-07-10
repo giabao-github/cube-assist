@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
+
+import { poppins } from "@/config/fonts";
 
 import { TRPCReactProvider } from "@/trpc/client";
 
 import "./globals.css";
-
-const poppins = Poppins({
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  subsets: ["latin", "latin-ext"],
-});
 
 export const metadata: Metadata = {
   title: "Cube Assist - your smart SaaS AI agent",
