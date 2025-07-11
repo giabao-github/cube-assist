@@ -3,6 +3,9 @@ import { nanoid } from "nanoid";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
+  role: text("role")
+    .notNull()
+    .$defaultFn(() => "user"),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified")

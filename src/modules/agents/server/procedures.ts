@@ -34,7 +34,13 @@ export const agentsRouter = createTRPCRouter({
   }),
 
   // Admins or devs access only
-  getAll: protectedProcedure.query(async () => {
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.auth.role !== "admin" && ctx.auth.role !== "dev") {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Admin or developer access is required",
+      });
+    }
     const data = await db.select().from(agents);
     return data;
   }),

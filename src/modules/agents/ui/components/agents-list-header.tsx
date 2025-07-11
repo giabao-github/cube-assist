@@ -6,7 +6,7 @@ import { PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { NewAgentDialog } from "./new-agent-dialog";
+import { NewAgentDialog } from "@/modules/agents/ui/components/new-agent-dialog";
 
 export const AgentsListHeader = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
