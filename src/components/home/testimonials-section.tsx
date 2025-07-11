@@ -43,15 +43,15 @@ const TestimonialsSection = () => {
   }, [touchStart, touchEnd, currentIndex, goTo]);
 
   return (
-    <section className="py-16 bg-white sm:py-20">
-      <div className="container px-4 mx-auto sm:px-6 lg:px-8">
+    <section className="py-16 bg-white md:py-20">
+      <div className="container px-4 mx-auto md:px-6 lg:px-8">
         <SectionHeader
           title="What Our Customers Say"
           subtitle="Join thousands of satisfied customers who have transformed their business with Cube Assist"
-          className="pb-12 space-y-6 md:pb-16 px-2 md:px-0"
+          className="px-2 pb-12 space-y-6 md:pb-16 md:px-0"
         />
 
-        <div className="relative max-w-4xl mx-auto">
+        <div className="relative mx-auto max-w-4xl">
           <div className="overflow-hidden">
             <div
               className="flex transition-transform duration-500 ease-out"
@@ -62,7 +62,7 @@ const TestimonialsSection = () => {
             >
               {testimonials.map((testimonial, index) => (
                 <div key={index} className="flex-shrink-0 w-full">
-                  <div className="p-6 space-y-6 text-center sm:p-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl">
+                  <div className="p-6 space-y-6 text-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl md:p-8">
                     <div className="flex justify-center space-x-1">
                       {Array.from({ length: testimonial.rating }, (_, i) => (
                         <Star
@@ -71,16 +71,16 @@ const TestimonialsSection = () => {
                         />
                       ))}
                     </div>
-                    <blockquote className="text-base italic leading-relaxed text-gray-800 md:text-lg sm:text-xl">
+                    <blockquote className="text-base italic leading-relaxed text-gray-800 md:text-lg xl:text-xl">
                       {`"${testimonial.content}"`}
                     </blockquote>
-                    <div className="flex items-center justify-center space-x-4">
+                    <div className="flex justify-center items-center space-x-4">
                       <Image
                         src={testimonial.avatar || "/placeholder.svg"}
                         alt={testimonial.name}
                         width={48}
                         height={48}
-                        className="w-12 h-12 border-2 border-white rounded-full shadow-md"
+                        className="w-12 h-12 rounded-full border-2 border-white shadow-md"
                       />
                       <div className="space-y-1 text-left">
                         <div className="font-semibold text-gray-900">

@@ -12,3 +12,6 @@ export const chunkArray = <T>(arr: T[], chunks: number): T[][] => {
   });
   return result;
 };
+
+export const normalizeInput = (name: string) =>
+  name.trim().replace(/\s+/g, " ");

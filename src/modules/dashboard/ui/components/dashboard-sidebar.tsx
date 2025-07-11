@@ -56,8 +56,10 @@ export const DashboardSidebar = () => {
   const pathname = usePathname();
 
   return (
-    <Sidebar className={lexend.className}>
-      <SidebarHeader className="text-sidebar-accent-foreground">
+    <Sidebar>
+      <SidebarHeader
+        className={cn("text-sidebar-accent-foreground", lexend.className)}
+      >
         <Link
           href="/"
           className="flex gap-3 items-center px-2 mt-4 select-none w-fit focus-visible:outline-none"
@@ -69,7 +71,7 @@ export const DashboardSidebar = () => {
       <div className="p-4">
         <Separator className="opacity-20" />
       </div>
-      <SidebarContent>
+      <SidebarContent className={lexend.className}>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2 select-none">

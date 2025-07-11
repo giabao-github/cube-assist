@@ -1,7 +1,11 @@
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -18,8 +22,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
-import { agentsInsertSchema } from "@/modules/agents/schemas";
+import { normalizeInput } from "@/lib/utils";
+
 import { AgentGetOne } from "@/modules/agents/types";
+import { agentsInsertSchema } from "@/modules/agents/zod-schemas";
 
 import { useTRPC } from "@/trpc/client";
 
@@ -36,13 +42,42 @@ export const AgentForm = ({
 }: AgentFormProps) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const { data } = useSuspenseQuery(trpc.agents.getMany.queryOptions());
+
+  const createAgentFormSchema = (
+    existingAgents: typeof data,
+    editingAgentId?: string,
+  ) => {
+    return agentsInsertSchema.refine(
+      (values) => {
+        // Skip validation if we're editing the same agent
+        if (editingAgentId && existingAgents) {
+          const editingAgent = existingAgents.find(
+            (agent) => agent.id === editingAgentId,
+          );
+          if (editingAgent && editingAgent.name === values.name) {
+            return true;
+          }
+        }
+
+        const nameExists = existingAgents?.some(
+          (agent) => agent.name === values.name,
+        );
+        return !nameExists;
+      },
+      {
+        message: "An agent with this name already exists",
+        path: ["name"],
+      },
+    );
+  };
 
   const createAgent = useMutation(
     trpc.agents.create.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions());
 
-        if (initialValues?.id) {
+        if (isEdit && initialValues?.id) {
           await queryClient.invalidateQueries(
             trpc.agents.getOne.queryOptions({ id: initialValues.id }),
           );
@@ -58,7 +93,7 @@ export const AgentForm = ({
   );
 
   const form = useForm<z.infer<typeof agentsInsertSchema>>({
-    resolver: zodResolver(agentsInsertSchema),
+    resolver: zodResolver(createAgentFormSchema(data, initialValues?.id)),
     defaultValues: {
       name: initialValues?.name ?? "",
       instructions: initialValues?.instructions ?? "",
@@ -68,22 +103,24 @@ export const AgentForm = ({
   const isEdit = !!initialValues?.id;
   const isPending = createAgent.isPending;
 
-  const handleTabKeyPress = (
+  const handleRightArrowKeyPress = (
     event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
     placeholder: string,
     fieldName: keyof z.infer<typeof agentsInsertSchema>,
   ) => {
-    if (event.key === "Tab") {
+    const currentValue = form.getValues(fieldName);
+    if (
+      (currentValue === "" || currentValue.trim() === "") &&
+      event.key === "ArrowRight"
+    ) {
       event.preventDefault();
-      const currentValue = form.getValues(fieldName);
-      if (!currentValue || currentValue.trim() === "") {
-        form.setValue(fieldName, placeholder);
-      }
+      form.setValue(fieldName, placeholder);
     }
   };
 
   const onSubmit = (values: z.infer<typeof agentsInsertSchema>) => {
     if (isEdit) {
+      // TODO: Implement agent update soon
       console.log("TODO: updateAgent");
     } else {
       createAgent.mutate(values);
@@ -98,18 +135,26 @@ export const AgentForm = ({
           variant="botttsNeutral"
           className="border size-16"
         />
+        <div className="block text-xs text-muted-foreground">
+          Tip: Press → (Right Arrow) in an empty field to autofill the
+          placeholder.
+        </div>
         <FormField
           name="name"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel className="mb-1 text-sm md:text-base">Name</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   placeholder="Coding assistant"
+                  className="text-sm md:text-base"
                   onKeyDown={(e) =>
-                    handleTabKeyPress(e, "Coding assistant", "name")
+                    handleRightArrowKeyPress(e, "Coding assistant", "name")
+                  }
+                  onBlur={() =>
+                    form.setValue(field.name, normalizeInput(field.value))
                   }
                 />
               </FormControl>
@@ -122,17 +167,23 @@ export const AgentForm = ({
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Instructions</FormLabel>
+              <FormLabel className="mb-1 text-sm md:text-base">
+                Instructions
+              </FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
                   placeholder="You are a senior coding assistant that can answers technology questions, helps resolving bugs, or generate implementation ideas"
+                  className="text-sm md:text-base"
                   onKeyDown={(e) =>
-                    handleTabKeyPress(
+                    handleRightArrowKeyPress(
                       e,
                       "You are a senior coding assistant that can answers technology questions, helps resolving bugs, or generate implementation ideas",
                       "instructions",
                     )
+                  }
+                  onBlur={() =>
+                    form.setValue(field.name, normalizeInput(field.value))
                   }
                 />
               </FormControl>

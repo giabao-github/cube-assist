@@ -17,6 +17,5 @@
   ],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
-  "singleQuote": false,
-  "semi": true
+  "singleQuote": false
 }

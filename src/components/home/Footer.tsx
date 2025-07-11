@@ -11,16 +11,16 @@ const Footer = () => {
 
   return (
     <footer className="py-16 text-white bg-gray-900">
-      <div className="container px-4 mx-auto sm:px-6 lg:px-8">
+      <div className="container px-4 mx-auto md:px-6 lg:px-8">
         <div className={`${isMobile ? "space-y-24" : "flex justify-between"}`}>
           {/* Brand Section */}
-          <div className={`${isMobile ? "":"max-w-sm space-y-6"}`}>
-            <Logo isWhite className="justify-center sm:justify-start" />
-            <p className="leading-relaxed text-center text-gray-300 sm:text-left">
+          <div className={`${isMobile ? "space-y-6" : "space-y-6 max-w-sm"}`}>
+            <Logo isWhite className="justify-center md:justify-start" />
+            <p className="leading-relaxed text-center text-gray-300 md:text-left">
               Empowering businesses with intelligent AI agents that work around
               the clock.
             </p>
-            <div className="flex justify-center space-x-6 sm:justify-start">
+            <div className="flex justify-center space-x-6 md:justify-start">
               {socialLinks.map(({ icon: Icon, href, label }) => (
                 <Link
                   key={label}

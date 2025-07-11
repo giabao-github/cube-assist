@@ -21,7 +21,7 @@ export const AgentsListHeader = () => {
             onClick={() => setIsDialogOpen(true)}
             className="font-semibold"
           >
-            <PlusIcon strokeWidth={3} />
+            <PlusIcon strokeWidth={3} aria-hidden="true" />
             New Agent
           </Button>
         </div>
