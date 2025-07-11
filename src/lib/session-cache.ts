@@ -18,12 +18,12 @@ export const fetchUserRole = async (userId: string): Promise<string> => {
     .from(user)
     .where(eq(user.id, userId))
     .limit(1)
-    .then((res) => res[0]);
+    .then((res) => res.at(0));
 
   if (!userRecord) {
     throw new TRPCError({
       code: "NOT_FOUND",
-      message: "User is not found",
+      message: `User with ID ${userId} is not found`,
     });
   }
 
