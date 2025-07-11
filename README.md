@@ -45,7 +45,7 @@ Cube Assist is a modern SaaS platform that empowers teams and businesses with in
 
 Create a `.env` file with the following (see `.env.example` if available):
 
-```
+```bash
 DATABASE_URL=...           # Neon Postgres connection string
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
