@@ -10,17 +10,17 @@ const InteractiveCarousel = () => {
   const { currentIndex, setCurrentIndex, goTo: goToSlide } = useCarousel();
 
   return (
-    <section className="py-16 bg-white sm:py-20">
-      <div className="container px-4 mx-auto sm:px-6 lg:px-8">
+    <section className="py-16 bg-white md:py-20">
+      <div className="container px-4 mx-auto md:px-6 lg:px-8">
         <SectionHeader
           title="See Cube Assist in Action"
           subtitle="Explore our platform's powerful features through interactive screenshots and real use cases"
           className="px-2 pb-12 space-y-6 md:pb-16 md:px-0"
         />
 
-        <div className="flex justify-center max-w-6xl mx-auto">
+        <div className="flex justify-center mx-auto max-w-6xl">
           <div className="relative md:w-2/3">
-            <div className="overflow-hidden border border-gray-200 shadow-md md:shadow-xl rounded-2xl">
+            <div className="overflow-hidden rounded-2xl border border-gray-200 shadow-md md:shadow-xl">
               <FilterCarousel
                 onSelect={(value) => setCurrentIndex(Number(value))}
                 data={slides.map((slide) => ({

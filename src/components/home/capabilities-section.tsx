@@ -3,8 +3,8 @@ import SectionHeader from "@/components/home/section-header";
 import { capabilities } from "@/advertisements";
 
 const CapabilitiesSection = () => (
-  <section className="py-16 sm:py-20 bg-gradient-to-br from-gray-50 to-white">
-    <div className="container px-4 mx-auto sm:px-6 lg:px-8">
+  <section className="py-16 bg-gradient-to-br from-gray-50 to-white md:py-20">
+    <div className="container px-4 mx-auto md:px-6 lg:px-8">
       <SectionHeader
         title="Powerful Capabilities"
         subtitle="Discover what makes our AI agent the perfect solution for your business needs"
@@ -15,10 +15,10 @@ const CapabilitiesSection = () => (
         {capabilities.map((capability) => (
           <div
             key={capability.id}
-            className="p-4 transition-all duration-300 bg-white border border-gray-100 shadow-lg md:p-6 group rounded-2xl hover:shadow-xl hover:-translate-y-2"
+            className="p-4 bg-white rounded-2xl border border-gray-100 shadow-lg transition-all duration-300 md:p-6 group hover:shadow-xl hover:-translate-y-2"
           >
             <div className="space-y-4 md:space-y-6">
-              <div className="flex items-center justify-center w-10 h-10 transition-transform duration-300 md:w-16 md:h-16 bg-gradient-to-br from-custom-500 to-custom-900 rounded-xl md:rounded-2xl group-hover:scale-110">
+              <div className="flex justify-center items-center w-10 h-10 bg-gradient-to-br rounded-xl transition-transform duration-300 md:w-16 md:h-16 from-custom-500 to-custom-900 md:rounded-2xl group-hover:scale-110">
                 <div className="text-white">{capability.icon}</div>
               </div>
               <div className="space-y-2 md:space-y-3">

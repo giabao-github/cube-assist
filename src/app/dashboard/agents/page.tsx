@@ -7,11 +7,14 @@ import { headers } from "next/headers";
 import { type RedirectType, redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
+
+import { AgentsListHeader } from "@/modules/agents/ui/components/agents-list-header";
 import {
   AgentsView,
   AgentsViewError,
   AgentsViewLoading,
 } from "@/modules/agents/ui/views/agents-view";
+
 import { getQueryClient, trpc } from "@/trpc/server";
 
 export const metadata: Metadata = {
@@ -36,13 +39,16 @@ const AgentsPage = async () => {
   }
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback={<AgentsViewLoading />}>
-        <ErrorBoundary fallback={<AgentsViewError />}>
-          <AgentsView />
-        </ErrorBoundary>
-      </Suspense>
-    </HydrationBoundary>
+    <>
+      <AgentsListHeader />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Suspense fallback={<AgentsViewLoading />}>
+          <ErrorBoundary fallback={<AgentsViewError />}>
+            <AgentsView />
+          </ErrorBoundary>
+        </Suspense>
+      </HydrationBoundary>
+    </>
   );
 };
 

@@ -11,12 +11,12 @@ const SectionHeader: FC<SectionHeaderProps> = ({
   subtitle,
   className = "",
 }) => (
-  <div className={`text-center space-y-4 ${className}`}>
-    <h2 className="text-3xl font-bold leading-tight text-gray-900 md:text-4xl">
+  <div className={`space-y-4 text-center ${className}`}>
+    <h2 className="text-2xl font-bold leading-tight md:text-3xl lg:text-4xl 2xl:text-5xl">
       {title}
     </h2>
     {subtitle && (
-      <p className="max-w-3xl mx-auto text-base leading-relaxed text-gray-600 md:text-lg">
+      <p className="mx-auto max-w-3xl text-sm leading-relaxed text-gray-600 md:text-lg lg:text-xl">
         {subtitle}
       </p>
     )}

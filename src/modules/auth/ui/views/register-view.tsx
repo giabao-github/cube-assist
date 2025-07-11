@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { FaGithub } from "react-icons/fa6";
+import { FcGoogle } from "react-icons/fc";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlertIcon } from "lucide-react";
@@ -99,12 +101,12 @@ export const RegisterView = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <Card className="p-0 overflow-hidden">
+      <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
               <div className="flex flex-col gap-6">
-                <div className="flex flex-col items-center mb-4 text-center gap-y-2">
+                <div className="flex flex-col gap-y-2 items-center mb-4 text-center">
                   <h1 className="text-2xl font-bold">
                     Hello, nice to meet you
                   </h1>
@@ -208,8 +210,9 @@ export const RegisterView = () => {
                     onClick={() => onLoginSocial("google")}
                     type="button"
                     variant="outline"
-                    className="w-full"
+                    className="gap-x-3 w-full"
                   >
+                    <FcGoogle />
                     Google
                   </Button>
                   <Button
@@ -217,8 +220,9 @@ export const RegisterView = () => {
                     onClick={() => onLoginSocial("github")}
                     type="button"
                     variant="outline"
-                    className="w-full"
+                    className="gap-x-3 w-full"
                   >
+                    <FaGithub />
                     Github
                   </Button>
                 </div>
@@ -234,7 +238,7 @@ export const RegisterView = () => {
               </div>
             </form>
           </Form>
-          <div className="relative flex-col items-center justify-center hidden bg-radial from-sidebar-accent to-sidebar md:flex gap-y-2">
+          <div className="hidden relative flex-col gap-y-2 justify-center items-center bg-radial from-sidebar-accent to-sidebar md:flex">
             <Image
               src="/logo.svg"
               alt="Logo"

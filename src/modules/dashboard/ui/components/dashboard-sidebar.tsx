@@ -20,7 +20,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+import { lexend } from "@/config/fonts";
+
 import { cn } from "@/lib/utils";
+
 import { DashboardUserButton } from "@/modules/dashboard/ui/components/dashboard-user-button";
 
 const firstSection = [
@@ -54,10 +57,12 @@ export const DashboardSidebar = () => {
 
   return (
     <Sidebar>
-      <SidebarHeader className="text-sidebar-accent-foreground">
+      <SidebarHeader
+        className={cn("text-sidebar-accent-foreground", lexend.className)}
+      >
         <Link
           href="/"
-          className="flex items-center gap-3 px-2 mt-4 select-none w-fit focus-visible:outline-none"
+          className="flex gap-3 items-center px-2 mt-4 select-none w-fit focus-visible:outline-none"
         >
           <Image src="/logo.svg" alt="Cube Assist" height={32} width={32} />
           <p className="text-xl font-semibold">Cube Assist</p>
@@ -66,7 +71,7 @@ export const DashboardSidebar = () => {
       <div className="p-4">
         <Separator className="opacity-20" />
       </div>
-      <SidebarContent>
+      <SidebarContent className={lexend.className}>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2 select-none">
