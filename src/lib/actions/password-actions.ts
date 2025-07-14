@@ -141,6 +141,10 @@ export async function testNewPassword(email: string, newPassword: string) {
     console.warn(
       `User (id: ${userResult.user.id}) (${userResult.user.email}) has multiple password accounts`,
     );
+    return {
+      success: false,
+      error: "Multiple password accounts detected. Please contact support.",
+    };
   }
 
   const passwordHash = passwordAccount?.password;

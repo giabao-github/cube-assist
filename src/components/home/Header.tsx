@@ -1,7 +1,6 @@
 "use client";
 
 import { FC, useEffect, useMemo, useRef } from "react";
-import { flushSync } from "react-dom";
 
 import { Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -112,13 +111,7 @@ const Header: FC<HeaderProps> = ({ isMenuOpen, setIsMenuOpen }) => {
             ref={menuButtonRef}
             type="button"
             className="p-2 rounded-lg transition-colors md:hidden hover:bg-custom-900 active:bg-custom-900"
-            onClick={() => {
-              if (setIsMenuOpen) {
-                flushSync(() => {
-                  setIsMenuOpen(!isMenuOpen);
-                });
-              }
-            }}
+            onClick={() => setIsMenuOpen?.(!isMenuOpen)}
           >
             {isMenuOpen ? (
               <X

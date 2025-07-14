@@ -1,11 +1,11 @@
 export const AUTH_FORM_TEXTS = {
   loginWelcome: "Welcome back",
-  loginSubtile: "Please login to continue exploring",
+  loginSubtitle: "Please login to continue exploring",
   emailLogin: "Or login using email",
   alreadyHaveAccount: "Already have an account?",
   loginNow: "Sign in now",
   registerWelcome: "Hi, I'm Cube Assist. Nice to meet you",
-  registerSubtile: "First, let's create your account",
+  registerSubtitle: "First, let's create your account",
   emailRegister: "Or register using email",
   noAccount: "Don't have an account?",
   registerNow: "Sign up now",
@@ -23,7 +23,7 @@ export const BUTTON_TEXTS = {
   login: "Sign in",
   pendingLogin: "Signing in",
   register: "Sign up",
-  pendingRegister: "Signing up",
+  pendingRegister: "Creating your account",
 } as const;
 
 export const ERROR_TEXTS = {

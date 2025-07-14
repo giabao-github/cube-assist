@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 
+import { BUTTON_TEXTS, ERROR_TEXTS } from "@/constants/texts";
+
 import { useGenericForm } from "@/hooks/use-generic-form";
 
 type RegisterForm = UseFormReturn<{
@@ -17,11 +19,11 @@ export const useRegisterForm = (form: RegisterForm, pending: boolean) => {
     form,
     pending,
     fieldNames,
-    buttonText: "Sign up",
-    pendingText: "Creating your account",
-    emptyFieldText: "Please fill out all required fields",
-    multipleErrorText: "Please correct all form errors",
-    singleErrorFallback: "A form error occurred",
+    buttonText: BUTTON_TEXTS.register,
+    pendingText: BUTTON_TEXTS.pendingRegister,
+    emptyFieldText: ERROR_TEXTS.emptyFields,
+    multipleErrorText: ERROR_TEXTS.multipleErrors,
+    singleErrorFallback: ERROR_TEXTS.singleErrorFallback,
   });
 
   // Cross-field validation

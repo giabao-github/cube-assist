@@ -1,5 +1,7 @@
 import { UseFormReturn } from "react-hook-form";
 
+import { BUTTON_TEXTS, ERROR_TEXTS } from "@/constants/texts";
+
 import { useGenericForm } from "@/hooks/use-generic-form";
 
 type LoginForm = UseFormReturn<{
@@ -14,10 +16,10 @@ export const useLoginForm = (form: LoginForm, pending: boolean) => {
     form,
     pending,
     fieldNames,
-    buttonText: "Sign in",
-    pendingText: "Signing in",
-    emptyFieldText: "Please fill out all required fields",
-    multipleErrorText: "Please correct all form errors",
-    singleErrorFallback: "A form error occurred",
+    buttonText: BUTTON_TEXTS.login,
+    pendingText: BUTTON_TEXTS.pendingLogin,
+    emptyFieldText: ERROR_TEXTS.emptyFields,
+    multipleErrorText: ERROR_TEXTS.multipleErrors,
+    singleErrorFallback: ERROR_TEXTS.singleErrorFallback,
   });
 };

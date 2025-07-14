@@ -14,8 +14,8 @@ import { Input } from "@/components/ui/input";
 
 import { LABELS, PLACEHOLDERS } from "@/constants/texts";
 
+import { getInputClassName } from "@/lib/class-names";
 import { sanitizeInputOnBlur } from "@/lib/text-utils";
-import { cn } from "@/lib/utils";
 
 interface LoginFieldsProps {
   form: UseFormReturn<{
@@ -71,12 +71,7 @@ export const LoginFields = ({
                     field.onChange(e.target.value);
                     setChangeCount((prev) => prev + 1);
                   }}
-                  className={cn(
-                    "pl-10 h-10 border-2 transition-all duration-300 font-medium text-sm placeholder:text-secondary/50 md:placeholder:text-gray-400 bg-white/5 border-white/20 text-secondary focus:shadow-primary/10 md:bg-transparent md:text-gray-900",
-                    fieldState.error
-                      ? "border-red-400/50 focus:border-red-400 md:focus:border-red-500 md:shadow-red-100"
-                      : "focus:border-white/50 hover:border-white/30 md:border-gray-300 md:hover:border-gray-400/70 md:focus:border-primary/50",
-                  )}
+                  className={getInputClassName(!!fieldState.error)}
                   onBlur={() => {
                     const sanitized = sanitizeInputOnBlur(field.value, "email");
                     if (sanitized !== field.value) {
@@ -129,12 +124,7 @@ export const LoginFields = ({
                     field.onChange(e.target.value);
                     setChangeCount((prev) => prev + 1);
                   }}
-                  className={cn(
-                    "pl-10 h-10 border-2 transition-all duration-300 font-medium text-sm placeholder:text-secondary/50 md:placeholder:text-gray-400 bg-white/5 border-white/20 text-secondary focus:shadow-primary/10 md:bg-transparent md:text-gray-900",
-                    fieldState.error
-                      ? "border-red-400/50 focus:border-red-400 md:focus:border-red-500 md:shadow-red-100"
-                      : "focus:border-white/50 hover:border-white/30 md:border-gray-300 md:hover:border-gray-400/70 md:focus:border-primary/50",
-                  )}
+                  className={getInputClassName(!!fieldState.error)}
                 />
                 <button
                   type="button"

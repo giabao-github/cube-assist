@@ -1,34 +1,42 @@
+import { Filter } from "bad-words";
 import { z } from "zod";
+import zxcvbn from "zxcvbn";
 
-import { BANNED_WORDS, WEAK_PASSWORDS } from "@/constants/zod";
+import { CUSTOM_PROFANITY_WORDS } from "@/config/profanity-words";
 
-const hasRedundantSpaces = (value: string) => !/^\s+|\s+$|\s{2,}/.test(value);
+const hasRedundantSpaces = (value: string) =>
+  !/^[\s]+|[\s]+$|\s{2,}/.test(value);
+
+const emailValidation = z
+  .string()
+  .trim()
+  .min(1, "Email is required")
+  .email("Invalid email address")
+  .refine(hasRedundantSpaces, "Email must not contain redundant spaces");
+
+const passwordValidation = z
+  .string()
+  .min(1, "Password is required")
+  .min(8, { message: "Password must be at least 8 characters" })
+  .max(32, { message: "Password must be at most 32 characters" });
 
 export const loginSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, "Email is required")
-    .email("Invalid email address")
-    .refine(hasRedundantSpaces, "Email must not contain redundant spaces"),
-  password: z
-    .string()
-    .min(1, "Password is required")
-    .min(8, { message: "Password must be at least 8 characters" })
-    .max(32, { message: "Password must be at most 32 characters" })
-    .refine(
-      (value) => {
-        // At least one letter and one number
-        const hasLetter = /[a-zA-Z]/.test(value);
-        const hasNumber = /\d/.test(value);
-
-        return hasLetter && hasNumber;
-      },
-      {
-        message: "Password must contain both letters and numbers",
-      },
-    ),
+  email: emailValidation,
+  password: passwordValidation.refine(
+    (value) => {
+      // At least one letter and one number
+      const hasLetter = /[a-zA-Z]/.test(value);
+      const hasNumber = /\d/.test(value);
+      return hasLetter && hasNumber;
+    },
+    {
+      message: "Password must contain both letters and numbers",
+    },
+  ),
 });
+
+const profanityFilter = new Filter();
+profanityFilter.addWords(...CUSTOM_PROFANITY_WORDS);
 
 export const registerSchema = z
   .object({
@@ -49,52 +57,22 @@ export const registerSchema = z
           message: "Name contains invalid characters",
         },
       )
-      .refine(
-        (value) => {
-          // Ban offensive or inappropriate words
-          const lowerValue = value.toLowerCase();
-          return !BANNED_WORDS.some((word) => lowerValue.includes(word));
-        },
-        { message: "Name contains inappropriate words" },
-      )
+      .refine((value) => !profanityFilter.isProfane(value), {
+        message: "Name contains inappropriate words",
+      })
       .refine(
         (value) => {
           // Prevent excessive special characters (excluding allowed ones)
           const hasExcessiveSpecialChars =
-            /[!$%^&*()+=|{}[\]:";<>?,./]{3,}/.test(value);
+            /[!$%^&*()+=|{}\[\]:";,<>?\./]{3,}/.test(value);
           return !hasExcessiveSpecialChars;
         },
         { message: "Name contains too many special characters" },
       ),
-    email: z
-      .string()
-      .trim()
-      .min(1, "Email is required")
-      .email("Invalid email address")
-      .refine(hasRedundantSpaces, "Email must not contain redundant spaces"),
-    password: z
-      .string()
-      .min(1, "Password is required")
-      .min(8, { message: "Password must be at least 8 characters" })
-      .max(32, { message: "Password must be at most 32 characters" })
-      .refine(
-        (value) => {
-          // At least one letter and one number
-          const hasLetter = /[a-zA-Z]/.test(value);
-          const hasNumber = /\d/.test(value);
-
-          return hasLetter && hasNumber;
-        },
-        {
-          message: "Password must contain both letters and numbers",
-        },
-      )
-      .refine(
-        (value) => {
-          return !WEAK_PASSWORDS.includes(value.toLowerCase());
-        },
-        { message: "Password is too weak" },
-      ),
+    email: emailValidation,
+    password: passwordValidation.refine((value) => zxcvbn(value).score >= 3, {
+      message: "Password is too weak",
+    }),
     confirmPassword: z.string().min(1, "Confirm password is required"),
   })
   .refine((data) => data.password === data.confirmPassword, {

@@ -19,6 +19,7 @@ import { Form } from "@/components/ui/form";
 
 import { notosan } from "@/config/fonts";
 
+import { SOCIAL_BUTTON_CLASSES } from "@/constants/classes";
 import {
   AUTH_FORM_TEXTS,
   BUTTON_TEXTS,
@@ -83,11 +84,15 @@ export const RegisterForm = () => {
           });
           router.push("/login");
 
-          const formData = new FormData();
-          formData.append("name", data.name);
-          formData.append("email", data.email);
-          formData.append("password", data.password);
-          await addUser(formData);
+          try {
+            const formData = new FormData();
+            formData.append("name", data.name);
+            formData.append("email", data.email);
+            formData.append("password", data.password);
+            await addUser(formData);
+          } catch (error) {
+            console.error("Failed to save user data: ", error);
+          }
         },
         onError: ({ error }) => {
           setPending(false);
@@ -117,6 +122,10 @@ export const RegisterForm = () => {
         },
         onError: () => {
           setPending(false);
+          const errorMessage = `${provider[0].toUpperCase() + provider.slice(1)} login failed`;
+          toast.error(errorMessage, {
+            description: "Please try again or use email login",
+          });
         },
       },
     );
@@ -134,7 +143,7 @@ export const RegisterForm = () => {
               {AUTH_FORM_TEXTS.registerWelcome}
             </h1>
             <p className="text-xs md:text-sm text-secondary/80 md:text-gray-600">
-              {AUTH_FORM_TEXTS.registerSubtile}
+              {AUTH_FORM_TEXTS.registerSubtitle}
             </p>
           </div>
 
@@ -145,7 +154,7 @@ export const RegisterForm = () => {
               onClick={() => onLoginSocial("google")}
               type="button"
               variant="outline"
-              className="flex gap-3 justify-center items-center w-full h-10 text-black bg-white border-2 border-white transition-all duration-300 md:bg-transparent hover:bg-white/20 hover:border-white/30 md:border-gray-200 md:hover:bg-blue-50 md:hover:border-blue-400 md:hover:text-black"
+              className={SOCIAL_BUTTON_CLASSES.google}
             >
               <FcGoogle className="w-4 h-4" />
               <span className="text-sm font-medium">
@@ -157,7 +166,7 @@ export const RegisterForm = () => {
               onClick={() => onLoginSocial("github")}
               type="button"
               variant="outline"
-              className="flex gap-3 justify-center items-center w-full h-10 text-black bg-white border-2 border-white transition-all duration-300 hover:bg-white/20 hover:border-white/30 md:bg-transparent md:border-gray-200 md:text-black md:hover:bg-gray-50 md:hover:border-gray-400 md:hover:text-black"
+              className={SOCIAL_BUTTON_CLASSES.github}
             >
               <FaGithub className="w-4 h-4" />
               <span className="text-sm font-medium">
