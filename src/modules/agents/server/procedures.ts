@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { agentsInsertSchema } from "@/modules/agents/zod-schemas";
+import { agentsInsertSchema } from "@/modules/agents/zod-schema";
 
 import { db } from "@/db";
 import { agents } from "@/db/schema";

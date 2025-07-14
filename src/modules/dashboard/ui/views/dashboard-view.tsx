@@ -6,6 +6,7 @@ import { LoadingState } from "@/components/loading-state";
 import { Button } from "@/components/ui/button";
 
 import { authClient } from "@/lib/auth-client";
+
 import HomeView from "@/modules/home/ui/views/home-view";
 
 export const DashboardView = () => {
