@@ -1,0 +1,15 @@
+export const CUSTOM_PROFANITY_WORDS = [
+  "asshole",
+  "bitch",
+  "cock",
+  "dick",
+  "fuck",
+  "hitler",
+  "nazi",
+  "pussy",
+  "cặc",
+  "đụ",
+  "địt",
+  "đít",
+  "lồn",
+];

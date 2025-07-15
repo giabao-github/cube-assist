@@ -25,7 +25,7 @@ import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 import { normalizeInput } from "@/lib/utils";
 
 import { AgentGetOne } from "@/modules/agents/types";
-import { agentsInsertSchema } from "@/modules/agents/zod-schemas";
+import { agentsInsertSchema } from "@/modules/agents/zod-schema";
 
 import { useTRPC } from "@/trpc/client";
 
