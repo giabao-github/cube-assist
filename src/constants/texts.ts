@@ -32,6 +32,9 @@ export const ERROR_TEXTS = {
   singleErrorFallback: "A form error occurred",
   invalidCredentials: "Incorrect email or password",
   emailExists: "This email has already registered",
+  networkError: "Network error",
+  serverError: "Server connection issue",
+  unknown: "An unknown error occurred",
 } as const;
 
 export const SUCCESS_TEXTS = {
@@ -42,6 +45,9 @@ export const DESCRIPTIONS = {
   checkCredentials: "Please check your credentials and try again",
   useAnotherEmail: "Please use another email or login",
   useRegisteredInfo: "Please use registered credentials to login",
+  networkError: "Please check your connection and try again",
+  serverError: "Something went wrong. Please try again later",
+  unknown: "An unexpected error occurred. Please try again.",
 } as const;
 
 export const PLACEHOLDERS = {

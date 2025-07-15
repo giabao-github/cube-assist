@@ -45,22 +45,31 @@ export const useAuthFormActions = (options?: UseAuthFormActionsOptions) => {
 
   // Toast error handler
   const handleToastMessage = useCallback((errorCode: string) => {
-    if (errorCode === "USER_ALREADY_EXISTS") {
-      toast.error(ERROR_TEXTS.emailExists, {
-        description: DESCRIPTIONS.useAnotherEmail,
-      });
-    } else if (errorCode === "INVALID_EMAIL_OR_PASSWORD") {
-      toast.error(ERROR_TEXTS.invalidCredentials, {
-        description: DESCRIPTIONS.checkCredentials,
-      });
-    } else if (errorCode === "NETWORK_ERROR") {
-      toast.error("Network error", {
-        description: "Please check your connection and try again",
-      });
-    } else if (errorCode === "SERVER_ERROR") {
-      toast.error("Server connection issue", {
-        description: "Something went wrong. Please try again later",
-      });
+    switch (errorCode) {
+      case "USER_ALREADY_EXISTS":
+        toast.error(ERROR_TEXTS.emailExists, {
+          description: DESCRIPTIONS.useAnotherEmail,
+        });
+        break;
+      case "INVALID_EMAIL_OR_PASSWORD":
+        toast.error(ERROR_TEXTS.invalidCredentials, {
+          description: DESCRIPTIONS.checkCredentials,
+        });
+        break;
+      case "NETWORK_ERROR":
+        toast.error(ERROR_TEXTS.networkError, {
+          description: DESCRIPTIONS.networkError,
+        });
+        break;
+      case "SERVER_ERROR":
+        toast.error(ERROR_TEXTS.serverError, {
+          description: DESCRIPTIONS.serverError,
+        });
+        break;
+      default:
+        toast.error(ERROR_TEXTS.unknown, {
+          description: DESCRIPTIONS.unknown,
+        });
     }
   }, []);
 
