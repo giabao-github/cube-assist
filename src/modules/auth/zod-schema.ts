@@ -4,7 +4,7 @@ import zxcvbn from "zxcvbn";
 
 import { CUSTOM_PROFANITY_WORDS } from "@/config/profanity-words";
 
-const hasRedundantSpaces = (value: string) =>
+const hasNoRedundantSpaces = (value: string) =>
   !/^[\s]+|[\s]+$|\s{2,}/.test(value);
 
 const emailValidation = z
@@ -12,7 +12,7 @@ const emailValidation = z
   .trim()
   .min(1, "Email is required")
   .email("Invalid email address")
-  .refine(hasRedundantSpaces, "Email must not contain redundant spaces");
+  .refine(hasNoRedundantSpaces, "Email must not contain redundant spaces");
 
 const passwordValidation = z
   .string()
@@ -46,7 +46,7 @@ export const registerSchema = z
       .min(1, { message: "Please enter your name" })
       .min(2, { message: "Name must be at least 2 characters" })
       .max(50, { message: "Name must be at most 50 characters" })
-      .refine(hasRedundantSpaces, "Name must not contain redundant spaces")
+      .refine(hasNoRedundantSpaces, "Name must not contain redundant spaces")
       .refine(
         (value) => {
           // Allow Vietnamese characters, letters, numbers, and common username characters

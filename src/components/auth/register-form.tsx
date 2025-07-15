@@ -29,6 +29,7 @@ import {
   SUCCESS_TEXTS,
 } from "@/constants/texts";
 
+import { useAuthFormActions } from "@/hooks/use-auth-form-actions";
 import { useRegisterForm } from "@/hooks/use-register-form";
 
 import { addUser } from "@/lib/actions/user-actions";
@@ -39,10 +40,14 @@ import { registerSchema } from "@/modules/auth/zod-schema";
 
 export const RegisterForm = () => {
   const router = useRouter();
-  const [pending, setPending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [inputKey, setInputKey] = useState(0);
+
+  const { pending, setPending, handleSocialLogin, handleToastMessage } =
+    useAuthFormActions({
+      onSocialSuccess: () => setPending(false),
+    });
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -56,14 +61,6 @@ export const RegisterForm = () => {
   });
 
   const { submitButtonText, isButtonDisabled } = useRegisterForm(form, pending);
-
-  const handleToastMessage = (errorCode: string) => {
-    if (errorCode === "USER_ALREADY_EXISTS") {
-      toast.error(ERROR_TEXTS.emailExists, {
-        description: DESCRIPTIONS.useAnotherEmail,
-      });
-    }
-  };
 
   const onSubmit = (data: z.infer<typeof registerSchema>) => {
     setPending(true);
@@ -108,29 +105,6 @@ export const RegisterForm = () => {
     );
   };
 
-  const onLoginSocial = (provider: "github" | "google") => {
-    setPending(true);
-
-    authClient.signIn.social(
-      {
-        provider,
-        callbackURL: "/",
-      },
-      {
-        onSuccess: () => {
-          setPending(false);
-        },
-        onError: () => {
-          setPending(false);
-          const errorMessage = `${provider[0].toUpperCase() + provider.slice(1)} login failed`;
-          toast.error(errorMessage, {
-            description: "Please try again or use email login",
-          });
-        },
-      },
-    );
-  };
-
   return (
     <Form {...form}>
       <form
@@ -151,7 +125,7 @@ export const RegisterForm = () => {
           <div className="grid grid-cols-1 gap-3 mb-2 md:grid-cols-2">
             <Button
               disabled={pending}
-              onClick={() => onLoginSocial("google")}
+              onClick={() => handleSocialLogin("google")}
               type="button"
               variant="outline"
               className={SOCIAL_BUTTON_CLASSES.google}
@@ -163,7 +137,7 @@ export const RegisterForm = () => {
             </Button>
             <Button
               disabled={pending}
-              onClick={() => onLoginSocial("github")}
+              onClick={() => handleSocialLogin("github")}
               type="button"
               variant="outline"
               className={SOCIAL_BUTTON_CLASSES.github}

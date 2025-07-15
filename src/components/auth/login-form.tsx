@@ -9,7 +9,6 @@ import { IoWarningOutline } from "react-icons/io5";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { LoginFields } from "@/components/auth/login-fields";
@@ -22,11 +21,11 @@ import { SOCIAL_BUTTON_CLASSES } from "@/constants/classes";
 import {
   AUTH_FORM_TEXTS,
   BUTTON_TEXTS,
-  DESCRIPTIONS,
   ERROR_TEXTS,
   SOCIAL_BUTTON_TEXTS,
 } from "@/constants/texts";
 
+import { useAuthFormActions } from "@/hooks/use-auth-form-actions";
 import { useLoginForm } from "@/hooks/use-login-form";
 
 import { authClient } from "@/lib/auth-client";
@@ -36,11 +35,15 @@ import { loginSchema } from "@/modules/auth/zod-schema";
 
 export const LoginForm = () => {
   const router = useRouter();
-  const [pending, setPending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [inputKey, setInputKey] = useState(0);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [changeCount, setChangeCount] = useState(0);
+
+  const { pending, setPending, handleSocialLogin, handleToastMessage } =
+    useAuthFormActions({
+      onSocialSuccess: () => setPending(false),
+    });
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -52,22 +55,6 @@ export const LoginForm = () => {
   });
 
   const { submitButtonText, isButtonDisabled } = useLoginForm(form, pending);
-
-  const handleToastMessage = (errorCode: string) => {
-    if (errorCode === "INVALID_EMAIL_OR_PASSWORD") {
-      toast.error(ERROR_TEXTS.invalidCredentials, {
-        description: DESCRIPTIONS.checkCredentials,
-      });
-    } else if (errorCode === "NETWORK_ERROR") {
-      toast.error("Network error", {
-        description: "Please check your connection and try again",
-      });
-    } else if (errorCode === "SERVER_ERROR") {
-      toast.error("Server connection issue", {
-        description: "Something went wrong. Please try again later",
-      });
-    }
-  };
 
   const onSubmit = (data: z.infer<typeof loginSchema>) => {
     setPending(true);
@@ -101,29 +88,6 @@ export const LoginForm = () => {
     );
   };
 
-  const onLoginSocial = (provider: "github" | "google") => {
-    setPending(true);
-
-    authClient.signIn.social(
-      {
-        provider,
-        callbackURL: "/",
-      },
-      {
-        onSuccess: () => {
-          setPending(false);
-        },
-        onError: () => {
-          setPending(false);
-          const errorMessage = `${provider[0].toUpperCase() + provider.slice(1)} login failed`;
-          toast.error(errorMessage, {
-            description: "Please try again or use email login",
-          });
-        },
-      },
-    );
-  };
-
   return (
     <Form {...form}>
       <form
@@ -144,7 +108,7 @@ export const LoginForm = () => {
           <div className="grid grid-cols-1 gap-3 mb-2 md:grid-cols-2">
             <Button
               disabled={pending}
-              onClick={() => onLoginSocial("google")}
+              onClick={() => handleSocialLogin("google")}
               type="button"
               variant="outline"
               className={SOCIAL_BUTTON_CLASSES.google}
@@ -156,7 +120,7 @@ export const LoginForm = () => {
             </Button>
             <Button
               disabled={pending}
-              onClick={() => onLoginSocial("github")}
+              onClick={() => handleSocialLogin("github")}
               type="button"
               variant="outline"
               className={SOCIAL_BUTTON_CLASSES.github}
