@@ -32,7 +32,7 @@ export const useAuthFormActions = (options?: UseAuthFormActionsOptions) => {
           },
           onError: () => {
             setPending(false);
-            const errorMessage = `${provider[0].toUpperCase() + provider.slice(1)} login failed`;
+            const errorMessage = `${provider.charAt(0).toUpperCase() + provider.slice(1)} login failed`;
             toast.error(errorMessage, {
               description: "Please try again or use email login",
             });
