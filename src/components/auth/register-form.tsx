@@ -109,7 +109,7 @@ export const RegisterForm = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn("col-span-1 p-6 md:col-span-5 md:p-8", notosan.className)}
+        className={cn("col-span-1 p-6 md:col-span-6 md:p-8", notosan.className)}
       >
         <div className="flex flex-col gap-y-8 md:gap-y-6">
           <div className="flex flex-col gap-y-2 items-center mb-2 text-center md:mb-3">

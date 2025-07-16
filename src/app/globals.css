@@ -138,6 +138,11 @@
     border-radius: calc(var(--radius) - 4px);
   }
 
+  /* Hide default password reveal icons */
+  input::-ms-reveal {
+    display: none;
+  }
+
   /* Custom animations */
   @keyframes float {
     0%,

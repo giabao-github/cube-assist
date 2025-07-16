@@ -75,5 +75,13 @@ export const useGenericForm = <T extends Record<string, unknown>>({
     submitButtonText = emptyFieldText;
   }
 
+  if (
+    submitButtonText.includes(
+      "This password has appeared in public data breaches",
+    )
+  ) {
+    submitButtonText = "Password found in data breaches";
+  }
+
   return { submitButtonText, isButtonDisabled, watchedValues, watchedErrors };
 };

@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@2toad/profanity@^3.1.1":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@2toad/profanity/-/profanity-3.1.1.tgz#9b29555774275bd3867dc617d6bb56e194c21414"
+  integrity sha512-07ny4pCSa4gDrcJ4vZ/WWmiM90+8kv/clXfnDvThf9IJq0GldpjRVdzHCfMwGDs2Y/8eClmTGzKb5tEfUWy/uA==
+
 "@alloc/quick-lru@^5.2.0":
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/@alloc/quick-lru/-/quick-lru-5.2.0.tgz#7bf68b20c0a350f936915fcae06f58e32007ce30"
@@ -1881,6 +1886,11 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==
 
+"@types/leo-profanity@^1.5.4":
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/@types/leo-profanity/-/leo-profanity-1.5.4.tgz#8f4121a8480f6e37be4a9ad713a69bf437787ff7"
+  integrity sha512-f6PiIeXhT14VM6P06MIuzEG9JpcZ3CgjDbV8Rx5fQPkL1A8Zk3dFQRqFr/x1eQlshRFfBorpuzVnfDC042KY8A==
+
 "@types/node@*", "@types/node@^22.10.2":
   version "22.15.26"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.26.tgz#01ea4427edeaf205cd18ebdb93db2708d5301f05"
@@ -3229,6 +3239,11 @@ framer-motion@^12.15.0:
     motion-utils "^12.12.1"
     tslib "^2.4.0"
 
+french-badwords-list@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/french-badwords-list/-/french-badwords-list-1.0.7.tgz#8ed2442cb20fa2781c38b5a75c944f8e91a73c08"
+  integrity sha512-H1ziKs2PJh2+UXZ9oCGJ/rRQpsI9NBykGf2Sc7WaKaj1OnWFuBXfsvANTdRcfVmOghGQaUmRyZ1hJOPbDpy04Q==
+
 fs@^0.0.1-security:
   version "0.0.1-security"
   resolved "https://registry.yarnpkg.com/fs/-/fs-0.0.1-security.tgz#8a7bd37186b6dddf3813f23858b57ecaaf5e41d4"
@@ -3746,6 +3761,14 @@ language-tags@^1.0.9:
   integrity sha512-MbjN408fEndfiQXbFQ1vnd+1NoLDsnQW41410oQBXiyXDMYH5z505juWa4KUE1LqxRC7DgOgZDbKLxHIwm27hA==
   dependencies:
     language-subtag-registry "^0.3.20"
+
+leo-profanity@^1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/leo-profanity/-/leo-profanity-1.8.0.tgz#2ce6522e27c093d02253cdb9755b74cc7ffccf90"
+  integrity sha512-TATupbZhT3oFCtsiEXzgXcLvW6cDPhDtN+0yQAibjwBdSw3WJFLKM0DZ18eEW8KeFTT10x8gCP+DDZz0cI4Bfg==
+  optionalDependencies:
+    french-badwords-list "^1.0.7"
+    russian-bad-words "^0.5.0"
 
 levn@^0.4.1:
   version "0.4.1"
@@ -4449,6 +4472,11 @@ run-parallel@^1.1.9:
   integrity sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==
   dependencies:
     queue-microtask "^1.2.2"
+
+russian-bad-words@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/russian-bad-words/-/russian-bad-words-0.5.0.tgz#d4abcdc55f7af37606cdbac44bcb9e0bde6c3855"
+  integrity sha512-euNvEYki6iYYpkNbeudW+lEMMYGEmN7EBwVF8ezlbv0bZoQpVYB7W10cCeUIGV7Ed50sJynLQ0c559q5iI0ejQ==
 
 safe-array-concat@^1.1.3:
   version "1.1.3"
