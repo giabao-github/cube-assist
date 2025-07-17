@@ -1,4 +1,4 @@
-import profanityFilter from "@/lib/profanity-filter";
+import { getGlobalFilter } from "@/lib/profanity-filter";
 
 export const sanitizeInputOnBlur = (
   input: string,
@@ -99,9 +99,9 @@ export const extractDomainParts = (
   };
 };
 
-export const checkEmailProfanity = (
+export const checkEmailProfanity = async (
   email: string,
-): "fail" | "success" | null => {
+): Promise<"fail" | "success" | null> => {
   if (!email || typeof email !== "string") {
     return null;
   }
@@ -113,12 +113,11 @@ export const checkEmailProfanity = (
     return null;
   }
 
+  const profanityFilter = await getGlobalFilter();
   if (
-    profanityFilter.containsProfanity(normalizeProfanity(local)) ||
-    profanityFilter.containsProfanity(
-      normalizeProfanity(domainParts.domainName),
-    ) ||
-    profanityFilter.containsProfanity(normalizeProfanity(domainParts.tld))
+    (await profanityFilter.containsProfanity(local)) ||
+    (await profanityFilter.containsProfanity(domainParts.domainName)) ||
+    (await profanityFilter.containsProfanity(domainParts.tld))
   ) {
     return "fail";
   }

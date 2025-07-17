@@ -2,22 +2,15 @@ import { z } from "zod";
 import zxcvbn from "zxcvbn";
 
 import { addPasswordBreachValidation } from "@/lib/password-utils";
-import profanityFilter from "@/lib/profanity-filter";
-import {
-  checkEmailProfanity,
-  hasNoRedundantSpaces,
-  normalizeProfanity,
-} from "@/lib/text-utils";
+import { getGlobalFilter } from "@/lib/profanity-filter";
+import { checkEmailProfanity, hasNoRedundantSpaces } from "@/lib/text-utils";
 
 const emailValidation = z
   .string()
   .trim()
   .min(1, "Email is required")
   .email("Invalid email address")
-  .refine(hasNoRedundantSpaces, "Email must not contain redundant spaces")
-  .refine((val) => checkEmailProfanity(val) === "success", {
-    message: "Email contains inappropriate language",
-  });
+  .refine(hasNoRedundantSpaces, "Email must not contain redundant spaces");
 
 const passwordValidation = z
   .string()
@@ -38,6 +31,15 @@ export const loginSchema = z
         message: "Password must contain both letters and numbers",
       },
     ),
+  })
+  .superRefine(async (data, ctx) => {
+    if ((await checkEmailProfanity(data.email)) !== "success") {
+      ctx.addIssue({
+        path: ["email"],
+        code: z.ZodIssueCode.custom,
+        message: "Email contains inappropriate language",
+      });
+    }
   })
   .superRefine(addPasswordBreachValidation);
 
@@ -68,12 +70,6 @@ export const registerSchema = z
           return !hasExcessiveSpecialChars;
         },
         { message: "Name contains too many special characters" },
-      )
-      .refine(
-        (val) => !profanityFilter.containsProfanity(normalizeProfanity(val)),
-        {
-          message: "Name contains inappropriate language",
-        },
       ),
     email: emailValidation,
     password: passwordValidation.refine((value) => zxcvbn(value).score >= 2, {
@@ -84,5 +80,22 @@ export const registerSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
+  })
+  .superRefine(async (data, ctx) => {
+    const profanityFilter = await getGlobalFilter();
+    if (await profanityFilter.containsProfanity(data.name, "hybrid")) {
+      ctx.addIssue({
+        path: ["name"],
+        code: z.ZodIssueCode.custom,
+        message: "Name contains inappropriate language",
+      });
+    }
+    if ((await checkEmailProfanity(data.email)) !== "success") {
+      ctx.addIssue({
+        path: ["email"],
+        code: z.ZodIssueCode.custom,
+        message: "Email contains inappropriate language",
+      });
+    }
   })
   .superRefine(addPasswordBreachValidation);

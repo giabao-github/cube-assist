@@ -1,6 +1,8 @@
 import z from "zod";
 import zxcvbn from "zxcvbn";
 
+import { BREACH_SEVERITY_THRESHOLDS } from "@/constants/numbers";
+
 import { checkPasswordPwned } from "@/lib/hibp-password";
 
 export const addPasswordBreachValidation = async (
@@ -12,11 +14,11 @@ export const addPasswordBreachValidation = async (
       const result = await checkPasswordPwned(data.password);
       if (result.isPwned) {
         const severity =
-          result.count > 100000
+          result.count > BREACH_SEVERITY_THRESHOLDS.CRITICAL
             ? "critical"
-            : result.count > 10000
+            : result.count > BREACH_SEVERITY_THRESHOLDS.HIGH
               ? "high"
-              : result.count > 1000
+              : result.count > BREACH_SEVERITY_THRESHOLDS.MEDIUM
                 ? "medium"
                 : "low";
 
@@ -27,7 +29,7 @@ export const addPasswordBreachValidation = async (
         });
       }
     } catch (error) {
-      console.error("HIBP API fails: ", error);
+      console.error("HIBP API failed: ", error);
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["password"],
@@ -36,4 +38,13 @@ export const addPasswordBreachValidation = async (
       });
     }
   }
+};
+
+export const categorizeBreachSeverity = (
+  count: number,
+): "critical" | "high" | "medium" | "low" => {
+  if (count > 100000) return "critical";
+  if (count > 10000) return "high";
+  if (count > 1000) return "medium";
+  return "low";
 };

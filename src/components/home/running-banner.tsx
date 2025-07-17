@@ -1,10 +1,10 @@
 import { Sparkles } from "lucide-react";
 
+import { runningKeywords } from "@/constants/advertisements";
+
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { chunkArray } from "@/lib/utils";
-
-import { runningKeywords } from "@/advertisements";
 
 const RunningBanner = () => {
   const isMobile = useIsMobile();

@@ -1,6 +1,6 @@
 import SectionHeader from "@/components/home/section-header";
 
-import { capabilities } from "@/advertisements";
+import { capabilities } from "@/constants/advertisements";
 
 const CapabilitiesSection = () => (
   <section className="py-16 bg-gradient-to-br from-gray-50 to-white md:py-20">

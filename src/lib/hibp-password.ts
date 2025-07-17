@@ -1,5 +1,7 @@
 import crypto from "crypto";
 
+import { categorizeBreachSeverity } from "@/lib/password-utils";
+
 export async function checkPasswordPwned(
   password: string,
 ): Promise<{ isPwned: boolean; count: number }> {
@@ -28,6 +30,7 @@ export async function checkPasswordPwned(
         headers: {
           "User-Agent": "PasswordChecker/1.0",
         },
+        signal: AbortSignal.timeout(10000),
       },
     );
 
@@ -39,14 +42,17 @@ export async function checkPasswordPwned(
 
     // Parse response to find matching hash suffix
     const lines = data.split("\n");
-    for (const line of lines) {
-      const [suffix, count] = line.trim().split(":");
-      if (suffix === hashSuffix) {
-        return {
-          isPwned: true,
-          count: parseInt(count, 10),
-        };
-      }
+    const found = lines.find((line) => {
+      const [suffix] = line.trim().split(":");
+      return suffix === hashSuffix;
+    });
+
+    if (found) {
+      const [, count] = found.trim().split(":");
+      return {
+        isPwned: true,
+        count: parseInt(count, 10),
+      };
     }
 
     // Password not found in breaches
@@ -104,22 +110,19 @@ export async function getPasswordRecommendation(password: string): Promise<{
   let severity = "safe";
 
   if (result.isPwned) {
-    if (result.count > 100000) {
+    severity = categorizeBreachSeverity(result.count);
+    if (severity === "critical") {
       recommendation =
         "This password is extremely common and has been found in major data breaches. Change it immediately.";
-      severity = "critical";
-    } else if (result.count > 10000) {
+    } else if (severity === "high") {
       recommendation =
         "This password has been compromised in data breaches. You should change it soon.";
-      severity = "high";
-    } else if (result.count > 1000) {
+    } else if (severity === "medium") {
       recommendation =
         "This password has been found in data breaches. Consider changing it.";
-      severity = "medium";
     } else {
       recommendation =
         "This password has been found in data breaches, though less frequently. Consider changing it.";
-      severity = "low";
     }
   } else {
     recommendation = "This password has not been found in known data breaches.";

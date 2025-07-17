@@ -2,9 +2,9 @@ import Link from "next/link";
 
 import Logo from "@/components/home/logo";
 
-import { useIsMobile } from "@/hooks/use-mobile";
+import { footerSections, socialLinks } from "@/constants/advertisements";
 
-import { footerSections, socialLinks } from "@/advertisements";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Footer = () => {
   const isMobile = useIsMobile();

@@ -6,9 +6,9 @@ import Image from "next/image";
 import CarouselIndicators from "@/components/home/carousel-indicators";
 import SectionHeader from "@/components/home/section-header";
 
-import { useCarousel } from "@/hooks/use-carousel";
+import { testimonials } from "@/constants/advertisements";
 
-import { testimonials } from "@/advertisements";
+import { useCarousel } from "@/hooks/use-carousel";
 
 const TestimonialsSection = () => {
   const { currentIndex, goTo } = useCarousel();

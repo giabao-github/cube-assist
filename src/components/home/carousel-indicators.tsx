@@ -1,6 +1,8 @@
 import { FC } from "react";
 
-import { Slide, Testimonial } from "@/types";
+import "@/constants/advertisements";
+
+import { Slide, Testimonial } from "@/types/advertisements";
 
 interface CarouselIndicatorsProps {
   items: (Slide | Testimonial)[];

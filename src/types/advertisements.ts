@@ -1,4 +1,4 @@
-import { capabilities, slides, testimonials } from "@/advertisements";
+import { capabilities, slides, testimonials } from "@/constants/advertisements";
 
 export type Slide = (typeof slides)[number];
 
