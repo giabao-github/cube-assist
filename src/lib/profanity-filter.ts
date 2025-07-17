@@ -36,13 +36,21 @@ class ProfanityFilter {
   private cacheHits: number = 0;
   private cacheAttempts: number = 0;
   private leoProfanityAvailable: boolean = false;
+  private debug: boolean;
 
-  constructor(cacheSize: number = 10000) {
+  constructor(cacheSize: number = 10000, debug: boolean = false) {
     this.cache = new Map();
     this.cacheSize = cacheSize;
+    this.debug = debug;
     this.badWordsFilter = new Filter();
     this.toadProfanity = new Profanity();
     this.setupFilters();
+  }
+
+  private log(message: string, ...args: unknown[]): void {
+    if (this.debug) {
+      console.log(message, ...args);
+    }
   }
 
   private addCustomWords(): void {
@@ -72,7 +80,7 @@ class ProfanityFilter {
       }
 
       this.toadProfanity.addWords(validWords);
-      console.log(`Added ${validWords.length} custom profanity words`);
+      this.log(`Added ${validWords.length} custom profanity words`);
     } catch (error) {
       console.error("Failed to add custom words: ", error);
     }
@@ -92,7 +100,7 @@ class ProfanityFilter {
             leoProfanity.loadDictionary("en");
           } else if (typeof leoProfanity.loadDictionary === "undefined") {
             // Some versions might not need explicit dictionary loading
-            console.log("leo-profanity dictionary loading not required");
+            this.log("leo-profanity dictionary loading is not required");
           }
 
           // Test basic functionality
@@ -103,7 +111,7 @@ class ProfanityFilter {
         }
       } catch (leoError) {
         console.warn(
-          "leo-profanity initialization failed, continuing without it: ",
+          "leo-profanity initialization failed, continuing without this library: ",
           leoError,
         );
         this.leoProfanityAvailable = false;
@@ -127,7 +135,7 @@ class ProfanityFilter {
         "@2toad/profanity",
       ].filter(Boolean);
 
-      console.log(
+      this.log(
         `Profanity filters initialized successfully. Available filters: ${availableFilters.join(", ")}`,
       );
     } catch (error) {
@@ -161,6 +169,10 @@ class ProfanityFilter {
       this.cacheHits++;
     }
     return value;
+  }
+
+  private normalize(text: string): string {
+    return text.toLowerCase().trim();
   }
 
   containsProfanity(text: string, method: FilterMethod = "hybrid"): boolean {
@@ -209,6 +221,18 @@ class ProfanityFilter {
     } catch (error) {
       console.error("Error checking profanity: ", error);
       result = false;
+    }
+
+    const normalizedInput = this.normalize(text);
+    const normalizedCustomWords = CUSTOM_PROFANITY_WORDS.map((w) =>
+      this.normalize(w),
+    );
+    if (
+      normalizedCustomWords.some(
+        (word) => word && normalizedInput.includes(word),
+      )
+    ) {
+      return true;
     }
 
     this.setCacheValue(cacheKey, result);
@@ -438,7 +462,7 @@ class ProfanityFilter {
       // Clear cache since filter rules changed
       this.clearCache();
 
-      console.log(`Added ${validWords.length} words to profanity filters`);
+      this.log(`Added ${validWords.length} words to profanity filters`);
     } catch (error) {
       console.error("Failed to add words: ", error);
     }
@@ -474,7 +498,7 @@ class ProfanityFilter {
       // Clear cache since filter rules changed
       this.clearCache();
 
-      console.log(`Removed ${validWords.length} words from profanity filters`);
+      this.log(`Removed ${validWords.length} words from profanity filters`);
     } catch (error) {
       console.error("Failed to remove words: ", error);
     }

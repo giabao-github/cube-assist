@@ -1,7 +1,7 @@
 import { z } from "zod";
 import zxcvbn from "zxcvbn";
 
-import { checkPasswordPwned } from "@/lib/hibp-password";
+import { addPasswordBreachValidation } from "@/lib/password-utils";
 import profanityFilter from "@/lib/profanity-filter";
 import {
   checkEmailProfanity,
@@ -30,7 +30,6 @@ export const loginSchema = z
     email: emailValidation,
     password: passwordValidation.refine(
       (value) => {
-        // At least one letter and one number
         const hasLetter = /[a-zA-Z]/.test(value);
         const hasNumber = /\d/.test(value);
         return hasLetter && hasNumber;
@@ -40,31 +39,8 @@ export const loginSchema = z
       },
     ),
   })
-  .superRefine(async (data, ctx) => {
-    if (data.password && zxcvbn(data.password).score >= 2) {
-      try {
-        const result = await checkPasswordPwned(data.password);
-        if (result.isPwned) {
-          const severity =
-            result.count > 100000
-              ? "critical"
-              : result.count > 10000
-                ? "high"
-                : result.count > 1000
-                  ? "medium"
-                  : "low";
+  .superRefine(addPasswordBreachValidation);
 
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ["password"],
-            message: `This password has appeared in public data breaches (${severity})`,
-          });
-        }
-      } catch (error) {
-        console.error("HIBP API fails: ", error);
-      }
-    }
-  });
 export const registerSchema = z
   .object({
     name: z
@@ -109,28 +85,4 @@ export const registerSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   })
-  .superRefine(async (data, ctx) => {
-    if (data.password && zxcvbn(data.password).score >= 2) {
-      try {
-        const result = await checkPasswordPwned(data.password);
-        if (result.isPwned) {
-          const severity =
-            result.count > 100000
-              ? "critical"
-              : result.count > 10000
-                ? "high"
-                : result.count > 1000
-                  ? "medium"
-                  : "low";
-
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ["password"],
-            message: `This password has appeared in public data breaches (${severity})`,
-          });
-        }
-      } catch (error) {
-        console.error("HIBP API fails: ", error);
-      }
-    }
-  });
+  .superRefine(addPasswordBreachValidation);

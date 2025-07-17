@@ -47,7 +47,6 @@ export const normalizeProfanity = (text: string): string => {
 };
 
 export const extractLocalPart = (email: string): string | null => {
-  console.log("local part");
   if (!email || typeof email !== "string") {
     return null;
   }

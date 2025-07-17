@@ -65,31 +65,31 @@ export async function checkPasswordPwned(
 
 export async function checkPasswordsBatch(
   passwords: string[],
-): Promise<Array<{ password: string; isPwned: boolean; count: number }>> {
+): Promise<
+  Array<{ index: number; isPwned: boolean; count: number; error?: string }>
+> {
   if (!Array.isArray(passwords)) {
     throw new Error("Passwords must be an array");
   }
 
-  const results = [];
-
-  for (const password of passwords) {
+  const promises = passwords.map(async (password, index) => {
     try {
       const result = await checkPasswordPwned(password);
-      results.push({
-        password: password,
+      return {
+        index,
         ...result,
-      });
+      };
     } catch (error) {
-      results.push({
-        password: password,
+      return {
+        index,
         isPwned: false,
         count: 0,
         error: error instanceof Error ? error.message : String(error),
-      });
+      };
     }
-  }
+  });
 
-  return results;
+  return Promise.all(promises);
 }
 
 export async function getPasswordRecommendation(password: string): Promise<{

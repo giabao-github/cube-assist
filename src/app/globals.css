@@ -139,7 +139,8 @@
   }
 
   /* Hide default password reveal icons */
-  input::-ms-reveal {
+  input::-ms-reveal,
+  input::-ms-clear {
     display: none;
   }
 
