@@ -13,14 +13,7 @@ export const addPasswordBreachValidation = async (
     try {
       const result = await checkPasswordPwned(data.password);
       if (result.isPwned) {
-        const severity =
-          result.count > BREACH_SEVERITY_THRESHOLDS.CRITICAL
-            ? "critical"
-            : result.count > BREACH_SEVERITY_THRESHOLDS.HIGH
-              ? "high"
-              : result.count > BREACH_SEVERITY_THRESHOLDS.MEDIUM
-                ? "medium"
-                : "low";
+        const severity = categorizeBreachSeverity(result.count);
 
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -43,8 +36,8 @@ export const addPasswordBreachValidation = async (
 export const categorizeBreachSeverity = (
   count: number,
 ): "critical" | "high" | "medium" | "low" => {
-  if (count > 100000) return "critical";
-  if (count > 10000) return "high";
-  if (count > 1000) return "medium";
+  if (count > BREACH_SEVERITY_THRESHOLDS.CRITICAL) return "critical";
+  if (count > BREACH_SEVERITY_THRESHOLDS.HIGH) return "high";
+  if (count > BREACH_SEVERITY_THRESHOLDS.MEDIUM) return "medium";
   return "low";
 };

@@ -4,6 +4,13 @@ import { Filter } from "bad-words";
 import { CUSTOM_PROFANITY_WORDS, PROFANITY_CONFIG } from "@/config/profanity";
 
 import {
+  clearNormalizationCache,
+  detectLanguage,
+  getWordVariations,
+  normalize,
+} from "@/lib/language";
+
+import {
   CacheStats,
   FilterConfig,
   FilterMethod,
@@ -11,147 +18,6 @@ import {
   ProfanityAnalysis,
   ProfanityResult,
 } from "@/types/profanity";
-
-export class TextProcessor {
-  private static readonly NORMALIZATION_CACHE = new Map<string, string>();
-  private static readonly DIACRITICS_MAP = new Map([
-    ["à", "a"],
-    ["á", "a"],
-    ["ả", "a"],
-    ["ã", "a"],
-    ["ạ", "a"],
-    ["ă", "a"],
-    ["ắ", "a"],
-    ["ằ", "a"],
-    ["ẳ", "a"],
-    ["ẵ", "a"],
-    ["ặ", "a"],
-    ["â", "a"],
-    ["ấ", "a"],
-    ["ầ", "a"],
-    ["ẩ", "a"],
-    ["ẫ", "a"],
-    ["ậ", "a"],
-    ["è", "e"],
-    ["é", "e"],
-    ["ẻ", "e"],
-    ["ẽ", "e"],
-    ["ẹ", "e"],
-    ["ê", "e"],
-    ["ế", "e"],
-    ["ề", "e"],
-    ["ể", "e"],
-    ["ễ", "e"],
-    ["ệ", "e"],
-    ["ì", "i"],
-    ["í", "i"],
-    ["ỉ", "i"],
-    ["ĩ", "i"],
-    ["ị", "i"],
-    ["ò", "o"],
-    ["ó", "o"],
-    ["ỏ", "o"],
-    ["õ", "o"],
-    ["ọ", "o"],
-    ["ô", "o"],
-    ["ố", "o"],
-    ["ồ", "o"],
-    ["ổ", "o"],
-    ["ỗ", "o"],
-    ["ộ", "o"],
-    ["ơ", "o"],
-    ["ớ", "o"],
-    ["ờ", "o"],
-    ["ở", "o"],
-    ["ỡ", "o"],
-    ["ợ", "o"],
-    ["ù", "u"],
-    ["ú", "u"],
-    ["ủ", "u"],
-    ["ũ", "u"],
-    ["ụ", "u"],
-    ["ư", "u"],
-    ["ứ", "u"],
-    ["ừ", "u"],
-    ["ử", "u"],
-    ["ữ", "u"],
-    ["ự", "u"],
-    ["ỳ", "y"],
-    ["ý", "y"],
-    ["ỷ", "y"],
-    ["ỹ", "y"],
-    ["ỵ", "y"],
-    ["đ", "d"],
-  ]);
-
-  static normalize(text: string): string {
-    if (this.NORMALIZATION_CACHE.has(text)) {
-      return this.NORMALIZATION_CACHE.get(text)!;
-    }
-
-    let normalized = text.toLowerCase().trim();
-
-    // Remove Vietnamese diacritics
-    for (const [accented, base] of this.DIACRITICS_MAP) {
-      normalized = normalized.replace(new RegExp(accented, "g"), base);
-    }
-
-    // Remove special characters and normalize spaces
-    normalized = normalized
-      .replace(/[^\w\s]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    this.NORMALIZATION_CACHE.set(text, normalized);
-    return normalized;
-  }
-
-  static clearNormalizationCache(): void {
-    this.NORMALIZATION_CACHE.clear();
-  }
-
-  static detectLanguage(text: string): Language {
-    const vietnameseChars =
-      /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/gi;
-    const vietnameseMatches = text.match(vietnameseChars);
-
-    if (vietnameseMatches && vietnameseMatches.length > text.length * 0.1) {
-      return "vi";
-    }
-
-    return "en";
-  }
-
-  static getWordVariations(word: string): string[] {
-    const variations = [word];
-
-    // Add common leetspeak variations
-    const leetMap: Record<string, string[]> = {
-      a: ["@", "4"],
-      e: ["3"],
-      i: ["1", "!"],
-      o: ["0"],
-      s: ["$", "5"],
-      t: ["7"],
-      g: ["9"],
-    };
-
-    let variation = word;
-    for (const [char, replacements] of Object.entries(leetMap)) {
-      for (const replacement of replacements) {
-        variation = variation.replace(new RegExp(char, "gi"), replacement);
-        variations.push(variation);
-      }
-    }
-
-    // Add spacing variations
-    variations.push(word.split("").join(" "));
-    variations.push(word.split("").join("."));
-    variations.push(word.split("").join("-"));
-
-    return [...new Set(variations)];
-  }
-}
 
 export class ProfanityFilter {
   private cache: Map<string, ProfanityResult>;
@@ -191,10 +57,6 @@ export class ProfanityFilter {
 
   private async setupFilters(): Promise<void> {
     try {
-      // Dynamic imports for better performance
-      const { Filter } = await import("bad-words");
-      const { Profanity } = await import("@2toad/profanity");
-
       this.badWordsFilter = new Filter();
       this.toadProfanity = new Profanity({
         wholeWord: true,
@@ -224,6 +86,8 @@ export class ProfanityFilter {
     }
   }
 
+  private wordVariationsCache = new Map<string, string[]>();
+
   private async compileWordPatterns(): Promise<void> {
     for (const config of PROFANITY_CONFIG) {
       const patterns: RegExp[] = [];
@@ -231,7 +95,11 @@ export class ProfanityFilter {
 
       // Compile word patterns
       for (const word of config.words) {
-        const variations = TextProcessor.getWordVariations(word);
+        let variations = this.wordVariationsCache.get(word);
+        if (!variations) {
+          variations = getWordVariations(word);
+          this.wordVariationsCache.set(word, variations);
+        }
         variations.forEach((variation) => {
           words.add(variation);
           patterns.push(
@@ -303,7 +171,12 @@ export class ProfanityFilter {
   }
 
   private validateInput(text: string): boolean {
-    return typeof text === "string" && text.length > 0 && text.length <= 10000;
+    return (
+      typeof text === "string" &&
+      text.length > 0 &&
+      text.length <= 10000 &&
+      text.trim().length > 0
+    );
   }
 
   async containsProfanity(
@@ -319,7 +192,7 @@ export class ProfanityFilter {
       return false;
     }
 
-    const detectedLanguage = language || TextProcessor.detectLanguage(text);
+    const detectedLanguage = language || detectLanguage(text);
     const cacheKey = this.getCacheKey(text, method, detectedLanguage);
 
     this.cacheAttempts++;
@@ -346,7 +219,7 @@ export class ProfanityFilter {
     method: FilterMethod,
     language: Language,
   ): Promise<ProfanityResult> {
-    const normalizedText = TextProcessor.normalize(text);
+    const normalizedText = normalize(text);
     let hasProfanity = false;
     let confidence = 0;
     const detectedWords: string[] = [];
@@ -365,9 +238,9 @@ export class ProfanityFilter {
         }
         // Direct phrase matching (normalized)
         const config = PROFANITY_CONFIG.find((c) => c.language === language);
-        if (config && config.phrases) {
+        if (config?.phrases) {
           for (const phrase of config.phrases) {
-            const normalizedPhrase = TextProcessor.normalize(phrase);
+            const normalizedPhrase = normalize(phrase);
             if (normalizedPhrase && normalizedText.includes(normalizedPhrase)) {
               hasProfanity = true;
               detectedWords.push(phrase);
@@ -397,8 +270,7 @@ export class ProfanityFilter {
         case "advanced":
           hasProfanity = hasProfanity || this.toadProfanity.exists(text);
           break;
-        case "hybrid":
-        default:
+        default: {
           const checks = [
             this.badWordsFilter.isProfane(text),
             this.toadProfanity.exists(text),
@@ -412,6 +284,7 @@ export class ProfanityFilter {
           hasProfanity = hasProfanity || checks.some(Boolean);
           confidence += checks.filter(Boolean).length / checks.length;
           break;
+        }
       }
 
       return {
@@ -447,7 +320,7 @@ export class ProfanityFilter {
     }
 
     try {
-      const language = TextProcessor.detectLanguage(text);
+      const language = detectLanguage(text);
       let cleaned = text;
 
       // Apply pattern-based cleaning for specific language
@@ -469,7 +342,6 @@ export class ProfanityFilter {
             cleaned = this.badWordsFilter.clean(cleaned);
           }
           break;
-        case "advanced":
         default:
           cleaned = this.toadProfanity.censor(cleaned);
           break;
@@ -501,7 +373,7 @@ export class ProfanityFilter {
       const batch = texts.slice(i, i + batchSize);
 
       const batchPromises = batch.map(async (text) => {
-        const language = TextProcessor.detectLanguage(text);
+        const language = detectLanguage(text);
         return this.performProfanityCheck(text, method, language);
       });
 
@@ -531,8 +403,8 @@ export class ProfanityFilter {
       };
     }
 
-    const language = TextProcessor.detectLanguage(text);
-    const normalizedText = TextProcessor.normalize(text);
+    const language = detectLanguage(text);
+    const normalizedText = normalize(text);
     const detectedWords: string[] = [];
 
     if (!this.badWordsFilter || !this.toadProfanity) {
@@ -627,7 +499,11 @@ export class ProfanityFilter {
     let totalSize = 0;
     for (const [key, value] of this.cache.entries()) {
       totalSize += key.length * 2; // UTF-16 encoding
-      totalSize += JSON.stringify(value).length * 2;
+      // Estimate object size more efficiently
+      totalSize += value.original.length * 2;
+      totalSize += value.cleaned.length * 2;
+      totalSize += (value.detectedLanguage?.length ?? 0) * 2;
+      totalSize += 50;
     }
     return totalSize;
   }
@@ -636,7 +512,7 @@ export class ProfanityFilter {
     this.cache.clear();
     this.cacheHits = 0;
     this.cacheAttempts = 0;
-    TextProcessor.clearNormalizationCache();
+    clearNormalizationCache();
   }
 
   isReady(): boolean {

@@ -1,7 +1,5 @@
 import { FC } from "react";
 
-import "@/constants/advertisements";
-
 import { Slide, Testimonial } from "@/types/advertisements";
 
 interface CarouselIndicatorsProps {
