@@ -35,6 +35,8 @@ export const ERROR_TEXTS = {
   networkError: "Network error",
   serverError: "Server connection issue",
   unknown: "An unknown error occurred",
+  passwordBreach: "This password has appeared in public data breaches",
+  shortPasswordBreach: "Password found in data breaches",
 } as const;
 
 export const SUCCESS_TEXTS = {

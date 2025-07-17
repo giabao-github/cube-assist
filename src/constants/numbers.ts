@@ -1,0 +1,5 @@
+export const BREACH_SEVERITY_THRESHOLDS = {
+  CRITICAL: 100000,
+  HIGH: 10000,
+  MEDIUM: 1000,
+} as const;

@@ -2,9 +2,9 @@ import CarouselIndicators from "@/components/home/carousel-indicators";
 import SectionHeader from "@/components/home/section-header";
 import { FilterCarousel } from "@/components/ui/filter-carousel";
 
-import { useCarousel } from "@/hooks/use-carousel";
+import { slides } from "@/constants/advertisements";
 
-import { slides } from "@/advertisements";
+import { useCarousel } from "@/hooks/use-carousel";
 
 const InteractiveCarousel = () => {
   const { currentIndex, setCurrentIndex, goTo: goToSlide } = useCarousel();

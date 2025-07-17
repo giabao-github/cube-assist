@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 
 import { LABELS, PLACEHOLDERS } from "@/constants/texts";
 
-import { getInputClassName } from "@/lib/class-names";
+import { getInputClassName } from "@/lib/css-classes";
 import { sanitizeInputOnBlur } from "@/lib/text-utils";
 
 interface RegisterTextFieldsProps {

@@ -1,11 +1,9 @@
-import { Filter } from "bad-words";
 import { z } from "zod";
 import zxcvbn from "zxcvbn";
 
-import { CUSTOM_PROFANITY_WORDS } from "@/config/profanity-words";
-
-const hasNoRedundantSpaces = (value: string) =>
-  !/^[\s]+|[\s]+$|\s{2,}/.test(value);
+import { addPasswordBreachValidation } from "@/lib/password-utils";
+import { getGlobalFilter } from "@/lib/profanity-filter";
+import { checkEmailProfanity, hasNoRedundantSpaces } from "@/lib/text-utils";
 
 const emailValidation = z
   .string()
@@ -20,23 +18,30 @@ const passwordValidation = z
   .min(8, { message: "Password must be at least 8 characters" })
   .max(32, { message: "Password must be at most 32 characters" });
 
-export const loginSchema = z.object({
-  email: emailValidation,
-  password: passwordValidation.refine(
-    (value) => {
-      // At least one letter and one number
-      const hasLetter = /[a-zA-Z]/.test(value);
-      const hasNumber = /\d/.test(value);
-      return hasLetter && hasNumber;
-    },
-    {
-      message: "Password must contain both letters and numbers",
-    },
-  ),
-});
-
-const profanityFilter = new Filter();
-profanityFilter.addWords(...CUSTOM_PROFANITY_WORDS);
+export const loginSchema = z
+  .object({
+    email: emailValidation,
+    password: passwordValidation.refine(
+      (value) => {
+        const hasLetter = /[a-zA-Z]/.test(value);
+        const hasNumber = /\d/.test(value);
+        return hasLetter && hasNumber;
+      },
+      {
+        message: "Password must contain both letters and numbers",
+      },
+    ),
+  })
+  .superRefine(async (data, ctx) => {
+    if ((await checkEmailProfanity(data.email)) !== "success") {
+      ctx.addIssue({
+        path: ["email"],
+        code: z.ZodIssueCode.custom,
+        message: "Email contains inappropriate language",
+      });
+    }
+  })
+  .superRefine(addPasswordBreachValidation);
 
 export const registerSchema = z
   .object({
@@ -57,9 +62,6 @@ export const registerSchema = z
           message: "Name contains invalid characters",
         },
       )
-      .refine((value) => !profanityFilter.isProfane(value), {
-        message: "Name contains inappropriate words",
-      })
       .refine(
         (value) => {
           // Prevent excessive special characters (excluding allowed ones)
@@ -70,7 +72,7 @@ export const registerSchema = z
         { message: "Name contains too many special characters" },
       ),
     email: emailValidation,
-    password: passwordValidation.refine((value) => zxcvbn(value).score >= 3, {
+    password: passwordValidation.refine((value) => zxcvbn(value).score >= 2, {
       message: "Password is too weak",
     }),
     confirmPassword: z.string().min(1, "Confirm password is required"),
@@ -78,4 +80,22 @@ export const registerSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  });
+  })
+  .superRefine(async (data, ctx) => {
+    const profanityFilter = await getGlobalFilter();
+    if (await profanityFilter.containsProfanity(data.name, "hybrid")) {
+      ctx.addIssue({
+        path: ["name"],
+        code: z.ZodIssueCode.custom,
+        message: "Name contains inappropriate language",
+      });
+    }
+    if ((await checkEmailProfanity(data.email)) !== "success") {
+      ctx.addIssue({
+        path: ["email"],
+        code: z.ZodIssueCode.custom,
+        message: "Email contains inappropriate language",
+      });
+    }
+  })
+  .superRefine(addPasswordBreachValidation);

@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { Path, UseFormReturn, useWatch } from "react-hook-form";
 
+import { ERROR_TEXTS } from "@/constants/texts";
+
 interface UseGenericFormOptions<T extends Record<string, unknown>> {
   form: UseFormReturn<T>;
   pending: boolean;
@@ -73,6 +75,10 @@ export const useGenericForm = <T extends Record<string, unknown>>({
         : singleErrorFallback;
   } else if (emptyFields.length > 0) {
     submitButtonText = emptyFieldText;
+  }
+
+  if (submitButtonText.includes(ERROR_TEXTS.passwordBreach)) {
+    submitButtonText = ERROR_TEXTS.shortPasswordBreach;
   }
 
   return { submitButtonText, isButtonDisabled, watchedValues, watchedErrors };
