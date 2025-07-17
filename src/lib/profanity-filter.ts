@@ -93,13 +93,17 @@ export class ProfanityFilter {
       const patterns: RegExp[] = [];
       const words = new Set<string>();
 
-      // Compile word patterns
+      // Pre-compute all variations in batches
+      const allVariations = new Map<string, string[]>();
       for (const word of config.words) {
-        let variations = this.wordVariationsCache.get(word);
-        if (!variations) {
-          variations = getWordVariations(word);
-          this.wordVariationsCache.set(word, variations);
+        if (!this.wordVariationsCache.has(word)) {
+          this.wordVariationsCache.set(word, getWordVariations(word));
         }
+        allVariations.set(word, this.wordVariationsCache.get(word)!);
+      }
+
+      // Compile word patterns
+      for (const [, variations] of allVariations) {
         variations.forEach((variation) => {
           words.add(variation);
           patterns.push(
@@ -499,11 +503,12 @@ export class ProfanityFilter {
     let totalSize = 0;
     for (const [key, value] of this.cache.entries()) {
       totalSize += key.length * 2; // UTF-16 encoding
-      // Estimate object size more efficiently
       totalSize += value.original.length * 2;
       totalSize += value.cleaned.length * 2;
       totalSize += (value.detectedLanguage?.length ?? 0) * 2;
-      totalSize += 50;
+      totalSize += 8; // boolean (hasProfanity)
+      totalSize += 8; // number (confidence)
+      totalSize += 48; // estimated object overhead
     }
     return totalSize;
   }

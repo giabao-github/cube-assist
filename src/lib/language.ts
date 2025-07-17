@@ -34,8 +34,13 @@ export const detectLanguage = (text: string): Language => {
   const vietnameseChars =
     /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/gi;
   const vietnameseMatches = text.match(vietnameseChars);
+  const textLength = text.replace(/\s+/g, "").length;
 
-  if (vietnameseMatches && vietnameseMatches.length > text.length * 0.1) {
+  if (
+    vietnameseMatches &&
+    vietnameseMatches.length > textLength * 0.1 &&
+    textLength > 5
+  ) {
     return "vi";
   }
 
