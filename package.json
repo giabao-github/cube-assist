@@ -51,6 +51,7 @@
     "bad-words": "^4.0.0",
     "better-auth": "^1.2.8",
     "class-variance-authority": "^0.7.1",
+    "cld3-asm": "^4.0.0",
     "client-only": "^0.0.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

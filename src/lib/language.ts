@@ -1,77 +1,262 @@
-import { DIACRITICS_MAP } from "@/constants/languages";
+import { CldFactory, LanguageCode, LanguageResult, loadModule } from "cld3-asm";
 
-import { Language } from "@/types/profanity";
+import {
+  CLD3Detector,
+  LanguageDetectionOptions,
+  LanguageDetectionResult,
+} from "@/types/language";
 
-const NORMALIZATION_CACHE = new Map<string, string>();
+export class LanguageDetector {
+  private static instance: LanguageDetector;
+  private cld3Instance: CLD3Detector | null = null;
+  private isLoading = false;
+  private loadPromise: Promise<CLD3Detector> | null = null;
 
-export const normalize = (text: string): string => {
-  if (NORMALIZATION_CACHE.has(text)) {
-    return NORMALIZATION_CACHE.get(text)!;
+  private constructor() {}
+
+  public static getInstance(): LanguageDetector {
+    if (!LanguageDetector.instance) {
+      LanguageDetector.instance = new LanguageDetector();
+    }
+    return LanguageDetector.instance;
   }
 
-  let normalized = text.toLowerCase().trim();
+  private async loadCLD3(): Promise<CLD3Detector> {
+    if (this.cld3Instance) {
+      return this.cld3Instance;
+    }
 
-  // Remove Vietnamese diacritics
-  for (const [accented, base] of DIACRITICS_MAP) {
-    normalized = normalized.replace(new RegExp(accented, "g"), base);
+    if (this.isLoading && this.loadPromise) {
+      return this.loadPromise;
+    }
+
+    this.isLoading = true;
+    this.loadPromise = loadModule().then((factory: CldFactory) => {
+      this.cld3Instance = factory.create();
+      this.isLoading = false;
+      return this.cld3Instance;
+    });
+
+    return this.loadPromise;
   }
 
-  // Remove special characters and normalize spaces
-  normalized = normalized
-    .replace(/[^\w\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  public async detect(
+    text: string,
+    options: LanguageDetectionOptions = {},
+  ): Promise<LanguageDetectionResult> {
+    const {
+      minLength = 10,
+      maxTextLength = 1000,
+      fallbackLanguage = "en",
+    } = options;
 
-  NORMALIZATION_CACHE.set(text, normalized);
-  return normalized;
-};
+    if (text.length < 20) {
+      const vietnameseChars =
+        /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/gi;
+      if (vietnameseChars.test(text)) {
+        return {
+          language: "vi" as LanguageCode,
+          confidence: 1,
+          isReliable: true,
+          bytes: [],
+          proportion: 1,
+        };
+      }
+    }
 
-export const clearNormalizationCache = (): void => {
-  NORMALIZATION_CACHE.clear();
-};
+    // Validate input
+    if (!text || typeof text !== "string") {
+      throw new Error("Invalid text input: must be a non-empty string");
+    }
 
-export const detectLanguage = (text: string): Language => {
-  const vietnameseChars =
-    /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/gi;
-  const vietnameseMatches = text.match(vietnameseChars);
-  const textLength = text.replace(/\s+/g, "").length;
+    // Check minimum length
+    if (text.trim().length < minLength) {
+      return {
+        language: fallbackLanguage as LanguageCode,
+        confidence: 0,
+        isReliable: false,
+        bytes: [],
+        proportion: 0,
+      };
+    }
 
-  if (
-    vietnameseMatches &&
-    vietnameseMatches.length > textLength * 0.1 &&
-    textLength > 5
-  ) {
-    return "vi";
-  }
+    try {
+      // Load CLD3 if not already loaded
+      const cld3 = await this.loadCLD3();
 
-  return "en";
-};
+      // Truncate text if too long to improve performance
+      const textToAnalyze =
+        text.length > maxTextLength ? text.substring(0, maxTextLength) : text;
 
-export const getWordVariations = (word: string): string[] => {
-  const variations = [word];
+      // Perform language detection
+      const result = cld3.findLanguage(textToAnalyze);
 
-  // Add common leet-speak variations
-  const leetMap: Record<string, string[]> = {
-    a: ["@", "4"],
-    e: ["3"],
-    i: ["1", "!"],
-    o: ["0"],
-    s: ["$", "5"],
-    t: ["7"],
-    g: ["9"],
-  };
+      return {
+        language: result.language || fallbackLanguage,
+        confidence: result.probability || 0,
+        isReliable: result.is_reliable || false,
+        bytes: result.byte_ranges,
+        proportion: result.proportion || 0,
+      };
+    } catch (error) {
+      console.error("Language detection failed:", error);
 
-  for (const [char, replacements] of Object.entries(leetMap)) {
-    for (const replacement of replacements) {
-      const variation = word.replace(new RegExp(char, "gi"), replacement);
-      variations.push(variation);
+      // Return fallback result on error
+      return {
+        language: fallbackLanguage as LanguageCode,
+        confidence: 0,
+        isReliable: false,
+        bytes: [],
+        proportion: 0,
+      };
     }
   }
 
-  // Add spacing variations
-  variations.push(word.split("").join(" "));
-  variations.push(word.split("").join("."));
-  variations.push(word.split("").join("-"));
+  // Method to detect multiple languages in text
+  public async detectMultiple(
+    text: string,
+    options: LanguageDetectionOptions = {},
+  ): Promise<LanguageDetectionResult[]> {
+    const {
+      minLength = 10,
+      maxTextLength = 1000,
+      fallbackLanguage = "en",
+    } = options;
 
-  return [...new Set(variations)];
-};
+    if (!text || typeof text !== "string" || text.trim().length < minLength) {
+      return [
+        {
+          language: fallbackLanguage as LanguageCode,
+          confidence: 0,
+          isReliable: false,
+          bytes: [],
+          proportion: 0,
+        },
+      ];
+    }
+
+    try {
+      const cld3 = await this.loadCLD3();
+      const textToAnalyze =
+        text.length > maxTextLength ? text.substring(0, maxTextLength) : text;
+
+      const results = cld3.findMostFrequentLanguages(textToAnalyze, 3);
+
+      return results.map((result: LanguageResult) => ({
+        language: result.language || fallbackLanguage,
+        confidence: result.probability || 0,
+        isReliable: result.is_reliable || false,
+        bytes: result.byte_ranges || [],
+        proportion: result.proportion || 0,
+      }));
+    } catch (error) {
+      console.error("Multiple language detection failed:", error);
+      return [
+        {
+          language: fallbackLanguage as LanguageCode,
+          confidence: 0,
+          isReliable: false,
+          bytes: [],
+          proportion: 0,
+        },
+      ];
+    }
+  }
+
+  // Method to check if detection is reliable
+  public isDetectionReliable(result: LanguageDetectionResult): boolean {
+    return result.isReliable && result.confidence > 0.8;
+  }
+
+  // Method to get human-readable language name
+  public getLanguageName(languageCode: string): string {
+    const languageNames: Record<string, string> = {
+      en: "English",
+      es: "Spanish",
+      fr: "French",
+      de: "German",
+      it: "Italian",
+      pt: "Portuguese",
+      ru: "Russian",
+      ja: "Japanese",
+      ko: "Korean",
+      zh: "Chinese",
+      ar: "Arabic",
+      hi: "Hindi",
+      th: "Thai",
+      vi: "Vietnamese",
+      nl: "Dutch",
+      pl: "Polish",
+      tr: "Turkish",
+      sv: "Swedish",
+      da: "Danish",
+      no: "Norwegian",
+      fi: "Finnish",
+      el: "Greek",
+      he: "Hebrew",
+      cs: "Czech",
+      hu: "Hungarian",
+      ro: "Romanian",
+      bg: "Bulgarian",
+      hr: "Croatian",
+      sk: "Slovak",
+      sl: "Slovenian",
+      et: "Estonian",
+      lv: "Latvian",
+      lt: "Lithuanian",
+      uk: "Ukrainian",
+      be: "Belarusian",
+      mk: "Macedonian",
+      sq: "Albanian",
+      sr: "Serbian",
+      bs: "Bosnian",
+      me: "Montenegrin",
+      is: "Icelandic",
+      mt: "Maltese",
+      ga: "Irish",
+      cy: "Welsh",
+      eu: "Basque",
+      ca: "Catalan",
+      gl: "Galician",
+      af: "Afrikaans",
+      sw: "Swahili",
+      zu: "Zulu",
+      xh: "Xhosa",
+      id: "Indonesian",
+      ms: "Malay",
+      tl: "Filipino",
+      bn: "Bengali",
+      ur: "Urdu",
+      pa: "Punjabi",
+      ta: "Tamil",
+      te: "Telugu",
+      ml: "Malayalam",
+      kn: "Kannada",
+      gu: "Gujarati",
+      or: "Odia",
+      mr: "Marathi",
+      ne: "Nepali",
+      si: "Sinhala",
+      my: "Myanmar",
+      km: "Khmer",
+      lo: "Lao",
+      ka: "Georgian",
+      am: "Amharic",
+      ti: "Tigrinya",
+      om: "Oromo",
+      so: "Somali",
+      rw: "Kinyarwanda",
+      yo: "Yoruba",
+      ig: "Igbo",
+      ha: "Hausa",
+      st: "Sesotho",
+      tn: "Setswana",
+      ss: "Siswati",
+      ve: "Tshivenda",
+      ts: "Xitsonga",
+      nr: "Ndebele",
+    };
+
+    return languageNames[languageCode] || languageCode.toUpperCase();
+  }
+}
