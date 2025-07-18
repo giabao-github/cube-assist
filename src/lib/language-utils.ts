@@ -1,3 +1,5 @@
+import { LRUCache } from "lru-cache";
+
 import { DIACRITICS_MAP } from "@/constants/languages";
 
 import { LanguageDetector } from "@/lib/language";
@@ -7,7 +9,10 @@ import {
   LanguageDetectionResult,
 } from "@/types/language";
 
-const NORMALIZATION_CACHE = new Map<string, string>();
+const NORMALIZATION_CACHE = new LRUCache<string, string>({
+  max: 10000,
+  ttl: 1000 * 60 * 60,
+});
 
 export const normalize = (text: string): string => {
   if (NORMALIZATION_CACHE.has(text)) {
@@ -17,9 +22,14 @@ export const normalize = (text: string): string => {
   let normalized = text.toLowerCase().trim();
 
   // Remove Vietnamese diacritics
-  for (const [accented, base] of DIACRITICS_MAP) {
-    normalized = normalized.replace(new RegExp(accented, "g"), base);
-  }
+  const diacriticsPattern = new RegExp(
+    `[${Array.from(DIACRITICS_MAP.keys()).join("")}]`,
+    "g",
+  );
+  normalized = normalized.replace(
+    diacriticsPattern,
+    (char) => DIACRITICS_MAP.get(char) || char,
+  );
 
   // Remove special characters and normalize spaces
   normalized = normalized

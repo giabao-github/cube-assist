@@ -48,9 +48,10 @@ export class LanguageDetector {
       minLength = 10,
       maxTextLength = 1000,
       fallbackLanguage = "en",
+      vietnameseDetectionThreshold = 20,
     } = options;
 
-    if (text.length < 20) {
+    if (text.length < vietnameseDetectionThreshold) {
       const vietnameseChars =
         /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/gi;
       if (vietnameseChars.test(text)) {
@@ -112,10 +113,10 @@ export class LanguageDetector {
     }
   }
 
-  // Method to detect multiple languages in text
   public async detectMultiple(
     text: string,
     options: LanguageDetectionOptions = {},
+    maxLanguages: number = 3,
   ): Promise<LanguageDetectionResult[]> {
     const {
       minLength = 10,
@@ -140,7 +141,10 @@ export class LanguageDetector {
       const textToAnalyze =
         text.length > maxTextLength ? text.substring(0, maxTextLength) : text;
 
-      const results = cld3.findMostFrequentLanguages(textToAnalyze, 3);
+      const results = cld3.findMostFrequentLanguages(
+        textToAnalyze,
+        maxLanguages,
+      );
 
       return results.map((result: LanguageResult) => ({
         language: result.language || fallbackLanguage,
@@ -163,12 +167,13 @@ export class LanguageDetector {
     }
   }
 
-  // Method to check if detection is reliable
-  public isDetectionReliable(result: LanguageDetectionResult): boolean {
-    return result.isReliable && result.confidence > 0.8;
+  public isDetectionReliable(
+    result: LanguageDetectionResult,
+    confidenceThreshold: number = 0.8,
+  ): boolean {
+    return result.isReliable && result.confidence > confidenceThreshold;
   }
 
-  // Method to get human-readable language name
   public getLanguageName(languageCode: string): string {
     const languageNames: Record<string, string> = {
       en: "English",

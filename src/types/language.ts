@@ -17,4 +17,5 @@ export interface LanguageDetectionOptions {
   minLength?: number;
   maxTextLength?: number;
   fallbackLanguage?: string;
+  vietnameseDetectionThreshold?: number;
 }
