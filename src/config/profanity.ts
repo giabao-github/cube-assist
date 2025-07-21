@@ -1,5 +1,23 @@
 import { Language, ProfanityWordConfig } from "@/types/profanity";
 
+const COMPILED_PATTERNS = [
+  /\b(ass|bull)\s*(fuck|fucking|fucked|fucker)\b/gi,
+  /\bbrother[- ]?(fuck|fucking|fucked|fucker)\b/gi,
+  /\bdick[- ]?brain\b/gi,
+  /\bdick[- ]?head\b/gi,
+  /\bdog[- ]?brain\b/gi,
+  /\bching[- ]?chong\b/gi,
+  /\bchild[- ]?(fuck|fucking|fucked|fucker)\b/gi,
+  /\bdumb[- ]?ass\b/gi,
+  /\bfather[- ]?(fuck|fucking|fucked|fucker)\b/gi,
+  /\bgod ?damn(ed|it)?\b/gi,
+  /\bjack[- ]?ass\b/gi,
+  /\bmother[- ]?(fuck|fucking|fucked|fucker)\b/gi,
+  /\bson of a (bitch|whore)\b/gi,
+  /\bsibling[- ]?(fuck|fucking|fucked|fucker)\b/gi,
+  /\bsister[- ]?(fuck|fucking|fucked|fucker)\b/gi,
+].map((pattern) => new RegExp(pattern.source, pattern.flags));
+
 export const PROFANITY_CONFIG: ProfanityWordConfig[] = [
   {
     language: "en",
@@ -8,7 +26,6 @@ export const PROFANITY_CONFIG: ProfanityWordConfig[] = [
       "arsefuck",
       "arsehole",
       "arseholehead",
-      "asslick",
       "ass",
       "asshole",
       "assholehead",
@@ -43,34 +60,8 @@ export const PROFANITY_CONFIG: ProfanityWordConfig[] = [
       "twat",
       "wanker",
     ]),
-    phrases: new Set([
-      "Christ on a bike",
-      "Christ on a cracker",
-      "Jesus Christ",
-      "Jesus fuck",
-      "Jesus Harold Christ",
-      "Jesus H. Christ",
-      "Jesus, Mary and Joseph",
-      "Jesus wept",
-      "sweet Jesus",
-    ]),
-    patterns: [
-      /\b(ass|bull)\s*(fuck|fucking|fucked|fucker)\b/gi,
-      /\bbrother[- ]?(fuck|fucking|fucked|fucker)\b/gi,
-      /\bdick[- ]?brain\b/gi,
-      /\bdick[- ]?head\b/gi,
-      /\bdog[- ]?brain\b/gi,
-      /\bching[- ]?chong\b/gi,
-      /\bchild[- ]?(fuck|fucking|fucked|fucker)\b/gi,
-      /\bdumb[- ]?ass\b/gi,
-      /\bfather[- ]?(fuck|fucking|fucked|fucker)\b/gi,
-      /\bgod ?damn(ed|it)?\b/gi,
-      /\bjack[- ]?ass\b/gi,
-      /\bmother[- ]?(fuck|fucking|fucked|fucker)\b/gi,
-      /\bson of a (bitch|whore)\b/gi,
-      /\bsibling[- ]?(fuck|fucking|fucked|fucker)\b/gi,
-      /\bsister[- ]?(fuck|fucking|fucked|fucker)?\b/gi,
-    ],
+    phrases: new Set(["Jesus wept", "sweet Jesus"]),
+    patterns: [...COMPILED_PATTERNS],
   },
   {
     language: "vi",
@@ -108,9 +99,16 @@ export const PROFANITY_CONFIG: ProfanityWordConfig[] = [
 ];
 
 // Optimized flattening with language context
-export const CUSTOM_PROFANITY_WORDS = new Map<Language, string[]>(
-  PROFANITY_CONFIG.map((config) => [
-    config.language,
-    [...config.words, ...config.phrases],
-  ]),
-);
+let customProfanityWords: Map<Language, string[]> | null = null;
+
+export const getCustomProfanityWords = (): Map<Language, string[]> => {
+  if (!customProfanityWords) {
+    customProfanityWords = new Map<Language, string[]>(
+      PROFANITY_CONFIG.map((config) => [
+        config.language,
+        [...config.words, ...config.phrases],
+      ]),
+    );
+  }
+  return customProfanityWords;
+};

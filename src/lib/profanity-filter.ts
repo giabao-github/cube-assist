@@ -1,7 +1,7 @@
 import { Profanity } from "@2toad/profanity";
 import { Filter } from "bad-words";
 
-import { CUSTOM_PROFANITY_WORDS, PROFANITY_CONFIG } from "@/config/profanity";
+import { PROFANITY_CONFIG, getCustomProfanityWords } from "@/config/profanity";
 
 import { LanguageDetector } from "@/lib/language";
 import {
@@ -168,7 +168,7 @@ export class ProfanityFilter {
 
     try {
       // Only add English words/phrases to English libraries
-      const englishWords = CUSTOM_PROFANITY_WORDS.get("en") || [];
+      const englishWords = getCustomProfanityWords().get("en") || [];
       if (englishWords.length === 0) return;
 
       this.badWordsFilter.addWords(...englishWords);
