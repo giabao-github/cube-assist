@@ -376,6 +376,8 @@ export class ProfanityFilter {
         if (hasProfanity) break;
       }
 
+      // Performance monitoring for nested loop
+      const startTime = Date.now();
       const words = text.split(/\s+/);
       for (let i = 0; i < words.length; i++) {
         for (let j = i + 1; j <= Math.min(words.length, i + 5); j++) {
@@ -409,6 +411,12 @@ export class ProfanityFilter {
         }
 
         if (hasProfanity) break;
+      }
+      if (Date.now() - startTime > 100) {
+        console.warn(
+          "Multilingual detection took too long: ",
+          Date.now() - startTime,
+        );
       }
     } else {
       for (const config of PROFANITY_CONFIG) {
