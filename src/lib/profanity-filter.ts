@@ -184,12 +184,10 @@ export class ProfanityFilter {
   }
 
   private manageCacheSize(): void {
-    while (this.cache.size > this.config.cacheSize) {
-      // Remove least recently used (first) key
-      const firstKey = this.cache.keys().next().value;
-      if (firstKey !== undefined) {
-        this.cache.delete(firstKey);
-      }
+    const excessCount = this.cache.size - this.config.cacheSize;
+    if (excessCount > 0) {
+      const keysToRemove = Array.from(this.cache.keys()).slice(0, excessCount);
+      keysToRemove.forEach((key) => this.cache.delete(key));
     }
   }
 
@@ -276,39 +274,12 @@ export class ProfanityFilter {
         ? normalizeProfanity(phrase)
         : this.normalizeVietnamese(phrase);
 
-    // Direct match
-    if (normalizedText === normalizedPhrase) {
-      return true;
-    }
-
-    // Find phrase in text with word boundaries
     const phraseRegex = new RegExp(
       `\\b${this.escapeRegExp(normalizedPhrase)}\\b`,
       "gi",
     );
 
-    if (phraseRegex.test(normalizedText)) {
-      return true;
-    }
-
-    const phraseWords = normalizedPhrase.split(/\s+/);
-    const textWords = normalizedText.split(/\s+/);
-
-    // Look for consecutive matching words in text
-    for (let i = 0; i <= textWords.length - phraseWords.length; i++) {
-      let allWordsMatch = true;
-      for (let j = 0; j < phraseWords.length; j++) {
-        if (textWords[i + j] !== phraseWords[j]) {
-          allWordsMatch = false;
-          break;
-        }
-      }
-      if (allWordsMatch) {
-        return true;
-      }
-    }
-
-    return false;
+    return phraseRegex.test(normalizedText);
   }
 
   private matchesSingleWord(
@@ -342,7 +313,8 @@ export class ProfanityFilter {
   }
 
   private checkMultilingualPhrases(text: string): boolean {
-    if (text.length > 2000) {
+    // Stricter length limit for performance
+    if (text.length > 1000) {
       return this.checkMultilingualPhrasesOptimized(text);
     }
 
@@ -363,24 +335,26 @@ export class ProfanityFilter {
           }
         }
 
+        if (hasProfanity) break;
+
         // Check phrases
-        if (!hasProfanity) {
-          for (const phrase of config.phrases) {
-            if (this.matchesPhrase(text, phrase, config.language)) {
-              hasProfanity = true;
-              break;
-            }
+        for (const phrase of config.phrases) {
+          if (this.matchesPhrase(text, phrase, config.language)) {
+            hasProfanity = true;
+            break;
           }
         }
-
         if (hasProfanity) break;
       }
 
-      // Performance monitoring for nested loop
-      const startTime = Date.now();
       const words = text.split(/\s+/);
-      for (let i = 0; i < words.length; i++) {
-        for (let j = i + 1; j <= Math.min(words.length, i + 5); j++) {
+      const maxWords = Math.min(words.length, 200);
+      for (let i = 0; i < maxWords && !hasProfanity; i++) {
+        for (
+          let j = i + 1;
+          j <= Math.min(maxWords, i + 5) && !hasProfanity;
+          j++
+        ) {
           // Check up to 5-word phrases
           const segment = words.slice(i, j).join(" ");
 
@@ -394,29 +368,18 @@ export class ProfanityFilter {
               }
             }
 
+            if (hasProfanity) break;
+
             // Check if segment matches any banned phrases from this language
-            if (!hasProfanity) {
-              for (const phrase of config.phrases) {
-                if (this.matchesPhrase(segment, phrase, config.language)) {
-                  hasProfanity = true;
-                  break;
-                }
+            for (const phrase of config.phrases) {
+              if (this.matchesPhrase(segment, phrase, config.language)) {
+                hasProfanity = true;
+                break;
               }
             }
-
             if (hasProfanity) break;
           }
-
-          if (hasProfanity) break;
         }
-
-        if (hasProfanity) break;
-      }
-      if (Date.now() - startTime > 100) {
-        console.warn(
-          "Multilingual detection took too long: ",
-          Date.now() - startTime,
-        );
       }
     } else {
       for (const config of PROFANITY_CONFIG) {
@@ -428,13 +391,13 @@ export class ProfanityFilter {
           }
         }
 
+        if (hasProfanity) break;
+
         // Check phrases for this specific language
-        if (!hasProfanity) {
-          for (const phrase of config.phrases) {
-            if (this.matchesPhrase(text, phrase, config.language)) {
-              hasProfanity = true;
-              break;
-            }
+        for (const phrase of config.phrases) {
+          if (this.matchesPhrase(text, phrase, config.language)) {
+            hasProfanity = true;
+            break;
           }
         }
 

@@ -4290,6 +4290,11 @@ process@^0.11.1:
   resolved "https://registry.yarnpkg.com/process/-/process-0.11.10.tgz#7332300e840161bda3e69a1d1d91a7d4bc16f182"
   integrity sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==
 
+profane-words@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/profane-words/-/profane-words-1.6.0.tgz#94b210603a5793acb1c9d13acba55501050af900"
+  integrity sha512-BJa9m5yfTCjV+m7KxqGlK49lugCnpbEQ9MJkp/SCpVwKWq4Wiw5G0EaWcQgzY5xPtheRmM1MjF95/uqGV3oQlQ==
+
 prop-types@^15.6.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
