@@ -22,7 +22,7 @@ export const normalize = (text: string): string => {
   // Normalize Unicode and remove zero-width/invisible chars
   let normalized = text
     .normalize("NFC")
-    .replace(/[\u200B-\u200D\uFEFF\u00AD]/g, "")
+    .replace(/[\u200B\u200C\uFEFF\u00AD]/g, "")
     .toLowerCase()
     .trim();
 
