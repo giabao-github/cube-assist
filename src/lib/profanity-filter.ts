@@ -329,7 +329,23 @@ export class ProfanityFilter {
     return wordRegex.test(normalizedText);
   }
 
+  private checkMultilingualPhrasesOptimized(text: string): boolean {
+    // Only check for single banned words in all languages for performance
+    for (const config of PROFANITY_CONFIG) {
+      for (const word of config.words) {
+        if (this.matchesSingleWord(text, word, config.language)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   private checkMultilingualPhrases(text: string): boolean {
+    if (text.length > 2000) {
+      return this.checkMultilingualPhrasesOptimized(text);
+    }
+
     let hasProfanity = false;
 
     const hasEnglishWords = /[a-zA-Z]/.test(text);
