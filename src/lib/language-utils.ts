@@ -19,7 +19,12 @@ export const normalize = (text: string): string => {
     return NORMALIZATION_CACHE.get(text)!;
   }
 
-  let normalized = text.toLowerCase().trim();
+  // Normalize Unicode and remove zero-width/invisible chars
+  let normalized = text
+    .normalize("NFC")
+    .replace(/[\u200B-\u200D\uFEFF\u00AD]/g, "")
+    .toLowerCase()
+    .trim();
 
   // Remove Vietnamese diacritics
   const diacriticsPattern = new RegExp(
@@ -31,7 +36,7 @@ export const normalize = (text: string): string => {
     (char) => DIACRITICS_MAP.get(char) || char,
   );
 
-  // Remove special characters and normalize spaces
+  // Remove special characters and normalize whitespace
   normalized = normalized
     .replace(/[^\w\s\u00C0-\u024F\u1E00-\u1EFF]/g, " ")
     .replace(/\s+/g, " ")
