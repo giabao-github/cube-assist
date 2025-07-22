@@ -14,6 +14,8 @@ export class LanguageDetector {
   private cld3Instance: CLD3Detector | null = null;
   private isLoading = false;
   private loadPromise: Promise<CLD3Detector> | null = null;
+  private static readonly VIETNAMESE_CHARS =
+    /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/gi;
 
   private constructor() {}
 
@@ -34,11 +36,17 @@ export class LanguageDetector {
     }
 
     this.isLoading = true;
-    this.loadPromise = loadModule().then((factory: CldFactory) => {
-      this.cld3Instance = factory.create();
-      this.isLoading = false;
-      return this.cld3Instance;
-    });
+    this.loadPromise = loadModule()
+      .then((factory: CldFactory) => {
+        this.cld3Instance = factory.create();
+        this.isLoading = false;
+        return this.cld3Instance;
+      })
+      .catch((error) => {
+        this.isLoading = false;
+        this.loadPromise = null;
+        throw error;
+      });
 
     return this.loadPromise;
   }
@@ -68,9 +76,7 @@ export class LanguageDetector {
     }
 
     if (text.length < vietnameseDetectionThreshold) {
-      const vietnameseChars =
-        /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/gi;
-      if (vietnameseChars.test(text)) {
+      if (LanguageDetector.VIETNAMESE_CHARS.test(text)) {
         return {
           language: "vi",
           confidence: 1,
@@ -166,10 +172,7 @@ export class LanguageDetector {
   public detectFromContent(text: string): Language {
     const cleanText = text.toLowerCase().trim();
 
-    // Check for Vietnamese characters first (more specific)
-    const vietnameseChars =
-      /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/;
-    if (vietnameseChars.test(cleanText)) {
+    if (LanguageDetector.VIETNAMESE_CHARS.test(cleanText)) {
       return "vi";
     }
 
@@ -177,9 +180,8 @@ export class LanguageDetector {
     const englishConfig = PROFANITY_CONFIG.find(
       (config) => config.language === "en",
     );
-    const englishProfanityIndicators = englishConfig
-      ? Array.from(englishConfig.words).slice(0, 10)
-      : [];
+    const englishProfanityIndicators =
+      englishConfig?.words ?? new Set<string>();
 
     for (const indicator of englishProfanityIndicators) {
       if (cleanText.includes(indicator)) {

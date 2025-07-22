@@ -306,42 +306,48 @@ export class ProfanityFilter {
       language === "en" ? normalizeProfanity(word) : normalize(word),
     ];
 
+    let found = false;
     for (const testText of testTexts) {
       for (const testWord of testWords) {
-        if (testText === testWord) return true;
-
+        if (testText === testWord) {
+          found = true;
+        }
         const wordRegex = new RegExp(
           `\\b${this.escapeRegExp(testWord)}\\b`,
           "gi",
         );
-        if (wordRegex.test(testText)) return true;
-
-        if (testText.includes(testWord) && testWord.length >= 4) return true;
-      }
-    }
-
-    return false;
-  }
-
-  private checkMultilingualPhrasesOptimized(text: string): boolean {
-    // Only check for single banned words in all languages for performance
-    for (const config of PROFANITY_CONFIG) {
-      for (const word of config.words) {
-        if (this.matchesSingleWord(text, word, config.language)) {
-          return true;
+        if (wordRegex.test(testText)) {
+          found = true;
+        }
+        if (testText.includes(testWord) && testWord.length >= 4) {
+          found = true;
         }
       }
     }
-    return false;
+    return found;
+  }
+
+  // Constant-time mitigation: always check all words, never return early, to prevent timing attacks.
+  private checkMultilingualPhrasesOptimized(text: string): boolean {
+    let found = false;
+    for (const config of PROFANITY_CONFIG) {
+      for (const word of config.words) {
+        if (this.matchesSingleWord(text, word, config.language)) {
+          found = true;
+        }
+      }
+    }
+    return found;
   }
 
   private checkMultilingualPhrases(text: string): boolean {
-    // Stricter length limit for performance
     if (text.length > 1000) {
       return this.checkMultilingualPhrasesOptimized(text);
     }
 
-    let hasProfanity = false;
+    // Use Set to track checked segments for deduplication
+    const checkedSegments = new Set<string>();
+    let found = false;
 
     const hasEnglishWords = /[a-zA-Z]/.test(text);
     const hasVietnameseChars =
@@ -349,86 +355,115 @@ export class ProfanityFilter {
         text,
       );
 
+    // Pre-normalize text for each language to avoid repeated normalization
+    const normalizedEN = normalizeProfanity(text);
+    const normalizedVI = this.normalizeVietnamese(text);
+
     if (hasEnglishWords && hasVietnameseChars) {
+      // Process whole text first
       for (const config of PROFANITY_CONFIG) {
-        for (const word of config.words) {
-          if (this.matchesSingleWord(text, word, config.language)) {
-            hasProfanity = true;
-            break;
-          }
+        const normalizedText =
+          config.language === "en" ? normalizedEN : normalizedVI;
+
+        // Check words and phrases in parallel
+        const results = [...config.words].map((word) =>
+          this.matchesSingleWord(normalizedText, word, config.language),
+        );
+
+        if (results.some(Boolean)) {
+          found = true;
+          break;
         }
 
-        if (hasProfanity) break;
+        // Check phrases similarly
+        const phraseResults = [...config.phrases].map((phrase) =>
+          this.matchesPhrase(normalizedText, phrase, config.language),
+        );
 
-        // Check phrases
-        for (const phrase of config.phrases) {
-          if (this.matchesPhrase(text, phrase, config.language)) {
-            hasProfanity = true;
-            break;
-          }
+        if (phraseResults.some(Boolean)) {
+          found = true;
+          break;
         }
-        if (hasProfanity) break;
       }
 
-      const words = text.split(/\s+/);
-      const maxWords = Math.min(words.length, 200);
-      for (let i = 0; i < maxWords && !hasProfanity; i++) {
-        for (
-          let j = i + 1;
-          j <= Math.min(maxWords, i + 5) && !hasProfanity;
-          j++
-        ) {
-          // Check up to 5-word phrases
-          const segment = words.slice(i, j).join(" ");
+      // If not found, check word combinations
+      if (!found) {
+        const words = text.split(/\s+/);
+        const maxWords = Math.min(words.length, 200);
 
-          // Check this segment against all language configs
-          for (const config of PROFANITY_CONFIG) {
-            // Check if segment contains any banned words from this language
-            for (const word of config.words) {
-              if (this.matchesSingleWord(segment, word, config.language)) {
-                hasProfanity = true;
+        for (let i = 0; i < maxWords; i++) {
+          // Optimize window size based on typical phrase lengths
+          for (let j = i + 1; j <= Math.min(maxWords, i + 5); j++) {
+            const segment = words.slice(i, j).join(" ");
+
+            // Skip if segment already checked
+            if (checkedSegments.has(segment)) continue;
+            checkedSegments.add(segment);
+
+            // Check segment against all configurations
+            for (const config of PROFANITY_CONFIG) {
+              const normalizedSegment =
+                config.language === "en"
+                  ? normalizeProfanity(segment)
+                  : this.normalizeVietnamese(segment);
+
+              if (
+                [...config.words].some((word) =>
+                  this.matchesSingleWord(
+                    normalizedSegment,
+                    word,
+                    config.language,
+                  ),
+                )
+              ) {
+                found = true;
+                break;
+              }
+
+              if (
+                [...config.phrases].some((phrase) =>
+                  this.matchesPhrase(
+                    normalizedSegment,
+                    phrase,
+                    config.language,
+                  ),
+                )
+              ) {
+                found = true;
                 break;
               }
             }
-
-            if (hasProfanity) break;
-
-            // Check if segment matches any banned phrases from this language
-            for (const phrase of config.phrases) {
-              if (this.matchesPhrase(segment, phrase, config.language)) {
-                hasProfanity = true;
-                break;
-              }
-            }
-            if (hasProfanity) break;
+            if (found) break;
           }
+          if (found) break;
         }
       }
     } else {
+      // Single language optimization
       for (const config of PROFANITY_CONFIG) {
-        // Check words for this specific language
-        for (const word of config.words) {
-          if (this.matchesSingleWord(text, word, config.language)) {
-            hasProfanity = true;
-            break;
-          }
+        const normalizedText =
+          config.language === "en" ? normalizedEN : normalizedVI;
+
+        if (
+          [...config.words].some((word) =>
+            this.matchesSingleWord(normalizedText, word, config.language),
+          )
+        ) {
+          found = true;
+          break;
         }
 
-        if (hasProfanity) break;
-
-        // Check phrases for this specific language
-        for (const phrase of config.phrases) {
-          if (this.matchesPhrase(text, phrase, config.language)) {
-            hasProfanity = true;
-            break;
-          }
+        if (
+          [...config.phrases].some((phrase) =>
+            this.matchesPhrase(normalizedText, phrase, config.language),
+          )
+        ) {
+          found = true;
+          break;
         }
-
-        if (hasProfanity) break;
       }
     }
-
-    return hasProfanity;
+    return found;
   }
 
   private async performProfanityCheck(
@@ -443,7 +478,7 @@ export class ProfanityFilter {
     try {
       if (this.checkMultilingualPhrases(text)) {
         hasProfanity = true;
-        confidence += 0.6;
+        confidence += 0.4;
       }
 
       const languagesToCheck = language === "all" ? ["en", "vi"] : [language];
@@ -587,19 +622,15 @@ export class ProfanityFilter {
       const language = detectionResult.language as Language;
       let cleaned = text;
 
-      // CRITICAL: Apply pattern-based cleaning FIRST before word-by-word cleaning
       for (const config of PROFANITY_CONFIG) {
         const patterns = this.wordPatterns.get(config.language) || [];
 
-        // Apply patterns with multiple normalization levels
         for (const pattern of patterns) {
-          // Create a more flexible replacement pattern
           cleaned = cleaned.replace(pattern, (match) => {
             return "*".repeat(Math.max(match.trim().length, 3));
           });
         }
 
-        // Then clean individual words and phrases
         const compiledWords =
           this.compiledWords.get(config.language) || new Set();
         for (const word of compiledWords) {
@@ -613,7 +644,6 @@ export class ProfanityFilter {
         }
       }
 
-      // Apply library-based cleaning last
       if (language === "en" || language === "all") {
         switch (method) {
           case "fast":
