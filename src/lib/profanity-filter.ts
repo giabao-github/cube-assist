@@ -90,6 +90,8 @@ export class ProfanityFilter {
   private wordVariationsCache = new Map<string, string[]>();
 
   private async compileWordPatterns(): Promise<void> {
+    if (this.wordPatterns.size > 0) return;
+
     for (const config of PROFANITY_CONFIG) {
       const patterns: RegExp[] = [];
       const words = new Set<string>();

@@ -184,7 +184,13 @@ export class LanguageDetector {
       englishConfig?.words ?? new Set<string>();
 
     for (const indicator of englishProfanityIndicators) {
-      if (cleanText.includes(indicator)) {
+      let found = false;
+      for (let i = 0; i <= cleanText.length - indicator.length; i++) {
+        if (cleanText.substring(i, i + indicator.length) === indicator) {
+          found = true;
+        }
+      }
+      if (found) {
         return "en";
       }
     }
