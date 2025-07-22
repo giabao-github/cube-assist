@@ -52,8 +52,10 @@ export class ProfanityFilter {
     this.setupFilters();
   }
 
-  private log(): void {
-    // Debug logging removed for production
+  private log(message: string, data?: unknown): void {
+    if (this.config.debug) {
+      console.log(`[ProfanityFilter] ${message}`, data || "");
+    }
   }
 
   private async setupFilters(): Promise<void> {
@@ -72,7 +74,7 @@ export class ProfanityFilter {
           this.leoProfanityAvailable = true;
         }
       } catch {
-        // Debug logging removed
+        // Debug logging removed in production
       }
 
       await this.compileWordPatterns();
@@ -227,13 +229,18 @@ export class ProfanityFilter {
     } else {
       const detectionResult = await LanguageDetector.getInstance().detect(text);
       detectedLanguage = detectionResult.language as Language;
+
+      if (detectedLanguage === "und" || !detectedLanguage) {
+        detectedLanguage =
+          LanguageDetector.getInstance().detectFromContent(text);
+      }
     }
+
     const cacheKey = this.getCacheKey(text, method, detectedLanguage);
 
     this.cacheAttempts++;
     if (this.cache.has(cacheKey)) {
       this.cacheHits++;
-      // Move key to end to mark as recently used
       const value = this.cache.get(cacheKey)!;
       this.cache.delete(cacheKey);
       this.cache.set(cacheKey, value);
@@ -287,17 +294,33 @@ export class ProfanityFilter {
     word: string,
     language: Language = "vi",
   ): boolean {
-    const normalizedText =
-      language === "en" ? normalizeProfanity(text) : normalize(text);
-    const normalizedWord =
-      language === "en" ? normalizeProfanity(word) : normalize(word);
+    const testTexts = [
+      text,
+      text.toLowerCase(),
+      language === "en" ? normalizeProfanity(text) : normalize(text),
+    ];
 
-    // Use word boundary regex for more accurate matching
-    const wordRegex = new RegExp(
-      `\\b${this.escapeRegExp(normalizedWord)}\\b`,
-      "gi",
-    );
-    return wordRegex.test(normalizedText);
+    const testWords = [
+      word,
+      word.toLowerCase(),
+      language === "en" ? normalizeProfanity(word) : normalize(word),
+    ];
+
+    for (const testText of testTexts) {
+      for (const testWord of testWords) {
+        if (testText === testWord) return true;
+
+        const wordRegex = new RegExp(
+          `\\b${this.escapeRegExp(testWord)}\\b`,
+          "gi",
+        );
+        if (wordRegex.test(testText)) return true;
+
+        if (testText.includes(testWord) && testWord.length >= 4) return true;
+      }
+    }
+
+    return false;
   }
 
   private checkMultilingualPhrasesOptimized(text: string): boolean {
@@ -423,49 +446,66 @@ export class ProfanityFilter {
         confidence += 0.6;
       }
 
-      if (language !== "all") {
-        const patterns = this.wordPatterns.get(language) || [];
-        const compiledWords = this.compiledWords.get(language) || new Set();
+      const languagesToCheck = language === "all" ? ["en", "vi"] : [language];
 
-        // Use appropriate normalization based on language
-        const normalizedText =
-          language === "en" ? normalizeProfanity(text) : normalize(text);
+      for (const lang of languagesToCheck) {
+        const patterns = this.wordPatterns.get(lang as Language) || [];
+        const compiledWords =
+          this.compiledWords.get(lang as Language) || new Set();
 
-        // Check individual words
-        for (const word of compiledWords) {
-          if (this.matchesSingleWord(text, word, language)) {
-            hasProfanity = true;
-            detectedWords.push(word);
-            confidence += 0.4;
-          }
-        }
+        // Apply patterns to multiple normalization levels
+        const testTexts = [
+          text.toLowerCase().trim(),
+          lang === "en" ? normalizeProfanity(text) : normalize(text),
+        ];
 
-        // Check patterns
-        for (const pattern of patterns) {
-          const matches = normalizedText.match(pattern);
-          if (matches?.some((m) => m?.trim().length > 0)) {
-            hasProfanity = true;
-            detectedWords.push(...matches.filter((m) => m?.trim()));
-            confidence += 0.3;
-          }
-        }
-
-        // Check phrases with improved matching
-        const config = PROFANITY_CONFIG.find((c) => c.language === language);
-        if (config?.phrases) {
-          for (const phrase of config.phrases) {
-            if (this.matchesPhrase(text, phrase, language)) {
+        // Check patterns first (higher priority)
+        for (const testText of testTexts) {
+          for (const pattern of patterns) {
+            const matches = testText.match(pattern);
+            if (matches?.some((m) => m?.trim().length > 0)) {
               hasProfanity = true;
-              detectedWords.push(phrase);
+              detectedWords.push(...matches.filter((m) => m?.trim()));
+              confidence += 0.5;
+              break;
+            }
+          }
+          if (hasProfanity) break;
+        }
+
+        // Check individual words if no pattern matches yet
+        if (!hasProfanity) {
+          for (const word of compiledWords) {
+            if (this.matchesSingleWord(text, word, lang as Language)) {
+              hasProfanity = true;
+              detectedWords.push(word);
               confidence += 0.4;
+              break;
             }
           }
         }
+
+        // Check phrases
+        const config = PROFANITY_CONFIG.find((c) => c.language === lang);
+        if (config?.phrases && !hasProfanity) {
+          for (const phrase of config.phrases) {
+            if (this.matchesPhrase(text, phrase, lang as Language)) {
+              hasProfanity = true;
+              detectedWords.push(phrase);
+              confidence += 0.4;
+              break;
+            }
+          }
+        }
+
+        if (hasProfanity) break;
       }
 
-      // Library-based checking (only for English or "all")
+      // Library-based checking
       if (
-        (language === "en" || language === "all") &&
+        (language === "en" ||
+          language === "all" ||
+          languagesToCheck.includes("en")) &&
         this.badWordsFilter &&
         this.toadProfanity
       ) {
@@ -542,44 +582,38 @@ export class ProfanityFilter {
       return text;
     }
 
-    if (!this.badWordsFilter || !this.toadProfanity) {
-      console.warn("Filters not initialized, returning original text");
-      return text;
-    }
-
     try {
       const detectionResult = await LanguageDetector.getInstance().detect(text);
       const language = detectionResult.language as Language;
       let cleaned = text;
 
-      // ENHANCED: Clean against all languages, not just detected language
+      // CRITICAL: Apply pattern-based cleaning FIRST before word-by-word cleaning
       for (const config of PROFANITY_CONFIG) {
+        const patterns = this.wordPatterns.get(config.language) || [];
+
+        // Apply patterns with multiple normalization levels
+        for (const pattern of patterns) {
+          // Create a more flexible replacement pattern
+          cleaned = cleaned.replace(pattern, (match) => {
+            return "*".repeat(Math.max(match.trim().length, 3));
+          });
+        }
+
+        // Then clean individual words and phrases
         const compiledWords =
           this.compiledWords.get(config.language) || new Set();
-
-        // Clean individual words
         for (const word of compiledWords) {
           const regex = new RegExp(`\\b${this.escapeRegExp(word)}\\b`, "gi");
           cleaned = cleaned.replace(regex, "*".repeat(word.length));
         }
 
-        // Apply pattern-based cleaning
-        const patterns = this.wordPatterns.get(config.language) || [];
-        for (const pattern of patterns) {
-          cleaned = cleaned.replace(pattern, (match) =>
-            "*".repeat(match.length),
-          );
-        }
-
-        // Clean phrases with improved matching
         for (const phrase of config.phrases) {
-          // Create case-insensitive regex for phrase replacement
           const regex = new RegExp(`\\b${this.escapeRegExp(phrase)}\\b`, "gi");
           cleaned = cleaned.replace(regex, "*".repeat(phrase.length));
         }
       }
 
-      // Apply library-based cleaning for English
+      // Apply library-based cleaning last
       if (language === "en" || language === "all") {
         switch (method) {
           case "fast":
@@ -827,7 +861,7 @@ export class ProfanityFilter {
 export const createProfanityFilter = async (
   config?: Partial<FilterConfig>,
 ): Promise<ProfanityFilter> => {
-  const filter = new ProfanityFilter(config);
+  const filter = new ProfanityFilter({ ...config, debug: true });
   await filter.reinitialize();
   return filter;
 };

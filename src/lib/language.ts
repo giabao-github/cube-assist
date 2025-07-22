@@ -1,10 +1,11 @@
-import { CldFactory, LanguageCode, LanguageResult, loadModule } from "cld3-asm";
+import { CldFactory, LanguageResult, loadModule } from "cld3-asm";
 
 import {
   CLD3Detector,
   LanguageDetectionOptions,
   LanguageDetectionResult,
 } from "@/types/language";
+import { Language } from "@/types/profanity";
 
 export class LanguageDetector {
   private static instance: LanguageDetector;
@@ -56,7 +57,7 @@ export class LanguageDetector {
         /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/gi;
       if (vietnameseChars.test(text)) {
         return {
-          language: "vi" as LanguageCode,
+          language: "vi",
           confidence: 1,
           isReliable: true,
           bytes: [],
@@ -73,7 +74,7 @@ export class LanguageDetector {
     // Check minimum length
     if (text.trim().length < minLength) {
       return {
-        language: fallbackLanguage as LanguageCode,
+        language: fallbackLanguage,
         confidence: 0,
         isReliable: false,
         bytes: [],
@@ -82,29 +83,25 @@ export class LanguageDetector {
     }
 
     try {
-      // Load CLD3 if not already loaded
       const cld3 = await this.loadCLD3();
 
-      // Truncate text if too long to improve performance
       const textToAnalyze =
         text.length > maxTextLength ? text.substring(0, maxTextLength) : text;
 
-      // Perform language detection
       const result = cld3.findLanguage(textToAnalyze);
 
       return {
-        language: result.language || fallbackLanguage,
-        confidence: result.probability || 0,
-        isReliable: result.is_reliable || false,
+        language: result.language,
+        confidence: result.probability,
+        isReliable: result.is_reliable,
         bytes: result.byte_ranges,
-        proportion: result.proportion || 0,
+        proportion: result.proportion,
       };
     } catch (error) {
       console.error("Language detection failed:", error);
 
-      // Return fallback result on error
       return {
-        language: fallbackLanguage as LanguageCode,
+        language: fallbackLanguage,
         confidence: 0,
         isReliable: false,
         bytes: [],
@@ -127,7 +124,7 @@ export class LanguageDetector {
     if (!text || typeof text !== "string" || text.trim().length < minLength) {
       return [
         {
-          language: fallbackLanguage as LanguageCode,
+          language: fallbackLanguage,
           confidence: 0,
           isReliable: false,
           bytes: [],
@@ -157,7 +154,7 @@ export class LanguageDetector {
       console.error("Multiple language detection failed:", error);
       return [
         {
-          language: fallbackLanguage as LanguageCode,
+          language: fallbackLanguage,
           confidence: 0,
           isReliable: false,
           bytes: [],
@@ -165,6 +162,63 @@ export class LanguageDetector {
         },
       ];
     }
+  }
+
+  public detectFromContent(text: string): Language {
+    const cleanText = text.toLowerCase().trim();
+
+    // Check for Vietnamese characters first (more specific)
+    const vietnameseChars =
+      /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/;
+    if (vietnameseChars.test(cleanText)) {
+      return "vi";
+    }
+
+    // Check against known English profanity words
+    const englishProfanityIndicators = [
+      "fuck",
+      "ass",
+      "bitch",
+      "cock",
+      "dick",
+      "pussy",
+      "cunt",
+      "motherfuck",
+      "bullshit",
+      "jackass",
+      "dumbass",
+      "asshole",
+      "bastard",
+      "prick",
+      "slut",
+      "whore",
+      "fag",
+      "nigger",
+      "retard",
+      "gay",
+      "lesbian",
+      "tranny",
+      "dyke",
+      "kike",
+      "nazi",
+    ];
+
+    for (const indicator of englishProfanityIndicators) {
+      if (cleanText.includes(indicator)) {
+        return "en";
+      }
+    }
+
+    // Check for Latin alphabet (likely English)
+    const hasLatinChars = /[a-z]/i.test(cleanText);
+    const hasOnlyLatinAndCommon =
+      /^[a-z0-9\s.,!?@#$%^&*()_+\-=\[\]{}|;':"\\/<>?`~]*$/i.test(cleanText);
+
+    if (hasLatinChars && hasOnlyLatinAndCommon) {
+      return "en";
+    }
+
+    return "all";
   }
 
   public isDetectionReliable(

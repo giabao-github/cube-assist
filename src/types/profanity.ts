@@ -1,5 +1,7 @@
+import { LanguageCode } from "cld3-asm";
+
 export type FilterMethod = "fast" | "comprehensive" | "advanced" | "hybrid";
-export type Language = "en" | "vi" | "all";
+export type Language = "en" | "vi" | "all" | LanguageCode;
 
 export interface ProfanityResult {
   original: string;
