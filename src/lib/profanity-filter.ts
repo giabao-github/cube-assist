@@ -261,7 +261,7 @@ export class ProfanityFilter {
 
   private normalizeVietnamese(text: string): string {
     let normalized = text.normalize("NFC").toLowerCase().trim();
-    normalized = normalized.replace(/[\u200B\u200C\uFEFF\u00AD]/g, "");
+    normalized = normalized.replace(/[\u200B\uFEFF\u00AD]/g, "");
     normalized = normalized.replace(/\s+/g, " ");
     return normalized;
   }
@@ -861,12 +861,14 @@ export class ProfanityFilter {
 export const createProfanityFilter = async (
   config?: Partial<FilterConfig>,
 ): Promise<ProfanityFilter> => {
-  const filter = new ProfanityFilter({ ...config, debug: true });
+  const filter = new ProfanityFilter({
+    ...config,
+    debug: config?.debug ?? false,
+  });
   await filter.reinitialize();
   return filter;
 };
 
-// Singleton instance
 let globalFilter: ProfanityFilter | null = null;
 
 export const getGlobalFilter = async (): Promise<ProfanityFilter> => {

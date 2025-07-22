@@ -1,5 +1,7 @@
 import { CldFactory, LanguageResult, loadModule } from "cld3-asm";
 
+import { PROFANITY_CONFIG } from "@/config/profanity";
+
 import {
   CLD3Detector,
   LanguageDetectionOptions,
@@ -51,6 +53,19 @@ export class LanguageDetector {
       fallbackLanguage = "en",
       vietnameseDetectionThreshold = 20,
     } = options;
+    if (!text || typeof text !== "string") {
+      throw new Error("Invalid text input: must be a non-empty string");
+    }
+
+    if (text.trim().length < minLength) {
+      return {
+        language: fallbackLanguage,
+        confidence: 0,
+        isReliable: false,
+        bytes: [],
+        proportion: 0,
+      };
+    }
 
     if (text.length < vietnameseDetectionThreshold) {
       const vietnameseChars =
@@ -64,22 +79,6 @@ export class LanguageDetector {
           proportion: 1,
         };
       }
-    }
-
-    // Validate input
-    if (!text || typeof text !== "string") {
-      throw new Error("Invalid text input: must be a non-empty string");
-    }
-
-    // Check minimum length
-    if (text.trim().length < minLength) {
-      return {
-        language: fallbackLanguage,
-        confidence: 0,
-        isReliable: false,
-        bytes: [],
-        proportion: 0,
-      };
     }
 
     try {
@@ -175,33 +174,12 @@ export class LanguageDetector {
     }
 
     // Check against known English profanity words
-    const englishProfanityIndicators = [
-      "fuck",
-      "ass",
-      "bitch",
-      "cock",
-      "dick",
-      "pussy",
-      "cunt",
-      "motherfuck",
-      "bullshit",
-      "jackass",
-      "dumbass",
-      "asshole",
-      "bastard",
-      "prick",
-      "slut",
-      "whore",
-      "fag",
-      "nigger",
-      "retard",
-      "gay",
-      "lesbian",
-      "tranny",
-      "dyke",
-      "kike",
-      "nazi",
-    ];
+    const englishConfig = PROFANITY_CONFIG.find(
+      (config) => config.language === "en",
+    );
+    const englishProfanityIndicators = englishConfig
+      ? Array.from(englishConfig.words).slice(0, 10)
+      : [];
 
     for (const indicator of englishProfanityIndicators) {
       if (cleanText.includes(indicator)) {
