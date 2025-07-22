@@ -2,6 +2,7 @@ import { UseFormReturn } from "react-hook-form";
 
 import { EyeIcon, EyeOffIcon, LockIcon } from "lucide-react";
 
+import { PasswordStrengthIndicator } from "@/components/auth/password-strength-indicator";
 import {
   FormControl,
   FormField,
@@ -46,17 +47,19 @@ export const RegisterPasswordFields = ({
             </FormLabel>
             <FormControl>
               <div className="relative group">
-                <LockIcon className="absolute left-3 top-1/2 w-4 h-4 transition-colors transform -translate-y-1/2 text-secondary/50 md:text-gray-400 group-focus-within:text-secondary md:group-focus-within:text-primary" />
+                <LockIcon className="absolute w-4 h-4 transition-colors transform -translate-y-1/2 left-3 top-1/2 text-secondary/50 md:text-gray-400 group-focus-within:text-secondary md:group-focus-within:text-primary" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder={PLACEHOLDERS.registerPassword}
                   {...field}
-                  className={getInputClassName(!!fieldState.error)}
+                  className={getInputClassName(
+                    !!fieldState.error && !field.value,
+                  )}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transition-all duration-200 transform -translate-y-1/2 text-secondary/50 md:text-gray-400 hover:text-secondary/80 md:hover:text-gray-600 hover:scale-110 active:scale-95"
+                  className="absolute transition-all duration-200 transform -translate-y-1/2 right-3 top-1/2 text-secondary/50 md:text-gray-400 hover:text-secondary/80 md:hover:text-gray-600 hover:scale-110 active:scale-95"
                 >
                   {showPassword ? (
                     <EyeOffIcon className="w-4 h-4" />
@@ -66,11 +69,13 @@ export const RegisterPasswordFields = ({
                 </button>
               </div>
             </FormControl>
-            <div className="leading-tight min-h-4">
-              {fieldState.error && (
+            <div className="leading-tight min-h-16">
+              {fieldState.error && !field.value ? (
                 <p className="text-xs text-red-400/90 md:text-red-600">
                   {fieldState.error.message}
                 </p>
+              ) : (
+                <PasswordStrengthIndicator password={field.value} />
               )}
             </div>
           </FormItem>
@@ -86,7 +91,7 @@ export const RegisterPasswordFields = ({
             </FormLabel>
             <FormControl>
               <div className="relative group">
-                <LockIcon className="absolute left-3 top-1/2 w-4 h-4 transition-colors transform -translate-y-1/2 text-secondary/50 md:text-gray-400 group-focus-within:text-secondary md:group-focus-within:text-primary" />
+                <LockIcon className="absolute w-4 h-4 transition-colors transform -translate-y-1/2 left-3 top-1/2 text-secondary/50 md:text-gray-400 group-focus-within:text-secondary md:group-focus-within:text-primary" />
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder={PLACEHOLDERS.confirmPassword}
@@ -96,7 +101,7 @@ export const RegisterPasswordFields = ({
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transition-all duration-200 transform -translate-y-1/2 text-secondary/50 md:text-gray-400 hover:text-secondary/80 md:hover:text-gray-600 hover:scale-110 active:scale-95"
+                  className="absolute transition-all duration-200 transform -translate-y-1/2 right-3 top-1/2 text-secondary/50 md:text-gray-400 hover:text-secondary/80 md:hover:text-gray-600 hover:scale-110 active:scale-95"
                 >
                   {showConfirmPassword ? (
                     <EyeOffIcon className="w-4 h-4" />
@@ -106,11 +111,13 @@ export const RegisterPasswordFields = ({
                 </button>
               </div>
             </FormControl>
-            <div className="leading-tight min-h-4">
-              {fieldState.error && (
+            <div className="leading-tight min-h-16">
+              {fieldState.error ? (
                 <p className="text-xs text-red-400/90 md:text-red-600">
                   {fieldState.error.message}
                 </p>
+              ) : (
+                <PasswordStrengthIndicator password="" />
               )}
             </div>
           </FormItem>

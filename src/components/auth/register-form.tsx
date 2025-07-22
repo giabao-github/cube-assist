@@ -112,7 +112,7 @@ export const RegisterForm = () => {
         className={cn("col-span-1 p-6 md:col-span-6 md:p-8", notosan.className)}
       >
         <div className="flex flex-col gap-y-8 md:gap-y-6">
-          <div className="flex flex-col gap-y-2 items-center mb-2 text-center md:mb-3">
+          <div className="flex flex-col items-center mb-2 text-center gap-y-2 md:mb-3">
             <h1 className="text-xl font-bold md:text-2xl text-secondary md:text-gray-900">
               {AUTH_FORM_TEXTS.registerWelcome}
             </h1>
@@ -176,20 +176,20 @@ export const RegisterForm = () => {
           <Button
             disabled={isButtonDisabled}
             type="submit"
-            className="mt-3 w-full h-10 text-sm font-semibold text-black bg-white transition duration-200 md:text-white md:mt-4 md:bg-custom-600 hover:bg-custom-500 hover:shadow-lg disabled:hover:shadow-none group"
+            className="w-full h-10 text-sm font-semibold text-black transition duration-200 bg-white md:text-white md:bg-custom-600 hover:bg-custom-500 hover:shadow-lg disabled:hover:shadow-none group"
           >
             {pending ? (
-              <span className="flex gap-x-2 items-center">
-                <span className="w-4 h-4 rounded-full border-2 animate-spin border-black/20 border-t-black md:border-white/20 md:border-t-white" />
+              <span className="flex items-center gap-x-2">
+                <span className="w-4 h-4 border-2 rounded-full animate-spin border-black/20 border-t-black md:border-white/20 md:border-t-white" />
                 {BUTTON_TEXTS.pendingRegister}
               </span>
             ) : isButtonDisabled ? (
-              <span className="flex gap-x-2 items-center">
+              <span className="flex items-center gap-x-2">
                 <IoWarningOutline />
                 {submitButtonText}
               </span>
             ) : (
-              <span className="flex gap-x-2 items-center">
+              <span className="flex items-center gap-x-2">
                 {submitButtonText}
                 <FaArrowRightLong className="group-hover:transform group-hover:translate-x-1 group-active:transform group-active:translate-x-1" />
               </span>
