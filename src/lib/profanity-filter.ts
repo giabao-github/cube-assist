@@ -1,14 +1,15 @@
 import { Profanity } from "@2toad/profanity";
 import { Filter } from "bad-words";
 
-import { CUSTOM_PROFANITY_WORDS, PROFANITY_CONFIG } from "@/config/profanity";
+import { PROFANITY_CONFIG, getCustomProfanityWords } from "@/config/profanity";
 
+import { LanguageDetector } from "@/lib/language";
 import {
   clearNormalizationCache,
-  detectLanguage,
   getWordVariations,
   normalize,
-} from "@/lib/language";
+} from "@/lib/language-utils";
+import { normalizeProfanity } from "@/lib/text-utils";
 
 import {
   CacheStats,
@@ -30,6 +31,7 @@ export class ProfanityFilter {
   private leoProfanityAvailable: boolean = false;
   private wordPatterns: Map<Language, RegExp[]>;
   private compiledWords: Map<Language, Set<string>>;
+  private normalizedWords: Map<Language, Set<string>>;
 
   constructor(config: Partial<FilterConfig> = {}) {
     this.config = {
@@ -44,14 +46,15 @@ export class ProfanityFilter {
     this.cache = new Map();
     this.wordPatterns = new Map();
     this.compiledWords = new Map();
+    this.normalizedWords = new Map();
     this.badWordsFilter = new Filter();
     this.toadProfanity = new Profanity();
     this.setupFilters();
   }
 
-  private log(message: string, ...args: unknown[]): void {
+  private log(message: string, data?: unknown): void {
     if (this.config.debug) {
-      console.log(`[ProfanityFilter] ${message}`, ...args);
+      console.log(`[ProfanityFilter] ${message}`, data || "");
     }
   }
 
@@ -65,23 +68,21 @@ export class ProfanityFilter {
         languages: this.config.languages.includes("en") ? ["en"] : [],
       });
 
-      // Try to load leo-profanity
       try {
         const leoProfanity = await import("leo-profanity");
         if (leoProfanity && typeof leoProfanity.check === "function") {
           this.leoProfanityAvailable = true;
         }
-      } catch (error) {
-        this.log("leo-profanity not available:", error);
+      } catch {
+        // Debug logging removed in production
       }
 
       await this.compileWordPatterns();
       await this.addCustomWords();
 
       this.isInitialized = true;
-      this.log("Profanity filter initialized successfully");
     } catch (error) {
-      console.error("Failed to initialize profanity filters:", error);
+      console.error("Failed to initialize profanity filters: ", error);
       this.isInitialized = false;
     }
   }
@@ -89,9 +90,12 @@ export class ProfanityFilter {
   private wordVariationsCache = new Map<string, string[]>();
 
   private async compileWordPatterns(): Promise<void> {
+    if (this.wordPatterns.size > 0) return;
+
     for (const config of PROFANITY_CONFIG) {
       const patterns: RegExp[] = [];
       const words = new Set<string>();
+      const normalizedWords = new Set<string>();
 
       // Pre-compute all variations in batches
       const allVariations = new Map<string, string[]>();
@@ -103,25 +107,57 @@ export class ProfanityFilter {
       }
 
       // Compile word patterns
-      for (const [, variations] of allVariations) {
+      for (const [originalWord, variations] of allVariations) {
+        // Add original word and its normalized version
+        words.add(originalWord);
+        const normalizedOriginal =
+          config.language === "en"
+            ? normalizeProfanity(originalWord)
+            : normalize(originalWord);
+        normalizedWords.add(normalizedOriginal);
+
+        // Create pattern for original word (with word boundaries)
+        patterns.push(
+          new RegExp(`\\b${this.escapeRegExp(originalWord)}\\b`, "gi"),
+        );
+
+        // Add variations
         variations.forEach((variation) => {
           words.add(variation);
+          const normalizedVariation =
+            config.language === "en"
+              ? normalizeProfanity(variation)
+              : normalize(variation);
+          normalizedWords.add(normalizedVariation);
+
           patterns.push(
             new RegExp(`\\b${this.escapeRegExp(variation)}\\b`, "gi"),
           );
         });
       }
 
-      // Add phrase patterns
+      // Add phrase patterns with improved handling
       for (const phrase of config.phrases) {
-        patterns.push(new RegExp(`\\b${this.escapeRegExp(phrase)}\\b`, "gi"));
+        words.add(phrase);
+        const normalizedPhrase =
+          config.language === "en"
+            ? normalizeProfanity(phrase)
+            : normalize(phrase);
+        normalizedWords.add(normalizedPhrase);
+
+        // Create flexible phrase patterns that handle spacing variations
+        const flexiblePhrase = phrase.replace(/\s+/g, "\\s*");
+        patterns.push(
+          new RegExp(`\\b${this.escapeRegExp(flexiblePhrase)}\\b`, "gi"),
+        );
       }
 
-      // Add existing patterns
+      // Add existing regex patterns
       patterns.push(...config.patterns);
 
       this.wordPatterns.set(config.language, patterns);
       this.compiledWords.set(config.language, words);
+      this.normalizedWords.set(config.language, normalizedWords);
     }
   }
 
@@ -131,38 +167,31 @@ export class ProfanityFilter {
 
   private async addCustomWords(): Promise<void> {
     if (!this.badWordsFilter || !this.toadProfanity) {
-      this.log("Filters not initialized, skipping custom words");
       return;
     }
 
     try {
-      const allWords = Array.from(CUSTOM_PROFANITY_WORDS.values()).flat();
-      const validWords = allWords.filter(
-        (word) => word && typeof word === "string" && word.trim().length > 0,
-      );
+      // Only add English words/phrases to English libraries
+      const englishWords = getCustomProfanityWords().get("en") || [];
+      if (englishWords.length === 0) return;
 
-      if (validWords.length === 0) return;
-
-      this.badWordsFilter.addWords(...validWords);
-      this.toadProfanity.addWords(validWords);
+      this.badWordsFilter.addWords(...englishWords);
+      this.toadProfanity.addWords(englishWords);
 
       if (this.leoProfanityAvailable) {
         const leoProfanity = await import("leo-profanity");
-        leoProfanity.add(validWords);
+        leoProfanity.add(englishWords);
       }
-
-      this.log(`Added ${validWords.length} custom words`);
     } catch (error) {
       console.error("Failed to add custom words:", error);
     }
   }
 
   private manageCacheSize(): void {
-    if (this.cache.size >= this.config.cacheSize) {
-      // Remove oldest 10% of entries
-      const entriesToRemove = Math.floor(this.config.cacheSize * 0.1);
-      const keys = Array.from(this.cache.keys()).slice(0, entriesToRemove);
-      keys.forEach((key) => this.cache.delete(key));
+    const excessCount = this.cache.size - this.config.cacheSize;
+    if (excessCount > 0) {
+      const keysToRemove = Array.from(this.cache.keys()).slice(0, excessCount);
+      keysToRemove.forEach((key) => this.cache.delete(key));
     }
   }
 
@@ -196,14 +225,28 @@ export class ProfanityFilter {
       return false;
     }
 
-    const detectedLanguage = language || detectLanguage(text);
+    let detectedLanguage: Language;
+    if (language) {
+      detectedLanguage = language;
+    } else {
+      const detectionResult = await LanguageDetector.getInstance().detect(text);
+      detectedLanguage = detectionResult.language as Language;
+
+      if (detectedLanguage === "und" || !detectedLanguage) {
+        detectedLanguage =
+          LanguageDetector.getInstance().detectFromContent(text);
+      }
+    }
+
     const cacheKey = this.getCacheKey(text, method, detectedLanguage);
 
     this.cacheAttempts++;
-    const cached = this.cache.get(cacheKey);
-    if (cached) {
+    if (this.cache.has(cacheKey)) {
       this.cacheHits++;
-      return cached.hasProfanity;
+      const value = this.cache.get(cacheKey)!;
+      this.cache.delete(cacheKey);
+      this.cache.set(cacheKey, value);
+      return value.hasProfanity;
     }
 
     const result = await this.performProfanityCheck(
@@ -218,76 +261,334 @@ export class ProfanityFilter {
     return result.hasProfanity;
   }
 
+  private normalizeVietnamese(text: string): string {
+    let normalized = text.normalize("NFC").toLowerCase().trim();
+    normalized = normalized.replace(/[\u200B\uFEFF\u00AD]/g, "");
+    normalized = normalized.replace(/\s+/g, " ");
+    return normalized;
+  }
+
+  private matchesPhrase(
+    text: string,
+    phrase: string,
+    language: Language = "vi",
+  ): boolean {
+    // Normalize both text and phrase based on language
+    const normalizedText =
+      language === "en"
+        ? normalizeProfanity(text)
+        : this.normalizeVietnamese(text);
+    const normalizedPhrase =
+      language === "en"
+        ? normalizeProfanity(phrase)
+        : this.normalizeVietnamese(phrase);
+
+    const phraseRegex = new RegExp(
+      `\\b${this.escapeRegExp(normalizedPhrase)}\\b`,
+      "gi",
+    );
+
+    return phraseRegex.test(normalizedText);
+  }
+
+  private matchesSingleWord(
+    text: string,
+    word: string,
+    language: Language = "vi",
+  ): boolean {
+    const testTexts = [
+      text,
+      text.toLowerCase(),
+      language === "en" ? normalizeProfanity(text) : normalize(text),
+    ];
+
+    const testWords = [
+      word,
+      word.toLowerCase(),
+      language === "en" ? normalizeProfanity(word) : normalize(word),
+    ];
+
+    let found = false;
+    for (const testText of testTexts) {
+      for (const testWord of testWords) {
+        if (testText === testWord) {
+          found = true;
+        }
+        const wordRegex = new RegExp(
+          `\\b${this.escapeRegExp(testWord)}\\b`,
+          "gi",
+        );
+        if (wordRegex.test(testText)) {
+          found = true;
+        }
+        if (testText.includes(testWord) && testWord.length >= 4) {
+          found = true;
+        }
+      }
+    }
+    return found;
+  }
+
+  // Constant-time mitigation: always check all words, never return early, to prevent timing attacks.
+  private checkMultilingualPhrasesOptimized(text: string): boolean {
+    let found = false;
+    for (const config of PROFANITY_CONFIG) {
+      for (const word of config.words) {
+        if (this.matchesSingleWord(text, word, config.language)) {
+          found = true;
+        }
+      }
+    }
+    return found;
+  }
+
+  private checkMultilingualPhrases(text: string): boolean {
+    if (text.length > 1000) {
+      return this.checkMultilingualPhrasesOptimized(text);
+    }
+
+    // Use Set to track checked segments for deduplication
+    const checkedSegments = new Set<string>();
+    let found = false;
+
+    const hasEnglishWords = /[a-zA-Z]/.test(text);
+    const hasVietnameseChars =
+      /[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]/.test(
+        text,
+      );
+
+    // Pre-normalize text for each language to avoid repeated normalization
+    const normalizedEN = normalizeProfanity(text);
+    const normalizedVI = this.normalizeVietnamese(text);
+
+    if (hasEnglishWords && hasVietnameseChars) {
+      // Process whole text first
+      for (const config of PROFANITY_CONFIG) {
+        const normalizedText =
+          config.language === "en" ? normalizedEN : normalizedVI;
+
+        // Check words and phrases in parallel
+        const results = [...config.words].map((word) =>
+          this.matchesSingleWord(normalizedText, word, config.language),
+        );
+
+        if (results.some(Boolean)) {
+          found = true;
+          break;
+        }
+
+        // Check phrases similarly
+        const phraseResults = [...config.phrases].map((phrase) =>
+          this.matchesPhrase(normalizedText, phrase, config.language),
+        );
+
+        if (phraseResults.some(Boolean)) {
+          found = true;
+          break;
+        }
+      }
+
+      // If not found, check word combinations
+      if (!found) {
+        const words = text.split(/\s+/);
+        const maxWords = Math.min(words.length, 200);
+
+        for (let i = 0; i < maxWords; i++) {
+          // Optimize window size based on typical phrase lengths
+          for (let j = i + 1; j <= Math.min(maxWords, i + 5); j++) {
+            const segment = words.slice(i, j).join(" ");
+
+            // Skip if segment already checked
+            if (checkedSegments.has(segment)) continue;
+            checkedSegments.add(segment);
+
+            // Check segment against all configurations
+            for (const config of PROFANITY_CONFIG) {
+              const normalizedSegment =
+                config.language === "en"
+                  ? normalizeProfanity(segment)
+                  : this.normalizeVietnamese(segment);
+
+              if (
+                [...config.words].some((word) =>
+                  this.matchesSingleWord(
+                    normalizedSegment,
+                    word,
+                    config.language,
+                  ),
+                )
+              ) {
+                found = true;
+                break;
+              }
+
+              if (
+                [...config.phrases].some((phrase) =>
+                  this.matchesPhrase(
+                    normalizedSegment,
+                    phrase,
+                    config.language,
+                  ),
+                )
+              ) {
+                found = true;
+                break;
+              }
+            }
+            if (found) break;
+          }
+          if (found) break;
+        }
+      }
+    } else {
+      // Single language optimization
+      for (const config of PROFANITY_CONFIG) {
+        const normalizedText =
+          config.language === "en" ? normalizedEN : normalizedVI;
+
+        if (
+          [...config.words].some((word) =>
+            this.matchesSingleWord(normalizedText, word, config.language),
+          )
+        ) {
+          found = true;
+          break;
+        }
+
+        if (
+          [...config.phrases].some((phrase) =>
+            this.matchesPhrase(normalizedText, phrase, config.language),
+          )
+        ) {
+          found = true;
+          break;
+        }
+      }
+    }
+    return found;
+  }
+
   private async performProfanityCheck(
     text: string,
     method: FilterMethod,
     language: Language,
   ): Promise<ProfanityResult> {
-    const normalizedText = normalize(text);
     let hasProfanity = false;
     let confidence = 0;
     const detectedWords: string[] = [];
 
     try {
-      // Pattern matching for specific language
-      if (language !== "all") {
-        const patterns = this.wordPatterns.get(language) || [];
-        for (const pattern of patterns) {
-          const matches = normalizedText.match(pattern);
-          if (matches) {
-            hasProfanity = true;
-            detectedWords.push(...matches);
-            confidence += 0.3;
-          }
-        }
-        // Direct phrase matching (normalized)
-        const config = PROFANITY_CONFIG.find((c) => c.language === language);
-        if (config?.phrases) {
-          for (const phrase of config.phrases) {
-            const normalizedPhrase = normalize(phrase);
-            if (normalizedPhrase && normalizedText.includes(normalizedPhrase)) {
+      if (this.checkMultilingualPhrases(text)) {
+        hasProfanity = true;
+        confidence += 0.4;
+      }
+
+      const languagesToCheck = language === "all" ? ["en", "vi"] : [language];
+
+      for (const lang of languagesToCheck) {
+        const patterns = this.wordPatterns.get(lang as Language) || [];
+        const compiledWords =
+          this.compiledWords.get(lang as Language) || new Set();
+
+        // Apply patterns to multiple normalization levels
+        const testTexts = [
+          text.toLowerCase().trim(),
+          lang === "en" ? normalizeProfanity(text) : normalize(text),
+        ];
+
+        // Check patterns first (higher priority)
+        for (const testText of testTexts) {
+          for (const pattern of patterns) {
+            const matches = testText.match(pattern);
+            if (matches?.some((m) => m?.trim().length > 0)) {
               hasProfanity = true;
-              detectedWords.push(phrase);
-              confidence += 0.3;
+              detectedWords.push(...matches.filter((m) => m?.trim()));
+              confidence += 0.5;
+              break;
+            }
+          }
+          if (hasProfanity) break;
+        }
+
+        // Check individual words if no pattern matches yet
+        if (!hasProfanity) {
+          for (const word of compiledWords) {
+            if (this.matchesSingleWord(text, word, lang as Language)) {
+              hasProfanity = true;
+              detectedWords.push(word);
+              confidence += 0.4;
+              break;
             }
           }
         }
+
+        // Check phrases
+        const config = PROFANITY_CONFIG.find((c) => c.language === lang);
+        if (config?.phrases && !hasProfanity) {
+          for (const phrase of config.phrases) {
+            if (this.matchesPhrase(text, phrase, lang as Language)) {
+              hasProfanity = true;
+              detectedWords.push(phrase);
+              confidence += 0.4;
+              break;
+            }
+          }
+        }
+
+        if (hasProfanity) break;
       }
 
       // Library-based checking
-      if (!this.badWordsFilter || !this.toadProfanity) {
-        throw new Error("Filters not properly initialized");
-      }
-
-      switch (method) {
-        case "fast":
-          hasProfanity = hasProfanity || this.badWordsFilter.isProfane(text);
-          break;
-        case "comprehensive":
-          if (this.leoProfanityAvailable) {
-            const leoProfanity = await import("leo-profanity");
-            hasProfanity = hasProfanity || leoProfanity.check(text);
-          } else {
-            hasProfanity = hasProfanity || this.badWordsFilter.isProfane(text);
+      if (
+        (language === "en" ||
+          language === "all" ||
+          languagesToCheck.includes("en")) &&
+        this.badWordsFilter &&
+        this.toadProfanity
+      ) {
+        switch (method) {
+          case "fast":
+            if (this.badWordsFilter.isProfane(text)) {
+              hasProfanity = true;
+              confidence += 0.3;
+            }
+            break;
+          case "comprehensive":
+            if (this.leoProfanityAvailable) {
+              const leoProfanity = await import("leo-profanity");
+              if (leoProfanity.check(text)) {
+                hasProfanity = true;
+                confidence += 0.4;
+              }
+            } else {
+              if (this.badWordsFilter.isProfane(text)) {
+                hasProfanity = true;
+                confidence += 0.3;
+              }
+            }
+            break;
+          case "advanced":
+            if (this.toadProfanity.exists(text)) {
+              hasProfanity = true;
+              confidence += 0.4;
+            }
+            break;
+          default: {
+            const checks = [
+              this.badWordsFilter.isProfane(text),
+              this.toadProfanity.exists(text),
+            ];
+            if (this.leoProfanityAvailable) {
+              const leoProfanity = await import("leo-profanity");
+              checks.push(leoProfanity.check(text));
+            }
+            const positiveChecks = checks.filter(Boolean).length;
+            if (positiveChecks > 0) {
+              hasProfanity = true;
+              confidence += positiveChecks / checks.length;
+            }
+            break;
           }
-          break;
-        case "advanced":
-          hasProfanity = hasProfanity || this.toadProfanity.exists(text);
-          break;
-        default: {
-          const checks = [
-            this.badWordsFilter.isProfane(text),
-            this.toadProfanity.exists(text),
-          ];
-
-          if (this.leoProfanityAvailable) {
-            const leoProfanity = await import("leo-profanity");
-            checks.push(leoProfanity.check(text));
-          }
-
-          hasProfanity = hasProfanity || checks.some(Boolean);
-          confidence += checks.filter(Boolean).length / checks.length;
-          break;
         }
       }
 
@@ -318,37 +619,50 @@ export class ProfanityFilter {
       return text;
     }
 
-    if (!this.badWordsFilter || !this.toadProfanity) {
-      console.warn("Filters not initialized, returning original text");
-      return text;
-    }
-
     try {
-      const language = detectLanguage(text);
+      const detectionResult = await LanguageDetector.getInstance().detect(text);
+      const language = detectionResult.language as Language;
       let cleaned = text;
 
-      // Apply pattern-based cleaning for specific language
-      const patterns = this.wordPatterns.get(language) || [];
-      for (const pattern of patterns) {
-        cleaned = cleaned.replace(pattern, "***");
+      for (const config of PROFANITY_CONFIG) {
+        const patterns = this.wordPatterns.get(config.language) || [];
+
+        for (const pattern of patterns) {
+          cleaned = cleaned.replace(pattern, (match) => {
+            return "*".repeat(Math.max(match.trim().length, 3));
+          });
+        }
+
+        const compiledWords =
+          this.compiledWords.get(config.language) || new Set();
+        for (const word of compiledWords) {
+          const regex = new RegExp(`\\b${this.escapeRegExp(word)}\\b`, "gi");
+          cleaned = cleaned.replace(regex, "*".repeat(word.length));
+        }
+
+        for (const phrase of config.phrases) {
+          const regex = new RegExp(`\\b${this.escapeRegExp(phrase)}\\b`, "gi");
+          cleaned = cleaned.replace(regex, "*".repeat(phrase.length));
+        }
       }
 
-      // Apply library-based cleaning
-      switch (method) {
-        case "fast":
-          cleaned = this.badWordsFilter.clean(cleaned);
-          break;
-        case "comprehensive":
-          if (this.leoProfanityAvailable) {
-            const leoProfanity = await import("leo-profanity");
-            cleaned = leoProfanity.clean(cleaned);
-          } else {
+      if (language === "en" || language === "all") {
+        switch (method) {
+          case "fast":
             cleaned = this.badWordsFilter.clean(cleaned);
-          }
-          break;
-        default:
-          cleaned = this.toadProfanity.censor(cleaned);
-          break;
+            break;
+          case "comprehensive":
+            if (this.leoProfanityAvailable) {
+              const leoProfanity = await import("leo-profanity");
+              cleaned = leoProfanity.clean(cleaned);
+            } else {
+              cleaned = this.badWordsFilter.clean(cleaned);
+            }
+            break;
+          default:
+            cleaned = this.toadProfanity.censor(cleaned);
+            break;
+        }
       }
 
       return cleaned;
@@ -377,7 +691,9 @@ export class ProfanityFilter {
       const batch = texts.slice(i, i + batchSize);
 
       const batchPromises = batch.map(async (text) => {
-        const language = detectLanguage(text);
+        const detectionResult =
+          await LanguageDetector.getInstance().detect(text);
+        const language = detectionResult.language as Language;
         return this.performProfanityCheck(text, method, language);
       });
 
@@ -407,8 +723,8 @@ export class ProfanityFilter {
       };
     }
 
-    const language = detectLanguage(text);
-    const normalizedText = normalize(text);
+    const detectionResult = await LanguageDetector.getInstance().detect(text);
+    const language = detectionResult.language as Language;
     const detectedWords: string[] = [];
 
     if (!this.badWordsFilter || !this.toadProfanity) {
@@ -435,17 +751,43 @@ export class ProfanityFilter {
         leoProfanityResult = leoProfanity.check(text);
       }
 
-      // Check patterns for detected words
-      const patterns = this.wordPatterns.get(language) || [];
-      for (const pattern of patterns) {
-        const matches = normalizedText.match(pattern);
-        if (matches) {
-          detectedWords.push(...matches);
+      // ENHANCED: Check all languages for word detection
+      for (const config of PROFANITY_CONFIG) {
+        const compiledWords =
+          this.compiledWords.get(config.language) || new Set();
+        for (const word of compiledWords) {
+          if (this.matchesSingleWord(text, word, config.language)) {
+            detectedWords.push(word);
+          }
+        }
+
+        // Check patterns for detected words
+        const patterns = this.wordPatterns.get(config.language) || [];
+        const normalizedText =
+          config.language === "en" ? normalizeProfanity(text) : normalize(text);
+        for (const pattern of patterns) {
+          const matches = normalizedText.match(pattern);
+          if (matches) {
+            detectedWords.push(...matches.filter((m) => m?.trim()));
+          }
+        }
+
+        // Check phrases with improved detection
+        for (const phrase of config.phrases) {
+          if (this.matchesPhrase(text, phrase, config.language)) {
+            detectedWords.push(phrase);
+          }
         }
       }
 
+      // Check multilingual combinations
+      const hasMultilingual = this.checkMultilingualPhrases(text);
+
       const consensus =
-        badWordsResult || leoProfanityResult || toadProfanityResult;
+        badWordsResult ||
+        leoProfanityResult ||
+        toadProfanityResult ||
+        hasMultilingual;
 
       return {
         badWords: badWordsResult,
@@ -457,6 +799,7 @@ export class ProfanityFilter {
           badWordsResult,
           leoProfanityResult,
           toadProfanityResult,
+          hasMultilingual,
         ),
         detectedWords: [...new Set(detectedWords)],
         language,
@@ -480,8 +823,9 @@ export class ProfanityFilter {
     badWords: boolean,
     leo: boolean,
     toad: boolean,
+    multilingual: boolean = false,
   ): number {
-    const checks = [badWords, leo, toad];
+    const checks = [badWords, leo, toad, multilingual];
     const positiveCount = checks.filter(Boolean).length;
     return positiveCount / checks.length;
   }
@@ -539,6 +883,7 @@ export class ProfanityFilter {
         this.leoProfanityAvailable ? "leo-profanity" : null,
         "@2toad/profanity",
         "pattern-matching",
+        "multilingual-detection",
       ].filter(Boolean),
       supportedLanguages: this.config.languages,
     };
@@ -548,12 +893,14 @@ export class ProfanityFilter {
 export const createProfanityFilter = async (
   config?: Partial<FilterConfig>,
 ): Promise<ProfanityFilter> => {
-  const filter = new ProfanityFilter(config);
+  const filter = new ProfanityFilter({
+    ...config,
+    debug: config?.debug ?? false,
+  });
   await filter.reinitialize();
   return filter;
 };
 
-// Singleton instance
 let globalFilter: ProfanityFilter | null = null;
 
 export const getGlobalFilter = async (): Promise<ProfanityFilter> => {
