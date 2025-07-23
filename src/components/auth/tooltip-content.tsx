@@ -1,4 +1,3 @@
-// test
 import { ForwardRefExoticComponent, RefAttributes } from "react";
 
 import { CheckCircle, LucideProps } from "lucide-react";
