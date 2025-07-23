@@ -3,80 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { AlertTriangle, CheckCircle, Shield } from "lucide-react";
-import zxcvbn from "zxcvbn";
-
 import { TooltipContent } from "@/components/auth/tooltip-content";
 
-const testPassword = (password: string) => {
-  if (!password)
-    return { score: 0, feedback: { suggestions: [], warning: "" } };
+import { STRENGTH_LEVELS } from "@/constants/classes";
 
-  const score = zxcvbn(password).score;
-  const feedback = { suggestions: [] as string[], warning: "" };
-
-  // Generate feedback
-  if (password.length < 8)
-    feedback.suggestions.push("Use at least 8 characters");
-  if (!/[a-z]/.test(password))
-    feedback.suggestions.push("Add lowercase letters");
-  if (!/[A-Z]/.test(password))
-    feedback.suggestions.push("Add uppercase letters");
-  if (!/\d/.test(password)) feedback.suggestions.push("Add numbers");
-  if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password))
-    feedback.suggestions.push("Add special characters");
-
-  if (score <= 0.5) feedback.warning = "This password is very weak";
-  else if (score <= 1) feedback.warning = "This password is weak";
-  else if (score <= 1.5) feedback.warning = "This password is fair";
-  else if (score <= 2) feedback.warning = "This password is good";
-  else feedback.warning = "This password is strong";
-
-  return { score, feedback };
-};
-
-const strengthLevels = [
-  {
-    label: "Very Weak",
-    color: "bg-gradient-to-r from-red-500 to-red-600",
-    textColor: "text-red-700",
-    bgColor: "bg-red-50 border-red-200",
-    icon: AlertTriangle,
-    ringColor: "ring-red-200",
-  },
-  {
-    label: "Weak",
-    color: "bg-gradient-to-r from-orange-500 to-orange-600",
-    textColor: "text-orange-700",
-    bgColor: "bg-orange-50 border-orange-200",
-    icon: AlertTriangle,
-    ringColor: "ring-orange-200",
-  },
-  {
-    label: "Fair",
-    color: "bg-gradient-to-r from-yellow-500 to-yellow-600",
-    textColor: "text-yellow-700",
-    bgColor: "bg-yellow-50 border-yellow-200",
-    icon: Shield,
-    ringColor: "ring-yellow-200",
-  },
-  {
-    label: "Good",
-    color: "bg-gradient-to-r from-blue-500 to-blue-600",
-    textColor: "text-blue-700",
-    bgColor: "bg-blue-50 border-blue-200",
-    icon: Shield,
-    ringColor: "ring-blue-200",
-  },
-  {
-    label: "Strong",
-    color: "bg-gradient-to-r from-green-500 to-green-600",
-    textColor: "text-green-700",
-    bgColor: "bg-green-50 border-green-200",
-    icon: CheckCircle,
-    ringColor: "ring-green-200",
-  },
-];
+import { analyzePassword, checkPasswordBreach } from "@/lib/password-utils";
 
 interface PasswordStrengthIndicatorProps {
   password: string;
@@ -85,6 +16,7 @@ interface PasswordStrengthIndicatorProps {
 export const PasswordStrengthIndicator = ({
   password,
 }: PasswordStrengthIndicatorProps) => {
+  const [description, setDescription] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
@@ -105,8 +37,20 @@ export const PasswordStrengthIndicator = ({
   }, [password, debouncedPassword]);
 
   const passwordAnalysis = useMemo(() => {
-    return testPassword(debouncedPassword);
+    return analyzePassword(debouncedPassword);
   }, [debouncedPassword]);
+
+  useEffect(() => {
+    const checkPasswordPwned = async () => {
+      const result = await checkPasswordBreach(password);
+      if (result?.isPwned) {
+        setDescription(`Compromised in a data breach (${result.severity})`);
+      } else {
+        setDescription("");
+      }
+    };
+    checkPasswordPwned();
+  }, [password]);
 
   const updateTooltipPosition = () => {
     if (badgeRef.current) {
@@ -130,7 +74,9 @@ export const PasswordStrengthIndicator = ({
   };
 
   const currentLevel =
-    strengthLevels[passwordAnalysis.score] || strengthLevels[0];
+    passwordAnalysis.score >= 0
+      ? STRENGTH_LEVELS[passwordAnalysis.score]
+      : STRENGTH_LEVELS[0];
   const IconComponent = currentLevel.icon;
 
   if (!password) {
@@ -140,10 +86,11 @@ export const PasswordStrengthIndicator = ({
   const tooltipContent = (
     <TooltipContent
       passwordAnalysis={passwordAnalysis}
-      strengthLevels={strengthLevels}
+      strengthLevels={STRENGTH_LEVELS}
       tooltipPosition={tooltipPosition}
       password={debouncedPassword}
       isTyping={isTyping}
+      description={description}
     />
   );
 

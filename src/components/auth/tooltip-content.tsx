@@ -25,6 +25,7 @@ interface TooltipContentProps {
   tooltipPosition: { top: number; left: number };
   password: string;
   isTyping: boolean;
+  description?: string;
 }
 
 export const TooltipContent = ({
@@ -33,6 +34,7 @@ export const TooltipContent = ({
   tooltipPosition,
   password,
   isTyping,
+  description,
 }: TooltipContentProps) => {
   const currentLevel =
     strengthLevels[passwordAnalysis.score] || strengthLevels[0];
@@ -40,7 +42,7 @@ export const TooltipContent = ({
 
   return (
     <div
-      className="fixed z-50 p-4 bg-white border border-gray-200 rounded-lg shadow-2xl w-80 backdrop-blur-sm"
+      className="fixed z-50 p-4 bg-white border border-gray-200 rounded-lg shadow-2xl w-[360px] backdrop-blur-sm"
       style={{
         top: tooltipPosition.top,
         left: tooltipPosition.left,
@@ -64,9 +66,11 @@ export const TooltipContent = ({
               {currentLevel.label} Password
             </span>
             <p className="mt-0.5 text-xs text-gray-600">
-              {passwordAnalysis.score === 4
-                ? "Excellent security!"
-                : "Keep improving your password"}
+              {description
+                ? description
+                : passwordAnalysis.score === 4
+                  ? "Excellent security!"
+                  : "Keep improving your password"}
             </p>
           </div>
         </div>
