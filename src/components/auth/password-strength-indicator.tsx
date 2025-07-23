@@ -1,3 +1,5 @@
+// test
+
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -7,6 +9,10 @@ import { AlertTriangle, CheckCircle, Shield } from "lucide-react";
 import zxcvbn from "zxcvbn";
 
 import { TooltipContent } from "@/components/auth/tooltip-content";
+
+// test
+
+// test
 
 const testPassword = (password: string) => {
   if (!password)

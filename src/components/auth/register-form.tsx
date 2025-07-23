@@ -1,3 +1,5 @@
+// test
+
 "use client";
 
 import { useState } from "react";
@@ -37,6 +39,8 @@ import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 import { registerSchema } from "@/modules/auth/zod-schema";
+
+// test
 
 export const RegisterForm = () => {
   const router = useRouter();
