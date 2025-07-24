@@ -7,8 +7,8 @@ export type AgentGetOne = inferRouterOutputs<AppRouter>["agents"]["getOne"];
 export type Agent = {
   id: string;
   name: string;
-  userId: string;
   instructions: string;
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 };

@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+import { removeDiacritics } from "@/lib/text-utils";
 import { cn } from "@/lib/utils";
 
 interface GeneratedAvatarProps {
@@ -39,14 +40,15 @@ export const GeneratedAvatar = ({
   let avatar;
 
   try {
+    const cleanSeed = removeDiacritics(seed);
     if (variant === "botttsNeutral") {
       avatar = createAvatar(botttsNeutral, {
-        seed,
+        seed: cleanSeed,
       });
     } else {
       // Use transparent background for initials variant
       avatar = createAvatar(initials, {
-        seed,
+        seed: cleanSeed,
         fontWeight: 600,
         fontSize: 42,
         backgroundColor: ["transparent"],
