@@ -20,11 +20,16 @@ export const columns: ColumnDef<AgentGetOne>[] = [
             seed={row.original.name}
             className="size-7"
           />
-          <span className="font-semibold capitalize">{row.original.name}</span>
+          <span className="font-semibold capitalize" title={row.original.name}>
+            {row.original.name}
+          </span>
         </div>
         <div className="flex items-center gap-x-2">
           <CornerDownRightIcon className="size-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground max-w-[300px] truncate capitalize">
+          <span
+            className="text-sm text-muted-foreground max-w-[300px] truncate capitalize"
+            title={row.original.instructions}
+          >
             {row.original.instructions}
           </span>
         </div>

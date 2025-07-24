@@ -49,7 +49,13 @@ export const agentsRouter = createTRPCRouter({
         message: "Admin or developer access is required",
       });
     }
-    const data = await db.select().from(agents);
+    const data = await db
+      .select({
+        // TODO: Change to actual meeting count when implemented, the below prop is to fix ts error
+        meetingCount: sql<number>`5`,
+        ...getTableColumns(agents),
+      })
+      .from(agents);
     return data;
   }),
 
