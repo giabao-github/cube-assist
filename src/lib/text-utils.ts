@@ -26,6 +26,10 @@ const leetMap: Record<string, string> = {
   "9": "g",
 };
 
+export const removeDiacritics = (text: string): string => {
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+};
+
 export const normalizeProfanity = (text: string): string => {
   const words = text
     .normalize("NFKC")

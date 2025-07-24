@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import CapabilitiesSection from "@/components/home/capabilities-section";
 import CTASection from "@/components/home/cta-section";
-import Footer from "@/components/home/footer";
+import Footer from "@/components/home/footers";
 import Header from "@/components/home/header";
 import HeroSection from "@/components/home/hero-section";
 import InteractiveCarousel from "@/components/home/interactive-carousel";

@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, getTableColumns, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { agentsInsertSchema } from "@/modules/agents/zod-schema";
@@ -17,7 +17,11 @@ export const agentsRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
       const [existingAgent] = await db
-        .select()
+        .select({
+          // TODO: Change to actual meeting count when implemented, the below prop is to fix ts error
+          meetingCount: sql<number>`5`,
+          ...getTableColumns(agents),
+        })
         .from(agents)
         .where(
           and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
@@ -27,7 +31,11 @@ export const agentsRouter = createTRPCRouter({
 
   getMany: protectedProcedure.query(async ({ ctx }) => {
     const data = await db
-      .select()
+      .select({
+        // TODO: Change to actual meeting count when implemented, the below prop is to fix ts error
+        meetingCount: sql<number>`5`,
+        ...getTableColumns(agents),
+      })
       .from(agents)
       .where(eq(agents.userId, ctx.auth.user.id));
     return data;
@@ -41,7 +49,13 @@ export const agentsRouter = createTRPCRouter({
         message: "Admin or developer access is required",
       });
     }
-    const data = await db.select().from(agents);
+    const data = await db
+      .select({
+        // TODO: Change to actual meeting count when implemented, the below prop is to fix ts error
+        meetingCount: sql<number>`5`,
+        ...getTableColumns(agents),
+      })
+      .from(agents);
     return data;
   }),
 
