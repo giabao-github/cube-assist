@@ -260,5 +260,7 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
   }
 }
