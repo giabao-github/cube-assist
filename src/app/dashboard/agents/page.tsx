@@ -44,7 +44,7 @@ const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
 
   const validatedFilters = {
     ...filters,
-    page: filters.page || filters.page < 1 ? DEFAULT_PAGE : filters.page,
+    page: filters.page <= 1 ? DEFAULT_PAGE : filters.page,
   };
 
   try {

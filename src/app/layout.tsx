@@ -21,15 +21,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <NuqsAdapter>
-      <TRPCReactProvider>
-        <html lang="en">
-          <body className={`${poppins.className} antialiased`}>
+    <html lang="en">
+      <body className={`${poppins.className} antialiased`}>
+        <NuqsAdapter>
+          <TRPCReactProvider>
             <Toaster />
             {children}
-          </body>
-        </html>
-      </TRPCReactProvider>
-    </NuqsAdapter>
+          </TRPCReactProvider>
+        </NuqsAdapter>
+      </body>
+    </html>
   );
 }

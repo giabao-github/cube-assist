@@ -18,7 +18,7 @@ export const EmptyState = ({
   return (
     <div
       className="flex flex-col items-center justify-center"
-      role="alert"
+      role="status"
       aria-live="polite"
     >
       <Image src={imageSrc} alt={imageAlt} width={360} height={360} />

@@ -68,8 +68,8 @@ export const agentsRouter = createTRPCRouter({
         .limit(pageSize)
         .offset((page - 1) * pageSize);
 
-      const [total] = await db
-        .select({ count: count() })
+      const [{ totalCount }] = await db
+        .select({ totalCount: count() })
         .from(agents)
         .where(
           and(
@@ -78,11 +78,11 @@ export const agentsRouter = createTRPCRouter({
           ),
         );
 
-      const totalPages = Math.ceil(total.count / pageSize);
+      const totalPages = pageSize > 0 ? Math.ceil(totalCount / pageSize) : 0;
 
       return {
         items: data,
-        total: total.count,
+        total: totalCount,
         totalPages,
       };
     }),
@@ -98,7 +98,7 @@ export const agentsRouter = createTRPCRouter({
     const data = await db
       .select({
         // TODO: Change to actual meeting count when implemented, the below prop is to fix ts error
-        meetingCount: sql<number>`5`,
+        meetingCount: sql<number>`6`,
         ...getTableColumns(agents),
       })
       .from(agents);

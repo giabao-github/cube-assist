@@ -48,7 +48,10 @@ export const AgentsView = () => {
     trpc.agents.getMany.queryOptions({
       ...filters,
       page: Math.min(
-        Math.max(DEFAULT_PAGE, filters.page || DEFAULT_PAGE),
+        Math.max(
+          DEFAULT_PAGE,
+          filters.page && isNaN(filters.page) ? filters.page : DEFAULT_PAGE,
+        ),
         data.totalPages,
       ),
     }),
