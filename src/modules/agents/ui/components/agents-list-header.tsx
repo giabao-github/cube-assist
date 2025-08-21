@@ -2,14 +2,28 @@
 
 import { useState } from "react";
 
-import { PlusIcon } from "lucide-react";
+import { FilterXIcon, PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
+import { DEFAULT_PAGE } from "@/constants/pagination";
+
+import { useAgentsFilters } from "@/modules/agents/hooks/use-agents-filters";
+import { AgentsSearchFilter } from "@/modules/agents/ui/components/agents-search-filter";
 import { NewAgentDialog } from "@/modules/agents/ui/components/new-agent-dialog";
 
 export const AgentsListHeader = () => {
+  const [filters, setFilters] = useAgentsFilters();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const isAnyFilterModified = !!filters.search;
+
+  const onClearFilters = () => {
+    setFilters({
+      search: "",
+      page: DEFAULT_PAGE,
+    });
+  };
 
   return (
     <>
@@ -24,6 +38,15 @@ export const AgentsListHeader = () => {
             <PlusIcon strokeWidth={3} aria-hidden="true" />
             New Agent
           </Button>
+        </div>
+        <div className="flex items-center p-1 gap-x-3">
+          <AgentsSearchFilter />
+          {isAnyFilterModified && (
+            <Button variant="outline" size="sm" onClick={onClearFilters}>
+              <FilterXIcon />
+              Clear
+            </Button>
+          )}
         </div>
       </div>
     </>

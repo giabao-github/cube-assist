@@ -42,7 +42,7 @@ export const AgentForm = ({
 }: AgentFormProps) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { data } = useSuspenseQuery(trpc.agents.getMany.queryOptions());
+  const { data } = useSuspenseQuery(trpc.agents.getMany.queryOptions({}));
 
   const createAgentFormSchema = (
     existingAgents: typeof data,
@@ -52,7 +52,7 @@ export const AgentForm = ({
       (values) => {
         // Skip validation if we're editing the same agent
         if (editingAgentId && existingAgents) {
-          const editingAgent = existingAgents.find(
+          const editingAgent = existingAgents.items.find(
             (agent) => agent.id === editingAgentId,
           );
           if (editingAgent && editingAgent.name === values.name) {
@@ -60,7 +60,7 @@ export const AgentForm = ({
           }
         }
 
-        const nameExists = existingAgents?.some(
+        const nameExists = existingAgents?.items.some(
           (agent) => agent.name === values.name,
         );
         return !nameExists;
@@ -75,7 +75,9 @@ export const AgentForm = ({
   const createAgent = useMutation(
     trpc.agents.create.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions());
+        await queryClient.invalidateQueries(
+          trpc.agents.getMany.queryOptions({}),
+        );
 
         if (isEdit && initialValues?.id) {
           await queryClient.invalidateQueries(
@@ -191,10 +193,10 @@ export const AgentForm = ({
             </FormItem>
           )}
         />
-        <div className="flex gap-x-2 justify-between">
+        <div className="flex justify-between gap-x-2">
           {onCancel && (
             <Button
-              variant="ghost"
+              variant="outline"
               disabled={isPending}
               type="button"
               onClick={onCancel}

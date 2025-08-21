@@ -5,9 +5,13 @@ import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { headers } from "next/headers";
 import { type RedirectType, redirect } from "next/navigation";
+import type { SearchParams } from "nuqs";
+
+import { DEFAULT_PAGE } from "@/constants/pagination";
 
 import { auth } from "@/lib/auth";
 
+import { loadSearchParams } from "@/modules/agents/params";
 import { AgentsListHeader } from "@/modules/agents/ui/components/agents-list-header";
 import {
   AgentsView,
@@ -21,7 +25,13 @@ export const metadata: Metadata = {
   title: "Agents - Cube Assist",
 };
 
-const AgentsPage = async () => {
+interface AgentsPageProps {
+  searchParams: Promise<SearchParams>;
+}
+
+const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
+  const filters = await loadSearchParams(searchParams);
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -32,8 +42,15 @@ const AgentsPage = async () => {
 
   const queryClient = getQueryClient();
 
+  const validatedFilters = {
+    ...filters,
+    page: filters.page || filters.page < 1 ? DEFAULT_PAGE : filters.page,
+  };
+
   try {
-    await queryClient.prefetchQuery(trpc.agents.getMany.queryOptions());
+    await queryClient.prefetchQuery(
+      trpc.agents.getMany.queryOptions(validatedFilters),
+    );
   } catch (error) {
     console.error("Prefetch failed:", error);
   }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NuqsAdapter } from "nuqs/adapters/next";
 
 import { Toaster } from "@/components/ui/sonner";
 
@@ -20,13 +21,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <TRPCReactProvider>
-      <html lang="en">
-        <body className={`${poppins.className} antialiased`}>
-          <Toaster />
-          {children}
-        </body>
-      </html>
-    </TRPCReactProvider>
+    <NuqsAdapter>
+      <TRPCReactProvider>
+        <html lang="en">
+          <body className={`${poppins.className} antialiased`}>
+            <Toaster />
+            {children}
+          </body>
+        </html>
+      </TRPCReactProvider>
+    </NuqsAdapter>
   );
 }
