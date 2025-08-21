@@ -11,13 +11,23 @@ const createPageParser = (totalPages?: number) => {
       if (!value || Array.isArray(value)) return DEFAULT_PAGE;
       const parsed = parseInt(value, 10);
       if (isNaN(parsed) || parsed < 1) return DEFAULT_PAGE;
-      if (totalPages && parsed > totalPages) return totalPages;
+      if (
+        typeof totalPages === "number" &&
+        totalPages >= 1 &&
+        parsed > totalPages
+      )
+        return totalPages;
       return parsed;
     },
     serialize: (value: number | null | undefined) => {
-      if (!value || isNaN(value) || value < 1) return DEFAULT_PAGE;
-      if (totalPages && value > totalPages) return totalPages.toString();
-      return value.toString();
+      if (value == null || Number.isNaN(value) || value < 1) return undefined;
+      if (
+        typeof totalPages === "number" &&
+        totalPages >= 1 &&
+        value > totalPages
+      )
+        return totalPages.toString();
+      return String(value);
     },
     withDefault: (defaultValue: number) => ({
       ...baseParser,
