@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
@@ -18,6 +17,7 @@ import { DataTable } from "@/modules/agents/ui/components/data-table";
 import { useTRPC } from "@/trpc/client";
 
 export const AgentsView = () => {
+  const router = useRouter();
   const trpc = useTRPC();
 
   // First query to get total pages
@@ -27,31 +27,17 @@ export const AgentsView = () => {
     }),
   );
 
-  // Then use filters with total pages for validation
+  // Use filters with total pages for validation
   const [filters, setFilters] = useAgentsFilters({
     totalPages: data.totalPages,
   });
 
-  useEffect(() => {
-    // Validate against both lower and upper bounds
-    const validPage = Math.min(
-      Math.max(1, filters.page || DEFAULT_PAGE),
-      data.totalPages,
-    );
-    if (validPage !== filters.page) {
-      setFilters({ page: validPage }, { history: "replace" });
-    }
-  }, [filters.page, setFilters, data.totalPages]);
-
   // Use the validated filters for the main query
   const { data: pageData } = useSuspenseQuery(
     trpc.agents.getMany.queryOptions({
-      ...filters,
+      search: filters.search,
       page: Math.min(
-        Math.max(
-          DEFAULT_PAGE,
-          filters.page && isNaN(filters.page) ? filters.page : DEFAULT_PAGE,
-        ),
+        Math.max(1, filters.page || DEFAULT_PAGE),
         data.totalPages,
       ),
     }),
@@ -76,7 +62,11 @@ export const AgentsView = () => {
       {pageData.items.length === 0 ? (
         <EmptyState title={title} description={description} />
       ) : (
-        <DataTable data={pageData.items} columns={columns} />
+        <DataTable
+          data={pageData.items}
+          columns={columns}
+          onRowClick={(row) => router.push(`/dashboard/agents/${row.id}`)}
+        />
       )}
     </div>
   );
@@ -87,13 +77,8 @@ export const AgentsViewLoading = () => {
 };
 
 export const AgentsViewError = () => {
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
-
   const handleRetry = () => {
-    queryClient.invalidateQueries({
-      queryKey: trpc.agents.getMany.queryOptions({}).queryKey,
-    });
+    window.location.reload();
   };
 
   return (

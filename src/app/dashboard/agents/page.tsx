@@ -7,8 +7,6 @@ import { headers } from "next/headers";
 import { type RedirectType, redirect } from "next/navigation";
 import type { SearchParams } from "nuqs";
 
-import { DEFAULT_PAGE } from "@/constants/pagination";
-
 import { auth } from "@/lib/auth";
 
 import { loadSearchParams } from "@/modules/agents/params";
@@ -44,7 +42,7 @@ const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
 
   const validatedFilters = {
     ...filters,
-    page: filters.page <= 1 ? DEFAULT_PAGE : filters.page,
+    page: filters.page,
   };
 
   try {

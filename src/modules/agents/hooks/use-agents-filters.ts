@@ -8,32 +8,26 @@ const createPageParser = (totalPages?: number) => {
   return {
     ...baseParser,
     parse: (value: string | string[] | undefined) => {
+      // Handle invalid or empty values
       if (!value || Array.isArray(value)) return DEFAULT_PAGE;
+
+      // Parse the page number
       const parsed = parseInt(value, 10);
       if (isNaN(parsed) || parsed < 1) return DEFAULT_PAGE;
-      if (
-        typeof totalPages === "number" &&
-        totalPages >= 1 &&
-        parsed > totalPages
-      )
+
+      // Ensure it's within valid bounds
+      if (totalPages && parsed > totalPages) {
         return totalPages;
+      }
       return parsed;
     },
-    serialize: (value: number | null | undefined) => {
-      if (value == null || Number.isNaN(value) || value < 1) return undefined;
-      if (
-        typeof totalPages === "number" &&
-        totalPages >= 1 &&
-        value > totalPages
-      )
-        return totalPages.toString();
-      return String(value);
+    serialize: (value: number) => {
+      // Always return string for valid value, undefined will cause type errors
+      const safeValue = Math.max(1, value || DEFAULT_PAGE);
+      return totalPages
+        ? Math.min(safeValue, totalPages).toString()
+        : safeValue.toString();
     },
-    withDefault: (defaultValue: number) => ({
-      ...baseParser,
-      defaultValue,
-      parseServerSide: () => defaultValue,
-    }),
   };
 };
 
@@ -44,14 +38,17 @@ interface UseAgentsFiltersProps {
 export const useAgentsFilters = ({
   totalPages,
 }: UseAgentsFiltersProps = {}) => {
+  const pageParser = createPageParser(totalPages);
+
   return useQueryStates(
     {
-      search: parseAsString
-        .withDefault("")
-        .withOptions({ clearOnDefault: true }),
-      page: createPageParser(totalPages)
-        .withDefault(DEFAULT_PAGE)
-        .withOptions({ clearOnDefault: true }),
+      search: parseAsString.withDefault(""),
+      page: {
+        ...pageParser,
+        defaultValue: DEFAULT_PAGE,
+        parseServerSide: (value: string | string[] | undefined) =>
+          pageParser.parse(value),
+      },
     },
     {
       history: "replace",
