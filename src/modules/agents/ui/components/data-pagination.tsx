@@ -1,4 +1,7 @@
+import { useEffect } from "react";
+
 import { ChevronsLeftIcon, ChevronsRightIcon } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
@@ -17,6 +20,19 @@ export const DataPagination = ({
   totalPages,
   onPageChange,
 }: DataPaginationProps) => {
+  const router = useRouter();
+  const param = useSearchParams();
+
+  useEffect(() => {
+    if (param.get("page")) {
+      if (page === 1) {
+        router.replace("/dashboard/agents");
+      } else if (Number(param.get("page")) !== page) {
+        onPageChange(page);
+      }
+    }
+  }, [page, param]);
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex-1 text-sm text-muted-foreground">
