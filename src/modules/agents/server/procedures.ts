@@ -1,5 +1,14 @@
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, getTableColumns, ilike, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  getTableColumns,
+  ilike,
+  ne,
+  sql,
+} from "drizzle-orm";
 import { z } from "zod";
 
 import {
@@ -177,9 +186,31 @@ export const agentsRouter = createTRPCRouter({
   update: protectedProcedure
     .input(agentsUpdateSchema)
     .mutation(async ({ ctx, input }) => {
+      const [conflictingAgent] = await db
+        .select({ id: agents.id })
+        .from(agents)
+        .where(
+          and(
+            eq(agents.userId, ctx.auth.user.id),
+            eq(agents.name, input.name),
+            ne(agents.id, input.id),
+          ),
+        );
+
+      if (conflictingAgent) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "An agent with this name already exists",
+        });
+      }
+
       const [updatedAgent] = await db
         .update(agents)
-        .set(input)
+        .set({
+          name: input.name,
+          instructions: input.instructions,
+          updatedAt: new Date(),
+        })
         .where(
           and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
         )

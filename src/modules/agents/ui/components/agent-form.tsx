@@ -120,7 +120,7 @@ export const AgentForm = ({
     },
   });
 
-  const isEdit = !!initialValues?.id;
+  const isEdit = Boolean(initialValues?.id);
   const isPending = createAgent.isPending || updateAgent.isPending;
 
   const handleRightArrowKeyPress = (
@@ -139,7 +139,7 @@ export const AgentForm = ({
   };
 
   const onSubmit = (values: z.infer<typeof agentsInsertSchema>) => {
-    if (isEdit) {
+    if (isEdit && initialValues?.id) {
       updateAgent.mutate({ ...values, id: initialValues.id });
     } else {
       createAgent.mutate(values);

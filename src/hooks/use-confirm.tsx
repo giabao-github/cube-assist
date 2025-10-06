@@ -3,23 +3,26 @@ import { JSX, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ResponsiveDialog } from "@/components/utils/responsive-dialog";
 
+import { cn } from "@/lib/utils";
+
 export const useConfirm = (
   title: string,
   description: string,
   type?: string,
   danger?: boolean,
-): [() => JSX.Element, () => Promise<unknown>] => {
+): [() => JSX.Element, () => Promise<boolean>] => {
   const [promise, setPromise] = useState<{
     resolve: (value: boolean) => void;
   } | null>(null);
 
   const confirm = () => {
-    return new Promise((resolve) => {
+    return new Promise<boolean>((resolve) => {
       setPromise({ resolve });
     });
   };
 
   const handleClose = () => {
+    promise?.resolve(false);
     setPromise(null);
   };
 
@@ -50,7 +53,10 @@ export const useConfirm = (
         </Button>
         <Button
           onClick={handleConfirm}
-          className={`w-full lg:w-auto ${danger ? "bg-rose-500 hover:bg-rose-600 active:bg-rose-700" : ""}`}
+          className={cn(
+            "w-full lg:w-auto",
+            danger && "bg-rose-500 hover:bg-rose-600 active:bg-rose-700",
+          )}
         >
           {type || "Confirm"}
         </Button>

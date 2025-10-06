@@ -45,7 +45,7 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
           trpc.agents.getMany.queryOptions({}),
         );
         // TODO: Invalidate free tier usage
-        router.push("/agents");
+        router.push("/dashboard/agents");
       },
       onError: (error) => {
         toast.error(error.message);
@@ -54,8 +54,8 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
   );
 
   const [RemoveConfirmation, confirmRemove] = useConfirm(
-    "Are you sure to delete this agent?",
-    `The following action will remove ${data.name} and its ${data.meetingCount} associated ${data.meetingCount > 1 ? "meetings" : "meeting"}`,
+    "Are you sure you want to delete this agent?",
+    `The following action will permanently delete ${data.name} and its ${data.meetingCount} associated ${data.meetingCount > 1 ? "meetings" : "meeting"}`,
     "Delete",
     true,
   );
