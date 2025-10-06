@@ -21,10 +21,12 @@ export const EmptyState = ({
       role="status"
       aria-live="polite"
     >
-      <Image src={imageSrc} alt={imageAlt} width={360} height={360} />
+      <Image src={imageSrc} alt={imageAlt} width={400} height={300} />
       <div className="flex flex-col max-w-md mx-auto text-center gap-y-6">
-        <h6 className="text-lg font-medium">{title}</h6>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <h6 className="text-lg font-medium md:text-xl">{title}</h6>
+        <p className="text-sm md:text-base text-muted-foreground">
+          {description}
+        </p>
       </div>
     </div>
   );

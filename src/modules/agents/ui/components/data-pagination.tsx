@@ -1,4 +1,7 @@
+import { useEffect } from "react";
+
 import { ChevronsLeftIcon, ChevronsRightIcon } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
@@ -17,6 +20,32 @@ export const DataPagination = ({
   totalPages,
   onPageChange,
 }: DataPaginationProps) => {
+  const router = useRouter();
+  const param = useSearchParams();
+
+  useEffect(() => {
+    const pageStr = param.get("page");
+    if (!pageStr) {
+      if (page !== 1) {
+        router.replace(`/dashboard/agents?page=${page}`);
+      }
+      return;
+    }
+    const urlPage = Number(pageStr);
+    if (!Number.isFinite(urlPage) || urlPage < 1) {
+      router.replace("/dashboard/agents");
+      return;
+    }
+    if (urlPage === 1) {
+      if (page !== 1) onPageChange(1);
+      router.replace("/dashboard/agents");
+      return;
+    }
+    if (urlPage !== page) {
+      onPageChange(urlPage);
+    }
+  }, [page, param, router, onPageChange]);
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex-1 text-sm text-muted-foreground">
@@ -51,7 +80,7 @@ export const DataPagination = ({
         </Button>
         <Button
           title="Move to the final page"
-          disabled={page === totalPages}
+          disabled={page === totalPages || totalPages === 0}
           variant="outline"
           size="icon"
           className="rounded-full"

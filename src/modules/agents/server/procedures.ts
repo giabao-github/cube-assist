@@ -33,6 +33,14 @@ export const agentsRouter = createTRPCRouter({
         .where(
           and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
         );
+
+      if (!existingAgent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Agent is not found",
+        });
+      }
+
       return existingAgent;
     }),
 
@@ -51,6 +59,26 @@ export const agentsRouter = createTRPCRouter({
     .query(async ({ input, ctx }) => {
       const { search, page, pageSize } = input;
 
+      // First get the total count
+      const [{ totalCount }] = await db
+        .select({ totalCount: count() })
+        .from(agents)
+        .where(
+          and(
+            eq(agents.userId, ctx.auth.user.id),
+            search ? ilike(agents.name, `%${search}%`) : undefined,
+          ),
+        );
+
+      // If there are no agents, return empty result instead of throwing
+      if (totalCount === 0) {
+        return {
+          items: [],
+          total: 0,
+          totalPages: 0,
+        };
+      }
+
       const data = await db
         .select({
           // TODO: Change to actual meeting count when implemented, the below prop is to fix ts error
@@ -67,16 +95,6 @@ export const agentsRouter = createTRPCRouter({
         .orderBy(desc(agents.createdAt), desc(agents.id))
         .limit(pageSize)
         .offset((page - 1) * pageSize);
-
-      const [{ totalCount }] = await db
-        .select({ totalCount: count() })
-        .from(agents)
-        .where(
-          and(
-            eq(agents.userId, ctx.auth.user.id),
-            search ? ilike(agents.name, `%${search}%`) : undefined,
-          ),
-        );
 
       const totalPages = pageSize > 0 ? Math.ceil(totalCount / pageSize) : 0;
 
