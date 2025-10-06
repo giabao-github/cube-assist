@@ -16,17 +16,21 @@ const createPageParser = (totalPages?: number) => {
       if (isNaN(parsed) || parsed < 1) return DEFAULT_PAGE;
 
       // Ensure it's within valid bounds
-      if (totalPages && parsed > totalPages) {
+      if (
+        typeof totalPages === "number" &&
+        totalPages >= 1 &&
+        parsed > totalPages
+      ) {
         return totalPages;
       }
       return parsed;
     },
     serialize: (value: number) => {
-      // Always return string for valid value, undefined will cause type errors
       const safeValue = Math.max(1, value || DEFAULT_PAGE);
-      return totalPages
-        ? Math.min(safeValue, totalPages).toString()
-        : safeValue.toString();
+      const hasValidTotal = typeof totalPages === "number" && totalPages >= 1;
+      return (
+        hasValidTotal ? Math.min(safeValue, totalPages!) : safeValue
+      ).toString();
     },
   };
 };
@@ -46,8 +50,6 @@ export const useAgentsFilters = ({
       page: {
         ...pageParser,
         defaultValue: DEFAULT_PAGE,
-        parseServerSide: (value: string | string[] | undefined) =>
-          pageParser.parse(value),
       },
     },
     {

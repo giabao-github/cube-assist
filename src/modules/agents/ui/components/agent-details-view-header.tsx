@@ -58,14 +58,19 @@ export const AgentDetailsViewHeader = ({
       </Breadcrumb>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost">
-            <MoreVerticalIcon />
+          <Button variant="ghost" aria-label="Open actions menu">
+            <MoreVerticalIcon aria-hidden="true" />
+            <span className="sr-only">Open actions menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
-            <PencilIcon className="mr-1 text-black size-4" />
-            Edit
+          <DropdownMenuItem
+            onClick={onEdit}
+            className="cursor-pointer"
+            aria-label="Edit agent"
+          >
+            <PencilIcon className="mr-1 text-black size-4" aria-hidden="true" />
+            <span>Edit</span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onRemove} className="cursor-pointer">
             <TrashIcon className="mr-1 text-rose-500 size-4" />

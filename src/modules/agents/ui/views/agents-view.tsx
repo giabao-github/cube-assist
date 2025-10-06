@@ -38,7 +38,7 @@ export const AgentsView = () => {
       search: filters.search,
       page: Math.min(
         Math.max(1, filters.page || DEFAULT_PAGE),
-        data.totalPages,
+        data.totalPages || 1,
       ),
     }),
   );

@@ -24,14 +24,27 @@ export const DataPagination = ({
   const param = useSearchParams();
 
   useEffect(() => {
-    if (param.get("page")) {
-      if (page === 1) {
-        router.replace("/dashboard/agents");
-      } else if (Number(param.get("page")) !== page) {
-        onPageChange(page);
+    const pageStr = param.get("page");
+    if (!pageStr) {
+      if (page !== 1) {
+        router.replace(`/dashboard/agents?page=${page}`);
       }
+      return;
     }
-  }, [page, param]);
+    const urlPage = Number(pageStr);
+    if (!Number.isFinite(urlPage) || urlPage < 1) {
+      router.replace("/dashboard/agents");
+      return;
+    }
+    if (urlPage === 1) {
+      if (page !== 1) onPageChange(1);
+      router.replace("/dashboard/agents");
+      return;
+    }
+    if (urlPage !== page) {
+      onPageChange(urlPage);
+    }
+  }, [page, param, router, onPageChange]);
 
   return (
     <div className="flex items-center justify-between">
@@ -67,7 +80,7 @@ export const DataPagination = ({
         </Button>
         <Button
           title="Move to the final page"
-          disabled={page === totalPages}
+          disabled={page === totalPages || totalPages === 0}
           variant="outline"
           size="icon"
           className="rounded-full"
