@@ -73,7 +73,7 @@ export const AgentsView = () => {
 };
 
 export const AgentsViewLoading = () => {
-  return <LoadingState loadingText="Loading agents" />;
+  return <LoadingState loadingText="Loading agents" type="agents" />;
 };
 
 export const AgentsViewError = () => {

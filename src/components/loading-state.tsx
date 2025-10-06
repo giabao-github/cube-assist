@@ -1,12 +1,15 @@
 import { BsRobot } from "react-icons/bs";
 
+import { VideoIcon } from "lucide-react";
+
 const ANIMATION_DURATION = "1s";
 
 interface LoadingStateProps {
   loadingText: string;
+  type: "meetings" | "agents";
 }
 
-export const LoadingState = ({ loadingText }: LoadingStateProps) => {
+export const LoadingState = ({ loadingText, type }: LoadingStateProps) => {
   return (
     <div className="flex flex-col items-center justify-center my-auto gap-y-6">
       {/* Spinner */}
@@ -36,7 +39,12 @@ export const LoadingState = ({ loadingText }: LoadingStateProps) => {
             animationDuration: ANIMATION_DURATION,
           }}
         >
-          <BsRobot strokeWidth={0.2} size={20} className="text-custom-500" />
+          {type === "agents" && (
+            <BsRobot strokeWidth={0.2} size={20} className="text-custom-500" />
+          )}
+          {type === "meetings" && (
+            <VideoIcon strokeWidth={2} size={20} className="text-custom-500" />
+          )}
         </div>
       </div>
 
