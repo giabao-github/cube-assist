@@ -65,7 +65,11 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
 
     if (!ok) return;
 
-    await removeAgent.mutateAsync({ id: agentId });
+    try {
+      await removeAgent.mutateAsync({ id: agentId });
+    } catch {
+      // onError already surfaces the toast
+    }
   };
 
   return (
