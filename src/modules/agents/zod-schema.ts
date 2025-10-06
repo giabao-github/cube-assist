@@ -12,3 +12,7 @@ export const agentsInsertSchema = z.object({
       message: "Agent instructions must be less than 2000 characters",
     }),
 });
+
+export const agentsUpdateSchema = agentsInsertSchema.extend({
+  id: z.string().min(1, { message: "Agent ID is required" }),
+});
