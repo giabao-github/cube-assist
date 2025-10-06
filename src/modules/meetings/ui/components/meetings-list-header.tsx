@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 
 import { DEFAULT_PAGE } from "@/constants/pagination";
 
-import { useAgentsFilters } from "@/modules/agents/hooks/use-agents-filters";
+import { useMeetingsFilters } from "@/modules/meetings/hooks/use-meetings-filters";
 import { MeetingsSearchFilter } from "@/modules/meetings/ui/components/meetings-search-filter";
 
 export const MeetingsListHeader = () => {
-  const [filters, setFilters] = useAgentsFilters();
+  const [filters, setFilters] = useMeetingsFilters();
 
   const isAnyFilterModified = !!filters.search;
 

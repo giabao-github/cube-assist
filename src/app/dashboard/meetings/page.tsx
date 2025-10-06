@@ -41,8 +41,8 @@ const MeetingsPage = async ({ searchParams }: MeetingsPageProps) => {
   const queryClient = getQueryClient();
 
   const validatedFilters = {
-    ...filters,
-    page: filters.page,
+    page: Math.max(1, Number(filters.page ?? 1)),
+    search: filters.search ?? undefined,
   };
 
   try {

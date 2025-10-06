@@ -13,7 +13,7 @@ export const DashboardView = () => {
   const { data: session, isPending } = authClient.useSession();
 
   if (isPending) {
-    return <LoadingState loadingText="Loading dashboard" />;
+    return <LoadingState loadingText="Loading dashboard" type="dashboard" />;
   }
 
   if (!session) {

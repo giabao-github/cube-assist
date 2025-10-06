@@ -119,7 +119,7 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
 };
 
 export const AgentDetailsViewLoading = () => {
-  return <LoadingState loadingText="Loading agent details" />;
+  return <LoadingState loadingText="Loading agent details" type="agents" />;
 };
 
 export const AgentDetailsViewError = () => {

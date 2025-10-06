@@ -1,12 +1,12 @@
 import { BsRobot } from "react-icons/bs";
 
-import { VideoIcon } from "lucide-react";
+import { LucideLayoutDashboard, VideoIcon } from "lucide-react";
 
 const ANIMATION_DURATION = "1s";
 
 interface LoadingStateProps {
   loadingText: string;
-  type: "meetings" | "agents";
+  type: "dashboard" | "meetings" | "agents";
 }
 
 export const LoadingState = ({ loadingText, type }: LoadingStateProps) => {
@@ -39,6 +39,13 @@ export const LoadingState = ({ loadingText, type }: LoadingStateProps) => {
             animationDuration: ANIMATION_DURATION,
           }}
         >
+          {type === "dashboard" && (
+            <LucideLayoutDashboard
+              strokeWidth={2}
+              size={20}
+              className="text-custom-500"
+            />
+          )}
           {type === "agents" && (
             <BsRobot strokeWidth={0.2} size={20} className="text-custom-500" />
           )}

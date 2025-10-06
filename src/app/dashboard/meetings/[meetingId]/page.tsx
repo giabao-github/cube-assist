@@ -12,16 +12,16 @@ import {
 import { getQueryClient, trpc } from "@/trpc/server";
 
 interface MeetingPageProps {
-  params: Promise<{ agentId: string }>;
+  params: Promise<{ meetingId: string }>;
 }
 
 const MeetingPage = async ({ params }: MeetingPageProps) => {
-  const { agentId } = await params;
+  const { meetingId } = await params;
 
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery(
-    trpc.agents.getOne.queryOptions({
-      id: agentId,
+    trpc.meetings.getOne.queryOptions({
+      id: meetingId,
     }),
   );
 
@@ -29,7 +29,7 @@ const MeetingPage = async ({ params }: MeetingPageProps) => {
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<AgentDetailsViewLoading />}>
         <ErrorBoundary fallback={<AgentDetailsViewError />}>
-          <AgentDetailsView agentId={agentId} />
+          <AgentDetailsView agentId={meetingId} />
         </ErrorBoundary>
       </Suspense>
     </HydrationBoundary>
