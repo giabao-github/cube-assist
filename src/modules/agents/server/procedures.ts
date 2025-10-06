@@ -9,7 +9,10 @@ import {
   MIN_PAGE_SIZE,
 } from "@/constants/pagination";
 
-import { agentsInsertSchema } from "@/modules/agents/zod-schema";
+import {
+  agentsInsertSchema,
+  agentsUpdateSchema,
+} from "@/modules/agents/zod-schema";
 
 import { db } from "@/db";
 import { agents } from "@/db/schema";
@@ -149,5 +152,46 @@ export const agentsRouter = createTRPCRouter({
         .returning();
 
       return createdAgent;
+    }),
+
+  remove: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const [removedAgent] = await db
+        .delete(agents)
+        .where(
+          and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
+        )
+        .returning();
+
+      if (!removedAgent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "This agent does not exist or has been deleted",
+        });
+      }
+
+      return removedAgent;
+    }),
+
+  update: protectedProcedure
+    .input(agentsUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const [updatedAgent] = await db
+        .update(agents)
+        .set(input)
+        .where(
+          and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
+        )
+        .returning();
+
+      if (!updatedAgent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "This agent does not exist or has been deleted",
+        });
+      }
+
+      return updatedAgent;
     }),
 });
