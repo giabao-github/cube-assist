@@ -16,13 +16,18 @@ import { DataTable } from "@/modules/agents/ui/components/data-table";
 
 import { useTRPC } from "@/trpc/client";
 
-export const AgentsView = () => {
+interface AgentsViewProps {
+  initialFilters: { page: number; pageSize?: number; search?: string | null };
+}
+
+export const AgentsView = ({ initialFilters }: AgentsViewProps) => {
   const router = useRouter();
   const trpc = useTRPC();
 
   // First query to get total pages
   const { data } = useSuspenseQuery(
     trpc.agents.getMany.queryOptions({
+      ...initialFilters,
       page: DEFAULT_PAGE,
     }),
   );

@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import { parseAsInteger, parseAsString, useQueryStates } from "nuqs";
 
 import { DEFAULT_PAGE } from "@/constants/pagination";
@@ -31,7 +33,7 @@ interface UseMeetingsFiltersProps {
 export const useMeetingsFilters = ({
   totalPages,
 }: UseMeetingsFiltersProps = {}) => {
-  const pageParser = createPageParser(totalPages);
+  const pageParser = useMemo(() => createPageParser(totalPages), [totalPages]);
 
   return useQueryStates(
     {

@@ -19,11 +19,13 @@ const MeetingPage = async ({ params }: MeetingPageProps) => {
   const { meetingId } = await params;
 
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(
-    trpc.meetings.getOne.queryOptions({
-      id: meetingId,
-    }),
-  );
+  try {
+    await queryClient.prefetchQuery(
+      trpc.meetings.getOne.queryOptions({ id: meetingId }),
+    );
+  } catch (err) {
+    console.error("Prefetch meetings failed:", err);
+  }
 
   {
     /* TODO: change to meeting view, loading and error */

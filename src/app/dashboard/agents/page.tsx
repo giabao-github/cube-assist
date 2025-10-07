@@ -62,7 +62,7 @@ const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense fallback={<AgentsViewLoading />}>
           <ErrorBoundary FallbackComponent={AgentsViewError}>
-            <AgentsView />
+            <AgentsView initialFilters={validatedFilters} />
           </ErrorBoundary>
         </Suspense>
       </HydrationBoundary>

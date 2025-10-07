@@ -19,16 +19,18 @@ const AgentPage = async ({ params }: AgentPageProps) => {
   const { agentId } = await params;
 
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(
-    trpc.agents.getOne.queryOptions({
-      id: agentId,
-    }),
-  );
+  try {
+    await queryClient.prefetchQuery(
+      trpc.agents.getOne.queryOptions({ id: agentId }),
+    );
+  } catch (err) {
+    console.error("Prefetch agents failed:", err);
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<AgentDetailsViewLoading />}>
-        <ErrorBoundary fallback={<AgentDetailsViewError />}>
+        <ErrorBoundary FallbackComponent={AgentDetailsViewError}>
           <AgentDetailsView agentId={agentId} />
         </ErrorBoundary>
       </Suspense>

@@ -10,6 +10,7 @@ import { useTRPC } from "@/trpc/client";
 interface MeetingsViewProps {
   initialFilters: { page: number; pageSize?: number; search?: string | null };
 }
+
 export const MeetingsView = ({ initialFilters }: MeetingsViewProps) => {
   const trpc = useTRPC();
 
