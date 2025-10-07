@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   title: "Sign up - Cube Assist",
 };
 
+export const dynamic = "force-dynamic";
+
 const RegisterPage = async () => {
   let session;
   try {

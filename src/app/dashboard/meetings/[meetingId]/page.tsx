@@ -25,6 +25,9 @@ const MeetingPage = async ({ params }: MeetingPageProps) => {
     }),
   );
 
+  {
+    /* TODO: change to meeting view, loading and error */
+  }
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<AgentDetailsViewLoading />}>

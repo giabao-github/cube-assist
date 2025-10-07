@@ -7,10 +7,15 @@ import { LoadingState } from "@/components/loading-state";
 
 import { useTRPC } from "@/trpc/client";
 
-export const MeetingsView = () => {
+interface MeetingsViewProps {
+  initialFilters: { page: number; pageSize?: number; search?: string | null };
+}
+export const MeetingsView = ({ initialFilters }: MeetingsViewProps) => {
   const trpc = useTRPC();
 
-  const { data } = useSuspenseQuery(trpc.meetings.getMany.queryOptions({}));
+  const { data } = useSuspenseQuery(
+    trpc.meetings.getMany.queryOptions(initialFilters),
+  );
 
   return (
     <div className="flex flex-col flex-1 px-4 mt-2 mb-4 md:px-8 gap-y-4">

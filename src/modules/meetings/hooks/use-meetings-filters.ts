@@ -47,10 +47,7 @@ export const useMeetingsFilters = ({
   return useQueryStates(
     {
       search: parseAsString.withDefault(""),
-      page: {
-        ...pageParser,
-        defaultValue: DEFAULT_PAGE,
-      },
+      page: pageParser,
     },
     {
       history: "replace",

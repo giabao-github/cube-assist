@@ -9,7 +9,7 @@ import type { SearchParams } from "nuqs";
 
 import { auth } from "@/lib/auth";
 
-import { loadSearchParams } from "@/modules/agents/params";
+import { loadSearchParams } from "@/modules/meetings/params";
 import { MeetingsListHeader } from "@/modules/meetings/ui/components/meetings-list-header";
 import {
   MeetingsView,
@@ -59,7 +59,7 @@ const MeetingsPage = async ({ searchParams }: MeetingsPageProps) => {
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense fallback={<MeetingsViewLoading />}>
           <ErrorBoundary fallback={<MeetingsViewError />}>
-            <MeetingsView />
+            <MeetingsView initialFilters={validatedFilters} />
           </ErrorBoundary>
         </Suspense>
       </HydrationBoundary>
