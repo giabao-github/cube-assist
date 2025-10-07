@@ -82,7 +82,7 @@ export const AgentsViewError = () => {
 
   const handleRetry = () => {
     queryClient.invalidateQueries({
-      queryKey: trpc.meetings.getMany.queryKey(),
+      queryKey: trpc.agents.getMany.queryKey(),
     });
   };
 
