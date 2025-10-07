@@ -1,6 +1,6 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
@@ -30,8 +30,13 @@ export const MeetingsViewLoading = () => {
 };
 
 export const MeetingsViewError = () => {
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+
   const handleRetry = () => {
-    window.location.reload();
+    queryClient.invalidateQueries({
+      queryKey: trpc.meetings.getMany.queryKey(),
+    });
   };
 
   return (

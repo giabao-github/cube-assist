@@ -41,8 +41,11 @@ const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
   const queryClient = getQueryClient();
 
   const validatedFilters = {
-    page: Math.max(1, Number(filters.page ?? 1)),
-    search: filters.search ?? undefined,
+    page: Math.max(
+      1,
+      Number.isFinite(Number(filters.page)) ? Number(filters.page) : 1,
+    ),
+    search: filters.search?.trim() || undefined,
   };
 
   try {
@@ -58,7 +61,7 @@ const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
       <AgentsListHeader />
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense fallback={<AgentsViewLoading />}>
-          <ErrorBoundary fallback={<AgentsViewError />}>
+          <ErrorBoundary FallbackComponent={AgentsViewError}>
             <AgentsView />
           </ErrorBoundary>
         </Suspense>

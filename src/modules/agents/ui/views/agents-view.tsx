@@ -1,6 +1,6 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 import { EmptyState } from "@/components/empty-state";
@@ -77,8 +77,13 @@ export const AgentsViewLoading = () => {
 };
 
 export const AgentsViewError = () => {
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+
   const handleRetry = () => {
-    window.location.reload();
+    queryClient.invalidateQueries({
+      queryKey: trpc.meetings.getMany.queryKey(),
+    });
   };
 
   return (

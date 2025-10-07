@@ -58,7 +58,7 @@ const MeetingsPage = async ({ searchParams }: MeetingsPageProps) => {
       <MeetingsListHeader />
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense fallback={<MeetingsViewLoading />}>
-          <ErrorBoundary fallback={<MeetingsViewError />}>
+          <ErrorBoundary FallbackComponent={MeetingsViewError}>
             <MeetingsView initialFilters={validatedFilters} />
           </ErrorBoundary>
         </Suspense>
