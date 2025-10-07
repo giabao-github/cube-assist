@@ -1,6 +1,6 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 import { EmptyState } from "@/components/empty-state";
@@ -16,13 +16,18 @@ import { DataTable } from "@/modules/agents/ui/components/data-table";
 
 import { useTRPC } from "@/trpc/client";
 
-export const AgentsView = () => {
+interface AgentsViewProps {
+  initialFilters: { page: number; pageSize?: number; search?: string | null };
+}
+
+export const AgentsView = ({ initialFilters }: AgentsViewProps) => {
   const router = useRouter();
   const trpc = useTRPC();
 
   // First query to get total pages
   const { data } = useSuspenseQuery(
     trpc.agents.getMany.queryOptions({
+      ...initialFilters,
       page: DEFAULT_PAGE,
     }),
   );
@@ -73,12 +78,17 @@ export const AgentsView = () => {
 };
 
 export const AgentsViewLoading = () => {
-  return <LoadingState loadingText="Loading agents" />;
+  return <LoadingState loadingText="Loading agents" type="agents" />;
 };
 
 export const AgentsViewError = () => {
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+
   const handleRetry = () => {
-    window.location.reload();
+    queryClient.invalidateQueries({
+      queryKey: trpc.agents.getMany.queryKey(),
+    });
   };
 
   return (

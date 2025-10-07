@@ -9,25 +9,25 @@ import type { SearchParams } from "nuqs";
 
 import { auth } from "@/lib/auth";
 
-import { loadSearchParams } from "@/modules/agents/params";
-import { AgentsListHeader } from "@/modules/agents/ui/components/agents-list-header";
+import { loadSearchParams } from "@/modules/meetings/params";
+import { MeetingsListHeader } from "@/modules/meetings/ui/components/meetings-list-header";
 import {
-  AgentsView,
-  AgentsViewError,
-  AgentsViewLoading,
-} from "@/modules/agents/ui/views/agents-view";
+  MeetingsView,
+  MeetingsViewError,
+  MeetingsViewLoading,
+} from "@/modules/meetings/ui/views/meetings-view";
 
 import { getQueryClient, trpc } from "@/trpc/server";
 
 export const metadata: Metadata = {
-  title: "Agents - Cube Assist",
+  title: "Meetings - Cube Assist",
 };
 
-interface AgentsPageProps {
+interface MeetingsPageProps {
   searchParams: Promise<SearchParams>;
 }
 
-const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
+const MeetingsPage = async ({ searchParams }: MeetingsPageProps) => {
   const filters = await loadSearchParams(searchParams);
 
   const session = await auth.api.getSession({
@@ -41,16 +41,13 @@ const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
   const queryClient = getQueryClient();
 
   const validatedFilters = {
-    page: Math.max(
-      1,
-      Number.isFinite(Number(filters.page)) ? Number(filters.page) : 1,
-    ),
-    search: filters.search?.trim() || undefined,
+    page: Math.max(1, Number(filters.page ?? 1)),
+    search: filters.search ?? undefined,
   };
 
   try {
     await queryClient.prefetchQuery(
-      trpc.agents.getMany.queryOptions(validatedFilters),
+      trpc.meetings.getMany.queryOptions(validatedFilters),
     );
   } catch (error) {
     console.error("Prefetch failed:", error);
@@ -58,11 +55,11 @@ const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
 
   return (
     <>
-      <AgentsListHeader />
+      <MeetingsListHeader />
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <Suspense fallback={<AgentsViewLoading />}>
-          <ErrorBoundary FallbackComponent={AgentsViewError}>
-            <AgentsView initialFilters={validatedFilters} />
+        <Suspense fallback={<MeetingsViewLoading />}>
+          <ErrorBoundary FallbackComponent={MeetingsViewError}>
+            <MeetingsView initialFilters={validatedFilters} />
           </ErrorBoundary>
         </Suspense>
       </HydrationBoundary>
@@ -70,4 +67,4 @@ const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
   );
 };
 
-export default AgentsPage;
+export default MeetingsPage;

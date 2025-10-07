@@ -11,31 +11,34 @@ import {
 
 import { getQueryClient, trpc } from "@/trpc/server";
 
-interface AgentPageProps {
-  params: Promise<{ agentId: string }>;
+interface MeetingPageProps {
+  params: Promise<{ meetingId: string }>;
 }
 
-const AgentPage = async ({ params }: AgentPageProps) => {
-  const { agentId } = await params;
+const MeetingPage = async ({ params }: MeetingPageProps) => {
+  const { meetingId } = await params;
 
   const queryClient = getQueryClient();
   try {
     await queryClient.prefetchQuery(
-      trpc.agents.getOne.queryOptions({ id: agentId }),
+      trpc.meetings.getOne.queryOptions({ id: meetingId }),
     );
   } catch (err) {
-    console.error("Prefetch agents failed:", err);
+    console.error("Prefetch meetings failed:", err);
   }
 
+  {
+    /* TODO: change to meeting view, loading and error */
+  }
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<AgentDetailsViewLoading />}>
-        <ErrorBoundary FallbackComponent={AgentDetailsViewError}>
-          <AgentDetailsView agentId={agentId} />
+        <ErrorBoundary fallback={<AgentDetailsViewError />}>
+          <AgentDetailsView agentId={meetingId} />
         </ErrorBoundary>
       </Suspense>
     </HydrationBoundary>
   );
 };
 
-export default AgentPage;
+export default MeetingPage;
