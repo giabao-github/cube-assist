@@ -152,15 +152,28 @@ export const agentsRouter = createTRPCRouter({
         });
       }
 
-      const [createdAgent] = await db
-        .insert(agents)
-        .values({
-          ...input,
-          userId: ctx.auth.user.id,
-        })
-        .returning();
+      try {
+        const [createdAgent] = await db
+          .insert(agents)
+          .values({
+            ...input,
+            userId: ctx.auth.user.id,
+          })
+          .returning();
 
-      return createdAgent;
+        return createdAgent;
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("unique constraint")
+        ) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "An agent with this name already exists",
+          });
+        }
+        throw error;
+      }
     }),
 
   remove: protectedProcedure
@@ -204,25 +217,38 @@ export const agentsRouter = createTRPCRouter({
         });
       }
 
-      const [updatedAgent] = await db
-        .update(agents)
-        .set({
-          name: input.name,
-          instructions: input.instructions,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
-        )
-        .returning();
+      try {
+        const [updatedAgent] = await db
+          .update(agents)
+          .set({
+            name: input.name,
+            instructions: input.instructions,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
+          )
+          .returning();
 
-      if (!updatedAgent) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "This agent does not exist or has been deleted",
-        });
+        if (!updatedAgent) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "This agent does not exist or has been deleted",
+          });
+        }
+
+        return updatedAgent;
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("unique constraint")
+        ) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "An agent with this name already exists",
+          });
+        }
+        throw error;
       }
-
-      return updatedAgent;
     }),
 });

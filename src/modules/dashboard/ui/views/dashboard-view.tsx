@@ -2,7 +2,7 @@
 
 import { toast } from "sonner";
 
-import { LoadingState } from "@/components/loading-state";
+import { LoadingState } from "@/components/states/loading-state";
 import { Button } from "@/components/ui/button";
 
 import { authClient } from "@/lib/auth-client";

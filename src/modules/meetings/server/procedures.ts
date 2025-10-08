@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, getTableColumns, ilike } from "drizzle-orm";
+import { and, count, desc, eq, getTableColumns, ilike, ne } from "drizzle-orm";
 import { z } from "zod";
 
 import {
@@ -8,6 +8,11 @@ import {
   MAX_PAGE_SIZE,
   MIN_PAGE_SIZE,
 } from "@/constants/pagination";
+
+import {
+  meetingsInsertSchema,
+  meetingsUpdateSchema,
+} from "@/modules/meetings/zod-schema";
 
 import { db } from "@/db";
 import { meetings } from "@/db/schema";
@@ -114,4 +119,93 @@ export const meetingsRouter = createTRPCRouter({
       .from(meetings);
     return data;
   }),
+
+  create: protectedProcedure
+    .input(meetingsInsertSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const [createdMeeting] = await db
+          .insert(meetings)
+          .values({
+            ...input,
+            userId: ctx.auth.user.id,
+          })
+          .returning();
+
+        // TODO: create stream call, upsert stream users
+
+        return createdMeeting;
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("unique constraint")
+        ) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "A meeting with this name already exists",
+          });
+        }
+        throw error;
+      }
+    }),
+
+  update: protectedProcedure
+    .input(meetingsUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const [conflictingMeeting] = await db
+        .select({ id: meetings.id })
+        .from(meetings)
+        .where(
+          and(
+            eq(meetings.userId, ctx.auth.user.id),
+            eq(meetings.name, input.name),
+            ne(meetings.id, input.id),
+          ),
+        );
+
+      if (conflictingMeeting) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "A meeting with this name already exists",
+        });
+      }
+
+      try {
+        const [updatedMeeting] = await db
+          .update(meetings)
+          .set({
+            name: input.name,
+            agentId: input.agentId,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(meetings.id, input.id),
+              eq(meetings.userId, ctx.auth.user.id),
+            ),
+          )
+          .returning();
+
+        if (!updatedMeeting) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message:
+              "This meeting is no longer available or you don't have permission to update it",
+          });
+        }
+
+        return updatedMeeting;
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("unique constraint")
+        ) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "A meeting with this name already exists",
+          });
+        }
+        throw error;
+      }
+    }),
 });

@@ -35,7 +35,7 @@ const MeetingsPage = async ({ searchParams }: MeetingsPageProps) => {
   });
 
   if (!session) {
-    redirect("/", "replace" as RedirectType);
+    redirect("/login", "replace" as RedirectType);
   }
 
   const queryClient = getQueryClient();
