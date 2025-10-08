@@ -46,6 +46,8 @@ export const CommandSelect = ({
         onClick={() => setOpen(true)}
         type="button"
         variant="outline"
+        aria-expanded={open}
+        aria-haspopup="dialog"
         className={cn(
           "h-9 justify-between font-normal px-2",
           !selectedOption && "text-muted-foreground",

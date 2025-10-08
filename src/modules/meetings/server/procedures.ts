@@ -140,17 +140,30 @@ export const meetingsRouter = createTRPCRouter({
         });
       }
 
-      const [createdMeeting] = await db
-        .insert(meetings)
-        .values({
-          ...input,
-          userId: ctx.auth.user.id,
-        })
-        .returning();
+      try {
+        const [createdMeeting] = await db
+          .insert(meetings)
+          .values({
+            ...input,
+            userId: ctx.auth.user.id,
+          })
+          .returning();
 
-      // TODO: create stream call, upsert stream users
+        // TODO: create stream call, upsert stream users
 
-      return createdMeeting;
+        return createdMeeting;
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("unique constraint")
+        ) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "A meeting with this name already exists",
+          });
+        }
+        throw error;
+      }
     }),
 
   update: protectedProcedure
@@ -174,25 +187,34 @@ export const meetingsRouter = createTRPCRouter({
         });
       }
 
-      const [updatedMeeting] = await db
-        .update(meetings)
-        .set({
-          name: input.name,
-          agentId: input.agentId,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id)),
-        )
-        .returning();
+      try {
+        const [updatedMeeting] = await db
+          .update(meetings)
+          .set({
+            name: input.name,
+            agentId: input.agentId,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(meetings.id, input.id),
+              eq(meetings.userId, ctx.auth.user.id),
+            ),
+          )
+          .returning();
 
-      if (!updatedMeeting) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "This meeting does not exist or has been deleted",
-        });
+        return updatedMeeting;
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("unique constraint")
+        ) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "This meeting does not exist or has been deleted",
+          });
+        }
+        throw error;
       }
-
-      return updatedMeeting;
     }),
 });
