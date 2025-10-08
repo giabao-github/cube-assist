@@ -2,8 +2,8 @@
 
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
-import { ErrorState } from "@/components/error-state";
-import { LoadingState } from "@/components/loading-state";
+import { ErrorState } from "@/components/states/error-state";
+import { LoadingState } from "@/components/states/loading-state";
 
 import { useTRPC } from "@/trpc/client";
 

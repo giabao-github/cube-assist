@@ -11,8 +11,8 @@ import { VideoIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { ErrorState } from "@/components/error-state";
-import { LoadingState } from "@/components/loading-state";
+import { ErrorState } from "@/components/states/error-state";
+import { LoadingState } from "@/components/states/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
