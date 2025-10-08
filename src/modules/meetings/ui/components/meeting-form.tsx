@@ -130,7 +130,7 @@ export const MeetingForm = ({
     resolver: zodResolver(createMeetingFormSchema(data, initialValues?.id)),
     defaultValues: {
       name: initialValues?.name ?? "",
-      agentId: initialValues?.id ?? "",
+      agentId: initialValues?.agentId ?? "",
     },
   });
 

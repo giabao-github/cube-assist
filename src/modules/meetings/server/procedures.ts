@@ -178,6 +178,7 @@ export const meetingsRouter = createTRPCRouter({
         .update(meetings)
         .set({
           name: input.name,
+          agentId: input.agentId,
           updatedAt: new Date(),
         })
         .where(

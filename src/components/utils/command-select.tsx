@@ -24,7 +24,7 @@ interface CommandSelectProps {
   value: string;
   label?: string;
   placeholder?: string;
-  isSearchable?: boolean;
+  isSearchable?: boolean; // use in upcoming updates
   className?: string;
 }
 
