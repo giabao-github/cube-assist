@@ -20,7 +20,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   onRowClick,
-  emptyMessage = "No data available.",
+  emptyMessage = "No data available",
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
