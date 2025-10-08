@@ -29,13 +29,11 @@ export const AgentsView = ({ initialFilters }: AgentsViewProps) => {
   const hasValidated = useRef(false);
 
   useEffect(() => {
-    if (hasValidated.current || filters.page > 1) return;
-    hasValidated.current = true;
+    if (hasValidated.current) return;
 
-    if (filters.page < 1) {
+    if (filters.page <= 1 || isNaN(filters.page)) {
       setFilters({ page: 1 });
-    } else if (filters.page === 1) {
-      setFilters({ page: 1 });
+      hasValidated.current = true;
     }
   }, []);
 
@@ -77,7 +75,6 @@ export const AgentsView = ({ initialFilters }: AgentsViewProps) => {
           data={data.items}
           columns={columns}
           onRowClick={(row) => router.push(`/dashboard/agents/${row.id}`)}
-          emptyMessage="No agents available"
         />
       )}
     </div>
