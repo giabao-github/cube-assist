@@ -58,7 +58,7 @@ export const DataPagination = ({
           variant="outline"
           size="icon"
           className="rounded-full"
-          onClick={() => onPageChange(totalPages)}
+          onClick={() => onPageChange(Math.max(totalPages, 1))}
         >
           <ChevronsRightIcon />
         </Button>

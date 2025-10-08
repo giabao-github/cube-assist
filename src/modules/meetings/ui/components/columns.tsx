@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import {
   CircleCheckIcon,
+  CirclePlayIcon,
   CircleXIcon,
   ClockArrowUpIcon,
   ClockFadingIcon,
@@ -20,7 +21,7 @@ import { MeetingsGetMany } from "@/modules/meetings/types";
 
 const statusIconMap = {
   upcoming: ClockArrowUpIcon,
-  active: LoaderIcon,
+  active: CirclePlayIcon,
   completed: CircleCheckIcon,
   processing: LoaderIcon,
   cancelled: CircleXIcon,

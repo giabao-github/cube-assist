@@ -30,12 +30,9 @@ export const MeetingsView = ({ initialFilters }: MeetingsViewProps) => {
 
   useEffect(() => {
     if (hasValidated.current) return;
+    hasValidated.current = true;
 
-    if (filters.page <= 1 && filters.page !== 1) {
-      hasValidated.current = true;
-      setFilters({ page: 1 });
-    } else if (filters.page === 1) {
-      hasValidated.current = true;
+    if (filters.page < 1) {
       setFilters({ page: 1 });
     }
   }, []);

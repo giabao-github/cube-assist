@@ -2,17 +2,14 @@ import { SearchIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 
+import { useSearchFilter } from "@/hooks/use-search-filter";
+
 import { useAgentsFilters } from "@/modules/agents/hooks/use-agents-filters";
 
 export const AgentsSearchFilter = () => {
   const [filters, setFilters] = useAgentsFilters();
 
-  const handleSearchChange = (value: string) => {
-    setFilters({
-      search: value,
-      page: 1,
-    });
-  };
+  const handleSearchChange = useSearchFilter(setFilters);
 
   return (
     <div className="relative">
