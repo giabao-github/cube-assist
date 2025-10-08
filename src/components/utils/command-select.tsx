@@ -48,6 +48,7 @@ export const CommandSelect = ({
         variant="outline"
         aria-expanded={open}
         aria-haspopup="dialog"
+        aria-label={selectedOption ? undefined : `Select ${label}`}
         className={cn(
           "h-9 justify-between font-normal px-2",
           !selectedOption && "text-muted-foreground",

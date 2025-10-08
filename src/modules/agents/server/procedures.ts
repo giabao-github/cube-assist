@@ -179,27 +179,21 @@ export const agentsRouter = createTRPCRouter({
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      try {
-        const [removedAgent] = await db
-          .delete(agents)
-          .where(
-            and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
-          )
-          .returning();
+      const [removedAgent] = await db
+        .delete(agents)
+        .where(
+          and(eq(agents.id, input.id), eq(agents.userId, ctx.auth.user.id)),
+        )
+        .returning();
 
-        return removedAgent;
-      } catch (error) {
-        if (
-          error instanceof Error &&
-          error.message.includes("unique constraint")
-        ) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "This agent does not exist or has been deleted",
-          });
-        }
-        throw error;
+      if (!removedAgent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "This agent does not exist or has been deleted",
+        });
       }
+
+      return removedAgent;
     }),
 
   update: protectedProcedure
@@ -236,6 +230,13 @@ export const agentsRouter = createTRPCRouter({
           )
           .returning();
 
+        if (!updatedAgent) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "This agent does not exist or has been deleted",
+          });
+        }
+
         return updatedAgent;
       } catch (error) {
         if (
@@ -243,8 +244,8 @@ export const agentsRouter = createTRPCRouter({
           error.message.includes("unique constraint")
         ) {
           throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "This agent does not exist or has been deleted",
+            code: "CONFLICT",
+            message: "An agent with this name already exists",
           });
         }
         throw error;

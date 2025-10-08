@@ -123,23 +123,6 @@ export const meetingsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(meetingsInsertSchema)
     .mutation(async ({ input, ctx }) => {
-      const [existingMeeting] = await db
-        .select()
-        .from(meetings)
-        .where(
-          and(
-            eq(meetings.name, input.name),
-            eq(meetings.userId, ctx.auth.user.id),
-          ),
-        );
-
-      if (existingMeeting) {
-        throw new TRPCError({
-          code: "CONFLICT",
-          message: "A meeting with this name already exists",
-        });
-      }
-
       try {
         const [createdMeeting] = await db
           .insert(meetings)
@@ -203,6 +186,14 @@ export const meetingsRouter = createTRPCRouter({
           )
           .returning();
 
+        if (!updatedMeeting) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message:
+              "This meeting is no longer available or you don't have permission to update it",
+          });
+        }
+
         return updatedMeeting;
       } catch (error) {
         if (
@@ -210,8 +201,8 @@ export const meetingsRouter = createTRPCRouter({
           error.message.includes("unique constraint")
         ) {
           throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "This meeting does not exist or has been deleted",
+            code: "CONFLICT",
+            message: "A meeting with this name already exists",
           });
         }
         throw error;
