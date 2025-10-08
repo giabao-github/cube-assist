@@ -30,10 +30,13 @@ export const AgentsView = ({ initialFilters }: AgentsViewProps) => {
 
   useEffect(() => {
     if (hasValidated.current) return;
-    hasValidated.current = true;
 
     if (filters.page < 1) {
       setFilters({ page: 1 });
+      hasValidated.current = true;
+    } else if (filters.page === 1) {
+      setFilters({ page: 1 });
+      hasValidated.current = true;
     }
   }, []);
 
@@ -71,6 +74,7 @@ export const AgentsView = ({ initialFilters }: AgentsViewProps) => {
         <EmptyState title={title} description={description} />
       ) : (
         <DataTable
+          label="agent"
           data={data.items}
           columns={columns}
           onRowClick={(row) => router.push(`/dashboard/agents/${row.id}`)}

@@ -18,7 +18,7 @@ export const DataPagination = ({
   onPageChange,
 }: DataPaginationProps) => {
   const isFirstPage = page === 1;
-  const isLastPage = page === totalPages || totalPages === 0;
+  const isLastPage = totalPages === 0 || page >= totalPages;
 
   return (
     <div className="flex items-center justify-between">
