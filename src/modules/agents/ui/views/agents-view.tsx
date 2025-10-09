@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
@@ -10,46 +8,32 @@ import { ErrorState } from "@/components/states/error-state";
 import { LoadingState } from "@/components/states/loading-state";
 import { DataTable } from "@/components/utils/data-table";
 
+import { usePageValidation } from "@/hooks/use-page-validation";
+
 import { useAgentsFilters } from "@/modules/agents/hooks/use-agents-filters";
 import { columns } from "@/modules/agents/ui/components/columns";
 import { DataPagination } from "@/modules/agents/ui/components/data-pagination";
 
 import { useTRPC } from "@/trpc/client";
 
-interface AgentsViewProps {
-  initialFilters: { page: number; pageSize?: number; search?: string | null };
-}
-
-export const AgentsView = ({ initialFilters }: AgentsViewProps) => {
+export const AgentsView = () => {
   const router = useRouter();
   const trpc = useTRPC();
 
   const [filters, setFilters] = useAgentsFilters();
 
-  const hasValidated = useRef(false);
-
-  useEffect(() => {
-    if (hasValidated.current) return;
-
-    if (filters.page <= 1 || isNaN(filters.page)) {
-      setFilters({ page: 1 });
-      hasValidated.current = true;
-    }
-  }, []);
-
   const { data } = useSuspenseQuery(
     trpc.agents.getMany.queryOptions({
-      ...initialFilters,
       search: filters.search || undefined,
       page: Math.max(1, filters.page),
     }),
   );
 
-  useEffect(() => {
-    if (data.totalPages > 0 && filters.page > data.totalPages) {
-      setFilters({ page: data.totalPages });
-    }
-  }, [data.totalPages, filters.page, setFilters]);
+  usePageValidation(
+    filters.page,
+    (page) => setFilters({ page }),
+    data.totalPages,
+  );
 
   const title =
     filters.search.length > 0
