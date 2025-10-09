@@ -6,46 +6,33 @@ import { useRouter } from "next/navigation";
 import { EmptyState } from "@/components/states/empty-state";
 import { ErrorState } from "@/components/states/error-state";
 import { LoadingState } from "@/components/states/loading-state";
+import { DataTable } from "@/components/utils/data-table";
 
-import { DEFAULT_PAGE } from "@/constants/pagination";
+import { usePageValidation } from "@/hooks/use-page-validation";
 
 import { useAgentsFilters } from "@/modules/agents/hooks/use-agents-filters";
 import { columns } from "@/modules/agents/ui/components/columns";
 import { DataPagination } from "@/modules/agents/ui/components/data-pagination";
-import { DataTable } from "@/modules/agents/ui/components/data-table";
 
 import { useTRPC } from "@/trpc/client";
 
-interface AgentsViewProps {
-  initialFilters: { page: number; pageSize?: number; search?: string | null };
-}
-
-export const AgentsView = ({ initialFilters }: AgentsViewProps) => {
+export const AgentsView = () => {
   const router = useRouter();
   const trpc = useTRPC();
 
-  // First query to get total pages
+  const [filters, setFilters] = useAgentsFilters();
+
   const { data } = useSuspenseQuery(
     trpc.agents.getMany.queryOptions({
-      ...initialFilters,
-      page: DEFAULT_PAGE,
+      search: filters.search || undefined,
+      page: Math.max(1, filters.page),
     }),
   );
 
-  // Use filters with total pages for validation
-  const [filters, setFilters] = useAgentsFilters({
-    totalPages: data.totalPages,
-  });
-
-  // Use the validated filters for the main query
-  const { data: pageData } = useSuspenseQuery(
-    trpc.agents.getMany.queryOptions({
-      search: filters.search,
-      page: Math.min(
-        Math.max(1, filters.page || DEFAULT_PAGE),
-        data.totalPages || 1,
-      ),
-    }),
+  usePageValidation(
+    filters.page,
+    (page) => setFilters({ page }),
+    data.totalPages,
   );
 
   const title =
@@ -64,11 +51,12 @@ export const AgentsView = ({ initialFilters }: AgentsViewProps) => {
         totalPages={data.totalPages}
         onPageChange={(page) => setFilters({ page })}
       />
-      {pageData.items.length === 0 ? (
+      {data.items.length === 0 ? (
         <EmptyState title={title} description={description} />
       ) : (
         <DataTable
-          data={pageData.items}
+          label="agent"
+          data={data.items}
           columns={columns}
           onRowClick={(row) => router.push(`/dashboard/agents/${row.id}`)}
         />

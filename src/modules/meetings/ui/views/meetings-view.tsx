@@ -1,27 +1,66 @@
 "use client";
 
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
+import { EmptyState } from "@/components/states/empty-state";
 import { ErrorState } from "@/components/states/error-state";
 import { LoadingState } from "@/components/states/loading-state";
+import { DataTable } from "@/components/utils/data-table";
+
+import { usePageValidation } from "@/hooks/use-page-validation";
+
+import { useMeetingsFilters } from "@/modules/meetings/hooks/use-meetings-filters";
+import { columns } from "@/modules/meetings/ui/components/columns";
+import { DataPagination } from "@/modules/meetings/ui/components/data-pagination";
 
 import { useTRPC } from "@/trpc/client";
 
-interface MeetingsViewProps {
-  initialFilters: { page: number; pageSize?: number; search?: string | null };
-}
-
-export const MeetingsView = ({ initialFilters }: MeetingsViewProps) => {
+export const MeetingsView = () => {
+  const router = useRouter();
   const trpc = useTRPC();
 
+  const [filters, setFilters] = useMeetingsFilters();
+
   const { data } = useSuspenseQuery(
-    trpc.meetings.getMany.queryOptions(initialFilters),
+    trpc.meetings.getMany.queryOptions({
+      search: filters.search || undefined,
+      page: Math.max(1, filters.page),
+    }),
   );
+
+  usePageValidation(
+    filters.page,
+    (page) => setFilters({ page }),
+    data.totalPages,
+  );
+
+  const title =
+    filters.search.length > 0
+      ? `We cannot find any meetings with the name '${filters.search}'`
+      : "Create a new meeting";
+  const description =
+    filters.search.length > 0
+      ? `Try modifying the keyword or create a new meeting.`
+      : "Create a meeting to join. You can pick a meeting-specified agent which can interact with participants during the call.";
 
   return (
     <div className="flex flex-col flex-1 px-4 mt-2 mb-4 md:px-8 gap-y-4">
-      {/* TODO: implement actual meetings table */}
-      {JSON.stringify(data, null, 2)}
+      <DataPagination
+        page={filters.page}
+        totalPages={data.totalPages}
+        onPageChange={(page) => setFilters({ page })}
+      />
+      {data.items.length === 0 ? (
+        <EmptyState title={title} description={description} />
+      ) : (
+        <DataTable
+          label="meeting"
+          data={data.items}
+          columns={columns}
+          onRowClick={(row) => router.push(`/dashboard/meetings/${row.id}`)}
+        />
+      )}
     </div>
   );
 };

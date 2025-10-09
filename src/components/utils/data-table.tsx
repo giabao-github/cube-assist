@@ -10,6 +10,7 @@ import {
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
 interface DataTableProps<TData, TValue> {
+  label: "agent" | "meeting";
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onRowClick?: (row: TData) => void;
@@ -17,10 +18,11 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function DataTable<TData, TValue>({
+  label,
   columns,
   data,
   onRowClick,
-  emptyMessage = "No data available.",
+  emptyMessage = "No data available",
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -48,7 +50,7 @@ export function DataTable<TData, TValue>({
                 tabIndex={onRowClick ? 0 : -1}
                 role={onRowClick ? "button" : undefined}
                 aria-label={
-                  onRowClick ? "Click to view agent details" : undefined
+                  onRowClick ? `Click to view ${label} details` : undefined
                 }
               >
                 {row.getVisibleCells().map((cell) => (
