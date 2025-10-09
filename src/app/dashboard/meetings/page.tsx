@@ -7,6 +7,8 @@ import { headers } from "next/headers";
 import { type RedirectType, redirect } from "next/navigation";
 import type { SearchParams } from "nuqs";
 
+import { validateListFilters } from "@/hooks/use-page-validation";
+
 import { auth } from "@/lib/auth";
 
 import { loadSearchParams } from "@/modules/meetings/params";
@@ -40,17 +42,14 @@ const MeetingsPage = async ({ searchParams }: MeetingsPageProps) => {
 
   const queryClient = getQueryClient();
 
-  const validatedFilters = {
-    page: Math.max(1, Number(filters.page ?? 1)),
-    search: filters.search ?? undefined,
-  };
+  const validatedFilters = validateListFilters(filters);
 
   try {
     await queryClient.prefetchQuery(
       trpc.meetings.getMany.queryOptions(validatedFilters),
     );
   } catch (error) {
-    console.error("Prefetch failed:", error);
+    console.error("Prefetch meetings failed:", error);
   }
 
   return (
