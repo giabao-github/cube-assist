@@ -38,6 +38,7 @@ export const agentsRouter = createTRPCRouter({
       const [existingAgent] = await db
         .select({
           // TODO: Change to actual meeting count when implemented, the below prop is to fix ts error
+          meetingCount: sql<number>`6`,
           ...getTableColumns(agents),
         })
         .from(agents)
@@ -92,7 +93,6 @@ export const agentsRouter = createTRPCRouter({
 
       const data = await db
         .select({
-          // TODO: Change to actual meeting count when implemented, the below prop is to fix ts error
           meetingCount: sql<number>`6`,
           ...getTableColumns(agents),
         })
