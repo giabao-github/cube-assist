@@ -17,7 +17,7 @@ export const AgentIdFilter = () => {
   const [agentSearch, setAgentSearch] = useState("");
   const { data } = useQuery(
     trpc.agents.getMany.queryOptions({
-      pageSize: 100,
+      pageSize: 100, // current limit, will be updated when the agent count exceeds 100 pages
       search: agentSearch,
     }),
   );
