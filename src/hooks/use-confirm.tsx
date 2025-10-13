@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 export const useConfirm = (
   title: string,
   description: string,
-  type?: string,
+  action?: string,
   danger?: boolean,
 ): [() => JSX.Element, () => Promise<boolean>] => {
   const [promise, setPromise] = useState<{
@@ -58,7 +58,7 @@ export const useConfirm = (
             danger && "bg-rose-500 hover:bg-rose-600 active:bg-rose-700",
           )}
         >
-          {type || "Confirm"}
+          {action || "Confirm"}
         </Button>
       </div>
     </ResponsiveDialog>

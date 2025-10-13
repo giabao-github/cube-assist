@@ -2,12 +2,16 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { headers } from "next/headers";
+import { RedirectType, redirect } from "next/navigation";
+
+import { auth } from "@/lib/auth";
 
 import {
-  AgentDetailsView,
-  AgentDetailsViewError,
-  AgentDetailsViewLoading,
-} from "@/modules/agents/ui/views/agent-details-view";
+  MeetingDetailsView,
+  MeetingDetailsViewError,
+  MeetingDetailsViewLoading,
+} from "@/modules/meetings/ui/views/meeting-details-view";
 
 import { getQueryClient, trpc } from "@/trpc/server";
 
@@ -18,23 +22,28 @@ interface MeetingPageProps {
 const MeetingPage = async ({ params }: MeetingPageProps) => {
   const { meetingId } = await params;
 
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/login", "replace" as RedirectType);
+  }
+
   const queryClient = getQueryClient();
   try {
     await queryClient.prefetchQuery(
       trpc.meetings.getOne.queryOptions({ id: meetingId }),
     );
   } catch (err) {
-    console.error("Prefetch meetings failed:", err);
+    console.error("Prefetch meeting details failed:", err);
   }
 
-  {
-    /* TODO: change to meeting view, loading and error */
-  }
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Suspense fallback={<AgentDetailsViewLoading />}>
-        <ErrorBoundary fallback={<AgentDetailsViewError />}>
-          <AgentDetailsView agentId={meetingId} />
+      <Suspense fallback={<MeetingDetailsViewLoading />}>
+        <ErrorBoundary FallbackComponent={MeetingDetailsViewError}>
+          <MeetingDetailsView meetingId={meetingId} />
         </ErrorBoundary>
       </Suspense>
     </HydrationBoundary>
