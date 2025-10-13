@@ -5,23 +5,29 @@ import { useState } from "react";
 import { FilterXIcon, PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 import { DEFAULT_PAGE } from "@/constants/pagination";
 
 import { useMeetingsFilters } from "@/modules/meetings/hooks/use-meetings-filters";
+import { AgentIdFilter } from "@/modules/meetings/ui/components/agent-id-filter";
 import { MeetingsSearchFilter } from "@/modules/meetings/ui/components/meetings-search-filter";
 import { NewMeetingsDialog } from "@/modules/meetings/ui/components/new-meeting-dialog";
+import { StatusFilter } from "@/modules/meetings/ui/components/status-filter";
 
 export const MeetingsListHeader = () => {
   const [filters, setFilters] = useMeetingsFilters();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const isAnyFilterModified = !!filters.search;
+  const isAnyFilterModified =
+    !!filters.search || !!filters.status || !!filters.agentId;
 
   const onClearFilters = () => {
     setFilters({
       search: "",
       page: DEFAULT_PAGE,
+      status: null,
+      agentId: "",
     });
   };
 
@@ -39,15 +45,20 @@ export const MeetingsListHeader = () => {
             New Meeting
           </Button>
         </div>
-        <div className="flex items-center p-1 gap-x-3">
-          <MeetingsSearchFilter />
-          {isAnyFilterModified && (
-            <Button variant="outline" size="sm" onClick={onClearFilters}>
-              <FilterXIcon />
-              Clear
-            </Button>
-          )}
-        </div>
+        <ScrollArea>
+          <div className="flex items-center p-1 gap-x-3">
+            <MeetingsSearchFilter />
+            <StatusFilter />
+            <AgentIdFilter />
+            {isAnyFilterModified && (
+              <Button variant="outline" size="sm" onClick={onClearFilters}>
+                <FilterXIcon />
+                Clear
+              </Button>
+            )}
+          </div>
+          <ScrollBar orientation="horizontal" className="h-2" />
+        </ScrollArea>
       </div>
     </>
   );

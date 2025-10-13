@@ -6,13 +6,13 @@ import { useRouter } from "next/navigation";
 import { EmptyState } from "@/components/states/empty-state";
 import { ErrorState } from "@/components/states/error-state";
 import { LoadingState } from "@/components/states/loading-state";
+import { DataPagination } from "@/components/utils/data-pagination";
 import { DataTable } from "@/components/utils/data-table";
 
 import { usePageValidation } from "@/hooks/use-page-validation";
 
 import { useAgentsFilters } from "@/modules/agents/hooks/use-agents-filters";
 import { columns } from "@/modules/agents/ui/components/columns";
-import { DataPagination } from "@/modules/agents/ui/components/data-pagination";
 
 import { useTRPC } from "@/trpc/client";
 
@@ -24,8 +24,7 @@ export const AgentsView = () => {
 
   const { data } = useSuspenseQuery(
     trpc.agents.getMany.queryOptions({
-      search: filters.search || undefined,
-      page: Math.max(1, filters.page),
+      ...filters,
     }),
   );
 

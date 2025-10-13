@@ -27,6 +27,8 @@ import { db } from "@/db";
 import { agents, meetings } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 
+import { MeetingStatus } from "../types";
+
 // Test loading and error state
 // await new Promise((resolve) => setTimeout(resolve, 5000));
 // throw new TRPCError({ code: "BAD_REQUEST" });
@@ -64,10 +66,20 @@ export const meetingsRouter = createTRPCRouter({
           .max(MAX_PAGE_SIZE)
           .default(DEFAULT_PAGE_SIZE),
         search: z.string().nullish(),
+        agentId: z.string().nullish(),
+        status: z
+          .enum([
+            MeetingStatus.Upcoming,
+            MeetingStatus.Active,
+            MeetingStatus.Completed,
+            MeetingStatus.Processing,
+            MeetingStatus.Cancelled,
+          ])
+          .nullish(),
       }),
     )
     .query(async ({ input, ctx }) => {
-      const { search, page, pageSize } = input;
+      const { search, page, pageSize, status, agentId } = input;
 
       // First get the total count
       const [{ totalCount }] = await db
@@ -78,6 +90,8 @@ export const meetingsRouter = createTRPCRouter({
           and(
             eq(meetings.userId, ctx.auth.user.id),
             search ? ilike(meetings.name, `%${search}%`) : undefined,
+            status ? eq(meetings.status, status) : undefined,
+            agentId ? eq(meetings.agentId, agentId) : undefined,
           ),
         );
 
@@ -104,6 +118,8 @@ export const meetingsRouter = createTRPCRouter({
           and(
             eq(meetings.userId, ctx.auth.user.id),
             search ? ilike(meetings.name, `%${search}%`) : undefined,
+            status ? eq(meetings.status, status) : undefined,
+            agentId ? eq(meetings.agentId, agentId) : undefined,
           ),
         )
         .orderBy(desc(meetings.createdAt), desc(meetings.id))

@@ -6,13 +6,13 @@ import { useRouter } from "next/navigation";
 import { EmptyState } from "@/components/states/empty-state";
 import { ErrorState } from "@/components/states/error-state";
 import { LoadingState } from "@/components/states/loading-state";
+import { DataPagination } from "@/components/utils/data-pagination";
 import { DataTable } from "@/components/utils/data-table";
 
 import { usePageValidation } from "@/hooks/use-page-validation";
 
 import { useMeetingsFilters } from "@/modules/meetings/hooks/use-meetings-filters";
 import { columns } from "@/modules/meetings/ui/components/columns";
-import { DataPagination } from "@/modules/meetings/ui/components/data-pagination";
 
 import { useTRPC } from "@/trpc/client";
 
@@ -24,8 +24,7 @@ export const MeetingsView = () => {
 
   const { data } = useSuspenseQuery(
     trpc.meetings.getMany.queryOptions({
-      search: filters.search || undefined,
-      page: Math.max(1, filters.page),
+      ...filters,
     }),
   );
 
@@ -36,12 +35,12 @@ export const MeetingsView = () => {
   );
 
   const title =
-    filters.search.length > 0
-      ? `We cannot find any meetings with the name '${filters.search}'`
+    filters.search.length > 0 || !!filters.status || !!filters.agentId
+      ? `We cannot find any meetings matched your filter(s)`
       : "Create a new meeting";
   const description =
-    filters.search.length > 0
-      ? `Try modifying the keyword or create a new meeting.`
+    filters.search.length > 0 || !!filters.status || !!filters.agentId
+      ? `Try modifying your filter(s) or create a new meeting.`
       : "Create a meeting to join. You can pick a meeting-specified agent which can interact with participants during the call.";
 
   return (
