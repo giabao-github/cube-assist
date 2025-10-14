@@ -20,13 +20,12 @@ import { useConfirm } from "@/hooks/use-confirm";
 import { formatTime } from "@/lib/utils";
 
 import { ActiveState } from "@/modules/meetings/ui/components/active-state";
+import { CancelledState } from "@/modules/meetings/ui/components/cancelled-state";
+import { ProcessingState } from "@/modules/meetings/ui/components/processing-state";
 import { UpcomingState } from "@/modules/meetings/ui/components/upcoming-state";
 import { UpdateMeetingDialog } from "@/modules/meetings/ui/components/update-meeting-dialog";
 
 import { useTRPC } from "@/trpc/client";
-
-import { CancelledState } from "../components/cancelled-state";
-import { ProcessingState } from "../components/processing-state";
 
 interface MeetingDetailsViewProps {
   meetingId: string;
@@ -122,6 +121,7 @@ export const MeetingDetailsView = ({ meetingId }: MeetingDetailsViewProps) => {
             </div>
           </div>
         </div>
+        {/* TODO: implement the actual cancel meeting action */}
         {isUpcoming && (
           <UpcomingState
             meetingId={meetingId}
