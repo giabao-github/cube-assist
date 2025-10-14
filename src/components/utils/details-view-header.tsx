@@ -21,28 +21,35 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface MeetingHeaderProps {
-  meetingId: string;
-  meetingName: string;
+interface DetailsViewHeaderProps {
+  entityType: "agents" | "meetings";
+  entityId: string;
+  entityName: string;
   onEdit: () => void;
   onRemove: () => void;
   isRemoving: boolean;
 }
 
-export const MeetingDetailsViewHeader = ({
-  meetingId,
-  meetingName,
+export const DetailsViewHeader = ({
+  entityType,
+  entityId,
+  entityName,
   onEdit,
   onRemove,
   isRemoving,
-}: MeetingHeaderProps) => {
+}: DetailsViewHeaderProps) => {
+  const listLabel = entityType === "agents" ? "My Agents" : "My Meetings";
+  const editLabel = entityType === "agents" ? "Edit agent" : "Edit meeting";
+  const deleteLabel =
+    entityType === "agents" ? "Delete agent" : "Delete meeting";
+
   return (
     <div className="flex items-center justify-between">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild className="text-xl font-medium">
-              <Link href="/dashboard/meetings">My Meetings</Link>
+              <Link href={`/dashboard/${entityType}`}>{listLabel}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator className="text-xl font-medium text-foreground [&>svg]:size-4">
@@ -53,8 +60,8 @@ export const MeetingDetailsViewHeader = ({
               asChild
               className="text-xl font-medium text-foreground"
             >
-              <Link href={`/dashboard/meetings/${meetingId}`}>
-                {meetingName}
+              <Link href={`/dashboard/${entityType}/${entityId}`}>
+                {entityName}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -71,7 +78,7 @@ export const MeetingDetailsViewHeader = ({
           <DropdownMenuItem
             onClick={onEdit}
             className="cursor-pointer"
-            aria-label="Edit meeting"
+            aria-label={editLabel}
           >
             <PencilIcon className="mr-1 text-black size-4" aria-hidden="true" />
             <span>Edit</span>
@@ -80,7 +87,7 @@ export const MeetingDetailsViewHeader = ({
             onClick={onRemove}
             disabled={isRemoving}
             className="cursor-pointer"
-            aria-label="Delete meeting"
+            aria-label={deleteLabel}
           >
             <TrashIcon
               className="mr-1 text-rose-500 size-4"

@@ -14,11 +14,11 @@ import { toast } from "sonner";
 import { ErrorState } from "@/components/states/error-state";
 import { LoadingState } from "@/components/states/loading-state";
 import { Badge } from "@/components/ui/badge";
+import { DetailsViewHeader } from "@/components/utils/details-view-header";
 import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
 import { useConfirm } from "@/hooks/use-confirm";
 
-import { AgentDetailsViewHeader } from "@/modules/agents/ui/components/agent-details-view-header";
 import { UpdateAgentDialog } from "@/modules/agents/ui/components/update-agent-dialog";
 
 import { useTRPC } from "@/trpc/client";
@@ -27,6 +27,7 @@ interface AgentDetailsViewProps {
   agentId: string;
 }
 
+// TODO: abstracting common view patterns for AgentDetailsView and MeetingDetailsView
 export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
   const trpc = useTRPC();
   const router = useRouter();
@@ -86,9 +87,10 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
         initialValues={data}
       />
       <div className="flex flex-col flex-1 px-4 py-4 md:px-8 gap-y-4">
-        <AgentDetailsViewHeader
-          agentId={agentId}
-          agentName={data.name}
+        <DetailsViewHeader
+          entityType="agents"
+          entityId={agentId}
+          entityName={data.name}
           onEdit={() => setUpdateAgentDialogOpen(true)}
           onRemove={handleRemoveAgent}
           isRemoving={removeAgent.isPending}
