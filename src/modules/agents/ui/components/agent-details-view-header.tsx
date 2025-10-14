@@ -26,6 +26,7 @@ interface AgentHeaderProps {
   agentName: string;
   onEdit: () => void;
   onRemove: () => void;
+  isRemoving: boolean;
 }
 
 export const AgentDetailsViewHeader = ({
@@ -33,6 +34,7 @@ export const AgentDetailsViewHeader = ({
   agentName,
   onEdit,
   onRemove,
+  isRemoving,
 }: AgentHeaderProps) => {
   return (
     <div className="flex items-center justify-between">
@@ -72,9 +74,19 @@ export const AgentDetailsViewHeader = ({
             <PencilIcon className="mr-1 text-black size-4" aria-hidden="true" />
             <span>Edit</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={onRemove} className="cursor-pointer">
-            <TrashIcon className="mr-1 text-rose-500 size-4" />
-            <p className="text-rose-500">Delete</p>
+          <DropdownMenuItem
+            onClick={onRemove}
+            disabled={isRemoving}
+            className="cursor-pointer"
+            aria-label="Delete agent"
+          >
+            <TrashIcon
+              className="mr-1 text-rose-500 size-4"
+              aria-hidden="true"
+            />
+            <span className="text-rose-500">
+              {isRemoving ? "Deleting..." : "Delete"}
+            </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

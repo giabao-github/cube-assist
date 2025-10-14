@@ -45,6 +45,7 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
           trpc.agents.getMany.queryOptions({}),
         );
         // TODO: Invalidate free tier usage
+        toast.success(`Agent "${data.name}" deleted successfully`);
         router.push("/dashboard/agents");
       },
       onError: (error) => {
@@ -61,6 +62,10 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
   );
 
   const handleRemoveAgent = async () => {
+    if (removeAgent.isPending) {
+      return;
+    }
+
     const ok = await confirmRemove();
 
     if (!ok) return;
@@ -86,6 +91,7 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
           agentName={data.name}
           onEdit={() => setUpdateAgentDialogOpen(true)}
           onRemove={handleRemoveAgent}
+          isRemoving={removeAgent.isPending}
         />
         <div className="bg-white border rounded-lg">
           <div className="flex flex-col col-span-5 px-4 py-5 gap-y-6">

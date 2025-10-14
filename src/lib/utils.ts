@@ -26,7 +26,7 @@ export const formatDuration = (seconds: number) => {
 };
 
 export function formatTime(
-  isoString: string,
+  input: string | Date,
   options?: {
     showSeconds?: boolean;
     relativeThreshold?: number;
@@ -34,9 +34,13 @@ export function formatTime(
 ): string {
   const { showSeconds = false, relativeThreshold = 60 } = options || {};
 
-  const date = new Date(isoString);
-  const now = new Date();
+  const date = typeof input === "string" ? new Date(input) : input;
 
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -48,7 +52,7 @@ export function formatTime(
     hour12: true,
   });
 
-  // Within threshold
+  // Within minutes threshold
   if (diffMinutes < relativeThreshold) {
     if (diffMinutes < 1) return "Just now";
     if (diffMinutes === 1) return "1 minute ago";
@@ -59,14 +63,6 @@ export function formatTime(
     if (diffHours === 1) return "1 hour ago";
     return `${diffHours} hours ago`;
   }
-
-  // Today
-  const isToday =
-    date.getDate() === now.getDate() &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear();
-
-  if (isToday) return `Today at ${timeStr}`;
 
   // Yesterday
   const yesterday = new Date(now);

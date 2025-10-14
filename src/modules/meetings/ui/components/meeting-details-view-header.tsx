@@ -26,6 +26,7 @@ interface MeetingHeaderProps {
   meetingName: string;
   onEdit: () => void;
   onRemove: () => void;
+  isRemoving: boolean;
 }
 
 export const MeetingDetailsViewHeader = ({
@@ -33,6 +34,7 @@ export const MeetingDetailsViewHeader = ({
   meetingName,
   onEdit,
   onRemove,
+  isRemoving,
 }: MeetingHeaderProps) => {
   return (
     <div className="flex items-center justify-between">
@@ -74,9 +76,19 @@ export const MeetingDetailsViewHeader = ({
             <PencilIcon className="mr-1 text-black size-4" aria-hidden="true" />
             <span>Edit</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={onRemove} className="cursor-pointer">
-            <TrashIcon className="mr-1 text-rose-500 size-4" />
-            <p className="text-rose-500">Delete</p>
+          <DropdownMenuItem
+            onClick={onRemove}
+            disabled={isRemoving}
+            className="cursor-pointer"
+            aria-label="Delete meeting"
+          >
+            <TrashIcon
+              className="mr-1 text-rose-500 size-4"
+              aria-hidden="true"
+            />
+            <span className="text-rose-500">
+              {isRemoving ? "Deleting..." : "Delete"}
+            </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

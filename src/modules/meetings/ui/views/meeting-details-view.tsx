@@ -45,6 +45,7 @@ export const MeetingDetailsView = ({ meetingId }: MeetingDetailsViewProps) => {
           trpc.meetings.getMany.queryOptions({}),
         );
         // TODO: Invalidate free tier usage
+        toast.success(`Meeting "${data.name}" deleted successfully`);
         router.push("/dashboard/meetings");
       },
       onError: (error) => {
@@ -61,6 +62,10 @@ export const MeetingDetailsView = ({ meetingId }: MeetingDetailsViewProps) => {
   );
 
   const handleRemoveMeeting = async () => {
+    if (removeMeeting.isPending) {
+      return;
+    }
+
     const ok = await confirmRemove();
 
     if (!ok) return;
@@ -86,6 +91,7 @@ export const MeetingDetailsView = ({ meetingId }: MeetingDetailsViewProps) => {
           meetingName={data.name}
           onEdit={() => setUpdateMeetingDialogOpen(true)}
           onRemove={handleRemoveMeeting}
+          isRemoving={removeMeeting.isPending}
         />
         <div className="bg-white border rounded-lg">
           <div className="flex flex-col col-span-5 px-4 py-5 gap-y-6">
@@ -107,9 +113,7 @@ export const MeetingDetailsView = ({ meetingId }: MeetingDetailsViewProps) => {
             </div>
             <div className="flex flex-col gap-y-3">
               <p className="text-lg font-medium">Created at</p>
-              <p className="text-neutral-800">
-                {formatTime(data.createdAt, { showSeconds: true })}
-              </p>
+              <p className="text-neutral-800">{formatTime(data.createdAt)}</p>
             </div>
           </div>
         </div>
