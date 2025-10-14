@@ -7,47 +7,47 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { VideoIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { ErrorState } from "@/components/states/error-state";
 import { LoadingState } from "@/components/states/loading-state";
-import { Badge } from "@/components/ui/badge";
 import { DetailsViewHeader } from "@/components/utils/details-view-header";
 import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
 import { useConfirm } from "@/hooks/use-confirm";
 
-import { UpdateAgentDialog } from "@/modules/agents/ui/components/update-agent-dialog";
+import { formatTime } from "@/lib/utils";
+
+import { UpdateMeetingDialog } from "@/modules/meetings/ui/components/update-meeting-dialog";
 
 import { useTRPC } from "@/trpc/client";
 
-interface AgentDetailsViewProps {
-  agentId: string;
+interface MeetingDetailsViewProps {
+  meetingId: string;
 }
 
 // TODO: abstracting common view patterns for AgentDetailsView and MeetingDetailsView
-export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
+export const MeetingDetailsView = ({ meetingId }: MeetingDetailsViewProps) => {
   const trpc = useTRPC();
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [updateAgentDialogOpen, setUpdateAgentDialogOpen] = useState(false);
+  const [updateMeetingDialogOpen, setUpdateMeetingDialogOpen] = useState(false);
 
   const { data } = useSuspenseQuery(
-    trpc.agents.getOne.queryOptions({ id: agentId }),
+    trpc.meetings.getOne.queryOptions({ id: meetingId }),
   );
 
-  const removeAgent = useMutation(
-    trpc.agents.remove.mutationOptions({
+  const removeMeeting = useMutation(
+    trpc.meetings.remove.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(
-          trpc.agents.getMany.queryOptions({}),
+          trpc.meetings.getMany.queryOptions({}),
         );
         // TODO: Invalidate free tier usage
-        toast.success(`Agent "${data.name}" deleted successfully`);
-        router.push("/dashboard/agents");
+        toast.success(`Meeting "${data.name}" deleted successfully`);
+        router.push("/dashboard/meetings");
       },
       onError: (error) => {
         toast.error(error.message);
@@ -56,14 +56,14 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
   );
 
   const [RemoveConfirmation, confirmRemove] = useConfirm(
-    "Are you sure you want to delete this agent?",
-    `The following action will permanently delete ${data.name} and its ${data.meetingCount} associated ${data.meetingCount > 1 ? "meetings" : "meeting"}`,
+    "Are you sure you want to delete this meeting?",
+    `The following action will permanently delete the "${data.name}" meeting and this action cannot be undone`,
     "Delete",
     true,
   );
 
-  const handleRemoveAgent = async () => {
-    if (removeAgent.isPending) {
+  const handleRemoveMeeting = async () => {
+    if (removeMeeting.isPending) {
       return;
     }
 
@@ -72,7 +72,7 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
     if (!ok) return;
 
     try {
-      await removeAgent.mutateAsync({ id: agentId });
+      await removeMeeting.mutateAsync({ id: meetingId });
     } catch {
       // onError already surfaces the toast
     }
@@ -81,19 +81,19 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
   return (
     <>
       <RemoveConfirmation />
-      <UpdateAgentDialog
-        open={updateAgentDialogOpen}
-        onOpenChange={setUpdateAgentDialogOpen}
+      <UpdateMeetingDialog
+        open={updateMeetingDialogOpen}
+        onOpenChange={setUpdateMeetingDialogOpen}
         initialValues={data}
       />
       <div className="flex flex-col flex-1 px-4 py-4 md:px-8 gap-y-4">
         <DetailsViewHeader
-          entityType="agents"
-          entityId={agentId}
+          entityType="meetings"
+          entityId={meetingId}
           entityName={data.name}
-          onEdit={() => setUpdateAgentDialogOpen(true)}
-          onRemove={handleRemoveAgent}
-          isRemoving={removeAgent.isPending}
+          onEdit={() => setUpdateMeetingDialogOpen(true)}
+          onRemove={handleRemoveMeeting}
+          isRemoving={removeMeeting.isPending}
         />
         <div className="bg-white border rounded-lg">
           <div className="flex flex-col col-span-5 px-4 py-5 gap-y-6">
@@ -105,19 +105,17 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
               />
               <h2 className="text-2xl font-medium">{data.name}</h2>
             </div>
-            <Badge
-              variant="outline"
-              className="flex items-center gap-x-2 [&>svg]:size-4"
-            >
-              <VideoIcon className="text-blue-700" />
-              <p className="text-blue-700">
-                {data.meetingCount}{" "}
-                {data.meetingCount > 1 ? "meetings" : "meeting"}
-              </p>
-            </Badge>
             <div className="flex flex-col gap-y-3">
-              <p className="text-lg font-medium">Instructions</p>
-              <p className="text-neutral-800">{data.instructions}</p>
+              <p className="text-lg font-medium">Agent</p>
+              <p className="text-neutral-800">{data.agent.name}</p>
+            </div>
+            <div className="flex flex-col gap-y-3">
+              <p className="text-lg font-medium">Status</p>
+              <p className="text-neutral-800">{data.status}</p>
+            </div>
+            <div className="flex flex-col gap-y-3">
+              <p className="text-lg font-medium">Created at</p>
+              <p className="text-neutral-800">{formatTime(data.createdAt)}</p>
             </div>
           </div>
         </div>
@@ -126,11 +124,11 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
   );
 };
 
-export const AgentDetailsViewLoading = () => {
-  return <LoadingState loadingText="Loading agent details" type="agents" />;
+export const MeetingDetailsViewLoading = () => {
+  return <LoadingState loadingText="Loading meeting details" type="meetings" />;
 };
 
-export const AgentDetailsViewError = () => {
+export const MeetingDetailsViewError = () => {
   const handleRetry = () => {
     window.location.reload();
   };
@@ -138,8 +136,8 @@ export const AgentDetailsViewError = () => {
   return (
     <main className="flex items-center justify-center p-4 my-auto">
       <ErrorState
-        title="An error occurred while loading agent details"
-        code="FAILED_TO_LOAD_AGENT_DETAILS"
+        title="An error occurred while loading meeting details"
+        code="FAILED_TO_LOAD_MEETING_DETAILS"
         onRetry={handleRetry}
       />
     </main>
