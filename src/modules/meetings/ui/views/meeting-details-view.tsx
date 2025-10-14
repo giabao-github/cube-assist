@@ -19,9 +19,14 @@ import { useConfirm } from "@/hooks/use-confirm";
 
 import { formatTime } from "@/lib/utils";
 
+import { ActiveState } from "@/modules/meetings/ui/components/active-state";
+import { UpcomingState } from "@/modules/meetings/ui/components/upcoming-state";
 import { UpdateMeetingDialog } from "@/modules/meetings/ui/components/update-meeting-dialog";
 
 import { useTRPC } from "@/trpc/client";
+
+import { CancelledState } from "../components/cancelled-state";
+import { ProcessingState } from "../components/processing-state";
 
 interface MeetingDetailsViewProps {
   meetingId: string;
@@ -78,6 +83,12 @@ export const MeetingDetailsView = ({ meetingId }: MeetingDetailsViewProps) => {
     }
   };
 
+  const isUpcoming = data.status === "upcoming";
+  const isActive = data.status === "active";
+  const isCompleted = data.status === "completed";
+  const isProcessing = data.status === "processing";
+  const isCancelled = data.status === "cancelled";
+
   return (
     <>
       <RemoveConfirmation />
@@ -106,19 +117,22 @@ export const MeetingDetailsView = ({ meetingId }: MeetingDetailsViewProps) => {
               <h2 className="text-2xl font-medium">{data.name}</h2>
             </div>
             <div className="flex flex-col gap-y-3">
-              <p className="text-lg font-medium">Agent</p>
-              <p className="text-neutral-800">{data.agent.name}</p>
-            </div>
-            <div className="flex flex-col gap-y-3">
-              <p className="text-lg font-medium">Status</p>
-              <p className="text-neutral-800">{data.status}</p>
-            </div>
-            <div className="flex flex-col gap-y-3">
               <p className="text-lg font-medium">Created at</p>
               <p className="text-neutral-800">{formatTime(data.createdAt)}</p>
             </div>
           </div>
         </div>
+        {isUpcoming && (
+          <UpcomingState
+            meetingId={meetingId}
+            onCancelMeeting={() => {}}
+            isCancelling={false}
+          />
+        )}
+        {isActive && <ActiveState meetingId={meetingId} />}
+        {isCancelled && <CancelledState />}
+        {isProcessing && <ProcessingState />}
+        {isCompleted && <div>Completed</div>} {/* TODO: implement soon */}
       </div>
     </>
   );
