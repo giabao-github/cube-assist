@@ -27,6 +27,8 @@ import { UpdateMeetingDialog } from "@/modules/meetings/ui/components/update-mee
 
 import { useTRPC } from "@/trpc/client";
 
+import { MeetingStatus } from "../../types";
+
 interface MeetingDetailsViewProps {
   meetingId: string;
 }
@@ -82,11 +84,7 @@ export const MeetingDetailsView = ({ meetingId }: MeetingDetailsViewProps) => {
     }
   };
 
-  const isUpcoming = data.status === "upcoming";
-  const isActive = data.status === "active";
-  const isCompleted = data.status === "completed";
-  const isProcessing = data.status === "processing";
-  const isCancelled = data.status === "cancelled";
+  const status = data.status as MeetingStatus;
 
   return (
     <>
@@ -121,18 +119,26 @@ export const MeetingDetailsView = ({ meetingId }: MeetingDetailsViewProps) => {
             </div>
           </div>
         </div>
-        {/* TODO: implement the actual cancel meeting action */}
-        {isUpcoming && (
-          <UpcomingState
-            meetingId={meetingId}
-            onCancelMeeting={() => {}}
-            isCancelling={false}
-          />
-        )}
-        {isActive && <ActiveState meetingId={meetingId} />}
-        {isCancelled && <CancelledState />}
-        {isProcessing && <ProcessingState />}
-        {isCompleted && <div>Completed</div>} {/* TODO: implement soon */}
+        {(() => {
+          switch (status) {
+            case "upcoming":
+              return (
+                <UpcomingState
+                  meetingId={meetingId}
+                  onCancelMeeting={() => {}}
+                  isCancelling={false}
+                />
+              ); // TODO: implement the actual cancel meeting action
+            case "active":
+              return <ActiveState meetingId={meetingId} />;
+            case "cancelled":
+              return <CancelledState />;
+            case "processing":
+              return <ProcessingState />;
+            case "completed":
+              return <div>Completed</div>; // TODO: implement the completed logic
+          }
+        })()}
       </div>
     </>
   );
