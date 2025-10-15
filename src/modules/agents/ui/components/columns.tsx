@@ -14,7 +14,7 @@ export const columns: ColumnDef<AgentsGetMany[number]>[] = [
     header: "Agent Name",
     cell: ({ row }) => (
       <div className="flex flex-col gap-y-2">
-        <div className="flex items-center gap-x-2">
+        <div className="flex items-center gap-x-3">
           <GeneratedAvatar
             variant="botttsNeutral"
             seed={row.original.name}

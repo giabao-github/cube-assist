@@ -2,7 +2,7 @@ import { LRUCache } from "lru-cache";
 
 import { DIACRITICS_MAP } from "@/constants/languages";
 
-import { LanguageDetector } from "@/lib/language";
+import { LanguageDetector } from "@/lib/language/language";
 
 import {
   LanguageDetectionOptions,

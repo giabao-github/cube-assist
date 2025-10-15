@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { CommandSelect } from "@/components/utils/command-select";
 import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
-import { normalizeInput } from "@/lib/utils";
+import { normalizeInput } from "@/lib/helper/utils";
 
 import { NewAgentDialog } from "@/modules/agents/ui/components/new-agent-dialog";
 import { MeetingGetOne } from "@/modules/meetings/types";

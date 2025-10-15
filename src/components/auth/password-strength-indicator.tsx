@@ -7,7 +7,10 @@ import { TooltipContent } from "@/components/auth/tooltip-content";
 
 import { STRENGTH_LEVELS } from "@/constants/classes";
 
-import { analyzePassword, checkPasswordBreach } from "@/lib/password-utils";
+import {
+  analyzePassword,
+  checkPasswordBreach,
+} from "@/lib/password/password-utils";
 
 interface PasswordStrengthIndicatorProps {
   password: string;

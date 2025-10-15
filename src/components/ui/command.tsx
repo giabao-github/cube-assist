@@ -22,7 +22,7 @@ import {
 
 import { useIsMobile } from "@/hooks/use-mobile";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helper/utils";
 
 function Command({
   className,

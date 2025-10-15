@@ -83,6 +83,7 @@ export const AgentsViewError = () => {
       <ErrorState
         title="An error occurred while loading agents"
         code="FAILED_TO_LOAD_AGENTS"
+        showRetry={true}
         onRetry={handleRetry}
       />
     </main>

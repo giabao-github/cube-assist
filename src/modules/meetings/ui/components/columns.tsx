@@ -15,7 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
-import { cn, formatDuration } from "@/lib/utils";
+import { cn, formatDuration } from "@/lib/helper/utils";
 
 import { MeetingsGetMany } from "@/modules/meetings/types";
 
@@ -41,7 +41,12 @@ export const columns: ColumnDef<MeetingsGetMany[number]>[] = [
     header: "Meeting Name",
     cell: ({ row }) => (
       <div className="flex flex-col gap-y-2">
-        <span className="font-semibold capitalize">{row.original.name}</span>
+        <div className="flex items-center gap-x-2">
+          <VideoIcon className="size-5" />
+          <span className="font-semibold capitalize" title={row.original.name}>
+            {row.original.name}
+          </span>
+        </div>
         <div className="flex items-center gap-x-2">
           <div className="flex items-center gap-x-1">
             <CornerDownRightIcon className="size-4 text-muted-foreground" />

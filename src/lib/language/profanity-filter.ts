@@ -3,13 +3,13 @@ import { Filter } from "bad-words";
 
 import { PROFANITY_CONFIG, getCustomProfanityWords } from "@/config/profanity";
 
-import { LanguageDetector } from "@/lib/language";
+import { normalizeProfanity } from "@/lib/helper/text-utils";
+import { LanguageDetector } from "@/lib/language/language";
 import {
   clearNormalizationCache,
   getWordVariations,
   normalize,
-} from "@/lib/language-utils";
-import { normalizeProfanity } from "@/lib/text-utils";
+} from "@/lib/language/language-utils";
 
 import {
   CacheStats,

@@ -17,7 +17,7 @@ import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
 import { useConfirm } from "@/hooks/use-confirm";
 
-import { formatTime } from "@/lib/utils";
+import { formatTime } from "@/lib/helper/utils";
 
 import { ActiveState } from "@/modules/meetings/ui/components/active-state";
 import { CancelledState } from "@/modules/meetings/ui/components/cancelled-state";
@@ -158,6 +158,7 @@ export const MeetingDetailsViewError = () => {
       <ErrorState
         title="An error occurred while loading meeting details"
         code="FAILED_TO_LOAD_MEETING_DETAILS"
+        showRetry={true}
         onRetry={handleRetry}
       />
     </main>

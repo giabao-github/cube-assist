@@ -33,8 +33,8 @@ import { useAuthFormActions } from "@/hooks/use-auth-form-actions";
 import { useRegisterForm } from "@/hooks/use-register-form";
 
 import { addUser } from "@/lib/actions/user-actions";
-import { authClient } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth/auth-client";
+import { cn } from "@/lib/helper/utils";
 
 import { registerSchema } from "@/modules/auth/zod-schema";
 

@@ -140,6 +140,7 @@ export const AgentDetailsViewError = () => {
       <ErrorState
         title="An error occurred while loading agent details"
         code="FAILED_TO_LOAD_AGENT_DETAILS"
+        showRetry={true}
         onRetry={handleRetry}
       />
     </main>

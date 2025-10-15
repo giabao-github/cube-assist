@@ -1,0 +1,37 @@
+import { CallControls, SpeakerLayout } from "@stream-io/video-react-sdk";
+import Image from "next/image";
+import Link from "next/link";
+
+interface CallActiveProps {
+  meetingName: string;
+  onLeave: () => void;
+}
+
+export const CallActive = ({ meetingName, onLeave }: CallActiveProps) => {
+  return (
+    <div className="flex flex-col justify-between h-full p-4 text-white">
+      <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-amber-200 w-fit">
+        <Link
+          href="/dashboard"
+          className="flex items-center justify-center p-1 rounded-full bg-white/10 w-fit"
+        >
+          <Image
+            title="Back to dashboard"
+            src="/logo.svg"
+            alt="Logo"
+            width={30}
+            height={30}
+            className="hover:animate-pulse"
+          />
+        </Link>
+        <h4 className="pr-1 text-base font-medium text-custom-500">
+          {meetingName}
+        </h4>
+      </div>
+      <SpeakerLayout />
+      <div className="px-4 bg-black rounded-full">
+        <CallControls onLeave={onLeave} />
+      </div>
+    </div>
+  );
+};

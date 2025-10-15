@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
-import { normalizeInput } from "@/lib/utils";
+import { normalizeInput } from "@/lib/helper/utils";
 
 import { AgentGetOne } from "@/modules/agents/types";
 import { agentsInsertSchema } from "@/modules/agents/zod-schema";

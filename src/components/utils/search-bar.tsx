@@ -13,7 +13,7 @@ import { notosan } from "@/config/fonts";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helper/utils";
 
 import { useSearchStore } from "@/store/search-store";
 

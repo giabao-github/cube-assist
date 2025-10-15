@@ -28,8 +28,8 @@ import {
 import { useAuthFormActions } from "@/hooks/use-auth-form-actions";
 import { useLoginForm } from "@/hooks/use-login-form";
 
-import { authClient } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth/auth-client";
+import { cn } from "@/lib/helper/utils";
 
 import { loginSchema } from "@/modules/auth/zod-schema";
 

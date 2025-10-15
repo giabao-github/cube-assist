@@ -11,7 +11,7 @@ import {
   ResponsiveCommandDialog,
 } from "@/components/ui/command";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helper/utils";
 
 interface CommandSelectProps {
   options: Array<{

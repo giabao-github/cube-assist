@@ -24,8 +24,8 @@ import { lexend } from "@/config/fonts";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 
-import { authClient } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth/auth-client";
+import { cn } from "@/lib/helper/utils";
 
 import { UserAvatar } from "@/modules/dashboard/ui/components/dashboard-user-avatar";
 import { DUBSkeleton } from "@/modules/dashboard/ui/components/dub-skeleton";

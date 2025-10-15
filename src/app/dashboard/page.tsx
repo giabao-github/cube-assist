@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { headers } from "next/headers";
 import { type RedirectType, redirect } from "next/navigation";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 
 import { DashboardView } from "@/modules/dashboard/ui/views/dashboard-view";
 

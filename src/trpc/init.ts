@@ -3,7 +3,7 @@ import { cache } from "react";
 import { TRPCError, initTRPC } from "@trpc/server";
 import { headers } from "next/headers";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 import { getUserRole } from "@/lib/session-cache";
 
 export const createTRPCContext = cache(async () => {

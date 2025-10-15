@@ -1,4 +1,4 @@
-import { getGlobalFilter } from "@/lib/profanity-filter";
+import { getGlobalFilter } from "@/lib/language/profanity-filter";
 
 export const sanitizeInputOnBlur = (
   input: string,
@@ -27,7 +27,7 @@ const leetMap: Record<string, string> = {
 };
 
 export const removeDiacritics = (text: string): string => {
-  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 };
 
 export const normalizeProfanity = (text: string): string => {

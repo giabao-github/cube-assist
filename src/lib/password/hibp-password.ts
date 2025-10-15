@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-import { categorizeBreachSeverity } from "@/lib/password-utils";
+import { categorizeBreachSeverity } from "@/lib/password/password-utils";
 
 export async function checkPasswordPwned(
   password: string,

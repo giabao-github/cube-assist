@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { lexend } from "@/config/fonts";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helper/utils";
 
 interface BrandingSectionProps {
   type: "login" | "register" | "recovery";

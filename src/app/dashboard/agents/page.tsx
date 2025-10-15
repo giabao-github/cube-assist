@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { type RedirectType, redirect } from "next/navigation";
 import type { SearchParams } from "nuqs";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 
 import { loadSearchParams } from "@/modules/agents/params";
 import { AgentsListHeader } from "@/modules/agents/ui/components/agents-list-header";
@@ -28,8 +28,6 @@ interface AgentsPageProps {
 }
 
 const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
-  const filters = await loadSearchParams(searchParams);
-
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -37,6 +35,8 @@ const AgentsPage = async ({ searchParams }: AgentsPageProps) => {
   if (!session) {
     redirect("/login", "replace" as RedirectType);
   }
+
+  const filters = await loadSearchParams(searchParams);
 
   const queryClient = getQueryClient();
 

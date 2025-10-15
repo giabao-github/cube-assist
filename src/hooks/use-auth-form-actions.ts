@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 import { DESCRIPTIONS, ERROR_TEXTS } from "@/constants/texts";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
 
 // Types for provider
 export type SocialProvider = "github" | "google";

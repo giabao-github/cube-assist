@@ -3,7 +3,7 @@ import { JSX, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ResponsiveDialog } from "@/components/utils/responsive-dialog";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helper/utils";
 
 export const useConfirm = (
   title: string,

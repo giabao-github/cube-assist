@@ -5,7 +5,7 @@ import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { RedirectType, redirect } from "next/navigation";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 
 import {
   MeetingDetailsView,
@@ -20,8 +20,6 @@ interface MeetingPageProps {
 }
 
 const MeetingPage = async ({ params }: MeetingPageProps) => {
-  const { meetingId } = await params;
-
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -29,6 +27,8 @@ const MeetingPage = async ({ params }: MeetingPageProps) => {
   if (!session) {
     redirect("/login", "replace" as RedirectType);
   }
+
+  const { meetingId } = await params;
 
   const queryClient = getQueryClient();
   try {

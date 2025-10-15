@@ -4,7 +4,7 @@ import { runningKeywords } from "@/constants/advertisements";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 
-import { chunkArray } from "@/lib/utils";
+import { chunkArray } from "@/lib/helper/utils";
 
 const RunningBanner = () => {
   const isMobile = useIsMobile();
