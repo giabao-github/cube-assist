@@ -16,19 +16,22 @@ import { generateAvatarUri } from "@/lib/avatar";
 
 const DisabledVideoPreview = () => {
   const { data } = authClient.useSession();
+  const userId = data?.user.id ?? "anonymous";
+  const userName = data?.user.name ?? "Anonymous User";
 
   return (
     <DefaultVideoPlaceholder
       participant={
         {
-          name: data?.user.name ?? "",
+          userId: userId,
+          name: userName,
           image:
             data?.user.image ??
             generateAvatarUri({
-              seed: data?.user.name ?? "",
+              seed: userName,
               variant: "initials",
             }),
-        } satisfies Partial<StreamVideoParticipant> as StreamVideoParticipant
+        } as StreamVideoParticipant
       }
     />
   );
@@ -59,7 +62,8 @@ export const CallLobby = ({
   const { hasBrowserPermission: hasCameraPermission } = useCameraState();
   const { hasBrowserPermission: hasMicrophonePermission } =
     useMicrophoneState();
-  const hasMediaPermission = hasCameraPermission && hasMicrophonePermission;
+  const hasMediaPermission =
+    hasCameraPermission === true && hasMicrophonePermission === true;
 
   return (
     <div className="flex flex-col items-center justify-center h-full bg-radial from-sidebar-accent to-sidebar">

@@ -13,7 +13,9 @@ interface AvatarProps {
 
 export const generateAvatarUri = ({ seed, variant }: AvatarProps): string => {
   let avatar;
-  const cleanSeed = removeDiacritics(seed);
+  const cleanSeed =
+    removeDiacritics(seed) ||
+    `anonymous-${Math.random().toString(36).substring(7)}`;
 
   try {
     if (variant === "botttsNeutral") {
