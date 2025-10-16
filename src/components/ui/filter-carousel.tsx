@@ -13,7 +13,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helper/utils";
 
 interface FilterCarouselProps {
   isLoading?: boolean;

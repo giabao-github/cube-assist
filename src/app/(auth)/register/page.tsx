@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { headers } from "next/headers";
 import { RedirectType, redirect } from "next/navigation";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 
 import { RegisterView } from "@/modules/auth/ui/views/register-view";
 
@@ -14,6 +14,7 @@ export const dynamic = "force-dynamic";
 
 const RegisterPage = async () => {
   let session;
+
   try {
     session = await auth.api.getSession({
       headers: await headers(),

@@ -2,7 +2,7 @@ import { ForwardRefExoticComponent, RefAttributes } from "react";
 
 import { CheckCircle, LucideProps } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helper/utils";
 
 interface TooltipContentProps {
   passwordAnalysis: {

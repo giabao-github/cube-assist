@@ -13,7 +13,7 @@ import { notosan } from "@/config/fonts";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helper/utils";
 
 import { useSearchStore } from "@/store/search-store";
 
@@ -275,13 +275,13 @@ export const SearchBar = () => {
       ref={containerRef}
       className={cn("font-medium relative w-4/5 md:w-1/3", notosan.className)}
     >
-      <div className="flex relative flex-row">
-        <div className="flex absolute inset-y-0 left-0 items-center pl-4 pointer-events-none">
+      <div className="relative flex flex-row">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
           <Search className="w-5 h-5 text-gray-400" />
         </div>
 
         {showCompletion && completion && query && (
-          <div className="flex absolute inset-0 items-center pr-12 pl-12 text-sm whitespace-pre pointer-events-none md:text-base">
+          <div className="absolute inset-0 flex items-center pl-12 pr-12 text-sm whitespace-pre pointer-events-none md:text-base">
             <span className="invisible">{query}</span>
             <span className="text-gray-400 pl-[1.5px]">{completion}</span>
           </div>
@@ -300,6 +300,7 @@ export const SearchBar = () => {
           aria-label="Search for meetings or agents"
           aria-autocomplete="list"
           aria-expanded={isOpen}
+          aria-haspopup="listbox"
           aria-controls="search-suggestions"
           aria-activedescendant={
             selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined
@@ -312,7 +313,7 @@ export const SearchBar = () => {
           className="relative py-5 pl-12 pr-12 text-sm md:text-base transition-all duration-200 border border-gray-200 rounded-full shadow-lg focus:!outline-none focus:!ring-1 focus:border-transparent placeholder:text-gray-400 placeholder:text-sm placeholder:md:text-base bg-transparent"
         />
 
-        <div className="flex absolute inset-y-0 right-0 z-10 gap-2 items-center pr-4">
+        <div className="absolute inset-y-0 right-0 z-10 flex items-center gap-2 pr-4">
           {isFocused && isLoading && (
             <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
           )}
@@ -320,7 +321,7 @@ export const SearchBar = () => {
             <Button
               onClick={handleClear}
               size="icon"
-              className="p-2 bg-gray-500 rounded-full transition-colors size-1 hover:bg-gray-400 active:bg-gray-300"
+              className="p-2 transition-colors bg-gray-500 rounded-full size-1 hover:bg-gray-400 active:bg-gray-300"
             >
               <X strokeWidth={3} className="text-white size-2.5" />
             </Button>
@@ -330,15 +331,15 @@ export const SearchBar = () => {
 
       {isOpen &&
         (isLoading || suggestions.length > 0 || shouldShowNoResults) && (
-          <div className="overflow-hidden absolute right-0 left-0 top-full z-10 mt-2 bg-white rounded-2xl border border-gray-200 shadow-xl">
+          <div className="absolute left-0 right-0 z-10 mt-2 overflow-hidden bg-white border border-gray-200 shadow-xl top-full rounded-2xl">
             {error && (
-              <div className="p-4 text-sm text-rose-500 border-b border-gray-100">
+              <div className="p-4 text-sm border-b border-gray-100 text-rose-500">
                 <span className="font-bold">Error:</span> {error}
               </div>
             )}
 
             {isLoading && (
-              <div className="flex justify-center items-center p-8">
+              <div className="flex items-center justify-center p-8">
                 <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
               </div>
             )}
@@ -357,6 +358,11 @@ export const SearchBar = () => {
                     <li
                       key={`${suggestion}-${index}`}
                       id={`suggestion-${index}`}
+                      onMouseEnter={() => setSelectedIndex(index)}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleSelectSuggestion(suggestion);
+                      }}
                       className={cn(
                         "w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 border-b border-gray-50 last:border-b-0 cursor-pointer",
                         selectedIndex === index && "bg-blue-50 text-blue-700",
@@ -380,14 +386,14 @@ export const SearchBar = () => {
             )}
 
             {shouldShowNoResults && !error && (
-              <div className="flex flex-row gap-x-2 justify-center items-center p-5 text-gray-500">
+              <div className="flex flex-row items-center justify-center p-5 text-gray-500 gap-x-2">
                 <Search className="text-gray-400 size-5" />
                 <p className="text-sm">{`No suggestions found for "${query.trim()}"`}</p>
               </div>
             )}
 
             {!isLoading && suggestions.length > 0 && !isMobile && (
-              <div className="px-4 py-2 text-xs text-gray-500 bg-gray-50 border-t border-gray-100 cursor-default">
+              <div className="px-4 py-2 text-xs text-gray-500 border-t border-gray-100 cursor-default bg-gray-50">
                 Use ↑↓ to navigate, Tab to complete, Enter to select, Esc to
                 close
               </div>

@@ -83,6 +83,7 @@ export const MeetingsViewError = () => {
       <ErrorState
         title="An error occurred while loading meetings"
         code="FAILED_TO_LOAD_MEETINGS"
+        showRetry={true}
         onRetry={handleRetry}
       />
     </main>

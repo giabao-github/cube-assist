@@ -3,7 +3,7 @@ import zxcvbn from "zxcvbn";
 
 import { BREACH_SEVERITY_THRESHOLDS } from "@/constants/numbers";
 
-import { checkPasswordPwned } from "@/lib/hibp-password";
+import { checkPasswordPwned } from "@/lib/password/hibp-password";
 
 export const analyzePassword = (password: string) => {
   if (!password)

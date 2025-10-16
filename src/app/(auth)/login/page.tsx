@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { RedirectType, redirect } from "next/navigation";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 
 import { LoginView } from "@/modules/auth/ui/views/login-view";
 
@@ -14,6 +14,7 @@ export const dynamic = "force-dynamic";
 
 const LoginPage = async () => {
   let session;
+
   try {
     session = await auth.api.getSession({
       headers: await headers(),
@@ -24,7 +25,7 @@ const LoginPage = async () => {
   }
 
   if (session) {
-    redirect("/dashboard", "replace" as RedirectType);
+    redirect("/dashboard", RedirectType.replace);
   }
 
   return <LoginView />;

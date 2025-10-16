@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 import { headers } from "next/headers";
-import { type RedirectType, redirect } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 
 import { DashboardView } from "@/modules/dashboard/ui/views/dashboard-view";
 
@@ -16,7 +16,7 @@ const DashboardPage = async () => {
   });
 
   if (!session) {
-    redirect("/login", "replace" as RedirectType);
+    redirect("/login", RedirectType.replace);
   }
 
   return <DashboardView />;

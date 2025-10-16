@@ -8,7 +8,6 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 
 import { ErrorState } from "@/components/states/error-state";
 import { LoadingState } from "@/components/states/loading-state";
@@ -17,7 +16,8 @@ import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
 import { useConfirm } from "@/hooks/use-confirm";
 
-import { formatTime } from "@/lib/utils";
+import { formatTime } from "@/lib/helper/utils";
+import { rToast } from "@/lib/toast-utils";
 
 import { ActiveState } from "@/modules/meetings/ui/components/active-state";
 import { CancelledState } from "@/modules/meetings/ui/components/cancelled-state";
@@ -52,11 +52,11 @@ export const MeetingDetailsView = ({ meetingId }: MeetingDetailsViewProps) => {
           trpc.meetings.getMany.queryOptions({}),
         );
         // TODO: Invalidate free tier usage
-        toast.success(`Meeting "${data.name}" deleted successfully`);
+        rToast.success(`Meeting "${data.name}" deleted successfully`);
         router.push("/dashboard/meetings");
       },
       onError: (error) => {
-        toast.error(error.message);
+        rToast.error(error.message);
       },
     }),
   );
@@ -158,6 +158,7 @@ export const MeetingDetailsViewError = () => {
       <ErrorState
         title="An error occurred while loading meeting details"
         code="FAILED_TO_LOAD_MEETING_DETAILS"
+        showRetry={true}
         onRetry={handleRetry}
       />
     </main>

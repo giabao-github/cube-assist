@@ -1,9 +1,12 @@
 import { z } from "zod";
 import zxcvbn from "zxcvbn";
 
-import { addPasswordBreachValidation } from "@/lib/password-utils";
-import { getGlobalFilter } from "@/lib/profanity-filter";
-import { checkEmailProfanity, hasNoRedundantSpaces } from "@/lib/text-utils";
+import {
+  checkEmailProfanity,
+  hasNoRedundantSpaces,
+} from "@/lib/helper/text-utils";
+import { getGlobalFilter } from "@/lib/language/profanity-filter";
+import { addPasswordBreachValidation } from "@/lib/password/password-utils";
 
 const emailValidation = z
   .string()

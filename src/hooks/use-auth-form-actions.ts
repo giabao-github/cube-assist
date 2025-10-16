@@ -1,10 +1,9 @@
 import { useCallback, useState } from "react";
 
-import { toast } from "sonner";
-
 import { DESCRIPTIONS, ERROR_TEXTS } from "@/constants/texts";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
+import { rToast } from "@/lib/toast-utils";
 
 // Types for provider
 export type SocialProvider = "github" | "google";
@@ -33,7 +32,7 @@ export const useAuthFormActions = (options?: UseAuthFormActionsOptions) => {
           onError: () => {
             setPending(false);
             const errorMessage = `${provider.charAt(0).toUpperCase() + provider.slice(1)} login failed`;
-            toast.error(errorMessage, {
+            rToast.error(errorMessage, {
               description: "Please try again or use email login",
             });
           },
@@ -47,27 +46,27 @@ export const useAuthFormActions = (options?: UseAuthFormActionsOptions) => {
   const handleToastMessage = useCallback((errorCode: string) => {
     switch (errorCode) {
       case "USER_ALREADY_EXISTS":
-        toast.error(ERROR_TEXTS.emailExists, {
+        rToast.error(ERROR_TEXTS.emailExists, {
           description: DESCRIPTIONS.useAnotherEmail,
         });
         break;
       case "INVALID_EMAIL_OR_PASSWORD":
-        toast.error(ERROR_TEXTS.invalidCredentials, {
+        rToast.error(ERROR_TEXTS.invalidCredentials, {
           description: DESCRIPTIONS.checkCredentials,
         });
         break;
       case "NETWORK_ERROR":
-        toast.error(ERROR_TEXTS.networkError, {
+        rToast.error(ERROR_TEXTS.networkError, {
           description: DESCRIPTIONS.networkError,
         });
         break;
       case "SERVER_ERROR":
-        toast.error(ERROR_TEXTS.serverError, {
+        rToast.error(ERROR_TEXTS.serverError, {
           description: DESCRIPTIONS.serverError,
         });
         break;
       default:
-        toast.error(ERROR_TEXTS.unknown, {
+        rToast.error(ERROR_TEXTS.unknown, {
           description: DESCRIPTIONS.unknown,
         });
     }

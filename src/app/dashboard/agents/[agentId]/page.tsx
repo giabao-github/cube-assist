@@ -5,7 +5,7 @@ import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { RedirectType, redirect } from "next/navigation";
 
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 
 import {
   AgentDetailsView,
@@ -20,15 +20,15 @@ interface AgentPageProps {
 }
 
 const AgentPage = async ({ params }: AgentPageProps) => {
-  const { agentId } = await params;
-
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
   if (!session) {
-    redirect("/login", "replace" as RedirectType);
+    redirect("/login", RedirectType.replace);
   }
+
+  const { agentId } = await params;
 
   const queryClient = getQueryClient();
   try {

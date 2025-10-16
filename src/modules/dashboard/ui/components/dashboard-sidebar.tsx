@@ -22,7 +22,7 @@ import {
 
 import { lexend } from "@/config/fonts";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helper/utils";
 
 import { DashboardUserButton } from "@/modules/dashboard/ui/components/dashboard-user-button";
 

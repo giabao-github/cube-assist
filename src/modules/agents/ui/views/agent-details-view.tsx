@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-query";
 import { VideoIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 
 import { ErrorState } from "@/components/states/error-state";
 import { LoadingState } from "@/components/states/loading-state";
@@ -18,6 +17,8 @@ import { DetailsViewHeader } from "@/components/utils/details-view-header";
 import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
 import { useConfirm } from "@/hooks/use-confirm";
+
+import { rToast } from "@/lib/toast-utils";
 
 import { UpdateAgentDialog } from "@/modules/agents/ui/components/update-agent-dialog";
 
@@ -46,11 +47,11 @@ export const AgentDetailsView = ({ agentId }: AgentDetailsViewProps) => {
           trpc.agents.getMany.queryOptions({}),
         );
         // TODO: Invalidate free tier usage
-        toast.success(`Agent "${data.name}" deleted successfully`);
+        rToast.success(`Agent "${data.name}" deleted successfully`);
         router.push("/dashboard/agents");
       },
       onError: (error) => {
-        toast.error(error.message);
+        rToast.error(error.message);
       },
     }),
   );
@@ -140,6 +141,7 @@ export const AgentDetailsViewError = () => {
       <ErrorState
         title="An error occurred while loading agent details"
         code="FAILED_TO_LOAD_AGENT_DETAILS"
+        showRetry={true}
         onRetry={handleRetry}
       />
     </main>

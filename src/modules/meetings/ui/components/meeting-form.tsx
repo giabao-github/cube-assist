@@ -8,7 +8,6 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,8 @@ import { Input } from "@/components/ui/input";
 import { CommandSelect } from "@/components/utils/command-select";
 import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
-import { normalizeInput } from "@/lib/utils";
+import { normalizeInput } from "@/lib/helper/utils";
+import { rToast } from "@/lib/toast-utils";
 
 import { NewAgentDialog } from "@/modules/agents/ui/components/new-agent-dialog";
 import { MeetingGetOne } from "@/modules/meetings/types";
@@ -98,7 +98,7 @@ export const MeetingForm = ({
         onSuccess?.(data.id);
       },
       onError: (error) => {
-        toast.error(error.message);
+        rToast.error(error.message);
         // TODO: Check if error code is "FORBIDDEN", redirect to "/upgrade"
       },
     }),
@@ -120,7 +120,7 @@ export const MeetingForm = ({
         onSuccess?.();
       },
       onError: (error) => {
-        toast.error(error.message);
+        rToast.error(error.message);
         // TODO: Check if error code is "FORBIDDEN", redirect to "/upgrade"
       },
     }),
@@ -153,10 +153,14 @@ export const MeetingForm = ({
   };
 
   const onSubmit = (values: z.infer<typeof meetingsInsertSchema>) => {
+    const normalizedValues = {
+      ...values,
+      name: normalizeInput(values.name),
+    };
     if (isEdit && initialValues?.id) {
-      updateMeeting.mutate({ ...values, id: initialValues.id });
+      updateMeeting.mutate({ ...normalizedValues, id: initialValues.id });
     } else {
-      createMeeting.mutate(values);
+      createMeeting.mutate(normalizedValues);
     }
   };
 

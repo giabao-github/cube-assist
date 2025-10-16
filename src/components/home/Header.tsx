@@ -10,8 +10,8 @@ import Logo from "@/components/home/logo";
 import NavLink from "@/components/home/nav-link";
 import { Button } from "@/components/ui/button";
 
-import { authClient } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth/auth-client";
+import { cn } from "@/lib/helper/utils";
 
 import { DashboardUserButton } from "@/modules/dashboard/ui/components/dashboard-user-button";
 

@@ -1,11 +1,11 @@
 import { botttsNeutral, initials } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
-import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { removeDiacritics } from "@/lib/text-utils";
-import { cn } from "@/lib/utils";
+import { removeDiacritics } from "@/lib/helper/text-utils";
+import { cn } from "@/lib/helper/utils";
+import { rToast } from "@/lib/toast-utils";
 
 interface GeneratedAvatarProps {
   seed: string;
@@ -46,7 +46,6 @@ export const GeneratedAvatar = ({
         seed: cleanSeed,
       });
     } else {
-      // Use transparent background for initials variant
       avatar = createAvatar(initials, {
         seed: cleanSeed,
         fontWeight: 600,
@@ -56,10 +55,10 @@ export const GeneratedAvatar = ({
     }
   } catch (error) {
     console.warn("Failed to generate avatar:", error);
-    toast.warning("Failed to fetch user avatar");
+    rToast.warning("Failed to fetch user avatar");
   }
 
-  // Create a simple hash function to consistently select gradient based on seed
+  // Select gradient based on seed
   const hashCode = (str: string): number => {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
