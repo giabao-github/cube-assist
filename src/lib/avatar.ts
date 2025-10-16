@@ -1,7 +1,7 @@
 import { botttsNeutral, initials } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
 
-import { DEFAULT_AVATAR } from "@/constants/numbers";
+import { DEFAULT_AVATAR } from "@/constants/media";
 
 import { removeDiacritics } from "@/lib/helper/text-utils";
 import { rToast } from "@/lib/toast-utils";

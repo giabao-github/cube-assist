@@ -10,7 +10,7 @@ class ToastRateLimiter {
   private defaultCooldown = 2000;
 
   private createKey(type: string, message: string): string {
-    return `${type}:${message}`;
+    return `${type}||${message}`;
   }
 
   private shouldShow(
@@ -48,75 +48,8 @@ class ToastRateLimiter {
     }
   }
 
-  success(
-    message: string,
-    options?: ToastRateLimiterOptions & Parameters<typeof toast.success>[1],
-  ): void {
-    const {
-      cooldown = this.defaultCooldown,
-      maxToasts = 1,
-      ...toastOptions
-    } = options || {};
-    const key = this.createKey("success", message);
-
-    if (this.shouldShow(key, cooldown, maxToasts)) {
-      toast.success(message, toastOptions);
-      this.cleanup(cooldown);
-    }
-  }
-
-  error(
-    message: string,
-    options?: ToastRateLimiterOptions & Parameters<typeof toast.error>[1],
-  ): void {
-    const {
-      cooldown = this.defaultCooldown,
-      maxToasts = 1,
-      ...toastOptions
-    } = options || {};
-    const key = this.createKey("error", message);
-
-    if (this.shouldShow(key, cooldown, maxToasts)) {
-      toast.error(message, toastOptions);
-      this.cleanup(cooldown);
-    }
-  }
-
-  warning(
-    message: string,
-    options?: ToastRateLimiterOptions & Parameters<typeof toast.warning>[1],
-  ): void {
-    const {
-      cooldown = this.defaultCooldown,
-      maxToasts = 1,
-      ...toastOptions
-    } = options || {};
-    const key = this.createKey("warning", message);
-
-    if (this.shouldShow(key, cooldown, maxToasts)) {
-      toast.warning(message, toastOptions);
-      this.cleanup(cooldown);
-    }
-  }
-
-  info(
-    message: string,
-    options?: ToastRateLimiterOptions & Parameters<typeof toast.info>[1],
-  ): void {
-    const {
-      cooldown = this.defaultCooldown,
-      maxToasts = 1,
-      ...toastOptions
-    } = options || {};
-    const key = this.createKey("info", message);
-
-    if (this.shouldShow(key, cooldown, maxToasts)) {
-      toast.info(message, toastOptions);
-      this.cleanup(cooldown);
-    }
-  }
-
-  message(
+  private showToast(
+    type: "success" | "error" | "warning" | "info" | "message",
     message: string,
     options?: ToastRateLimiterOptions & Parameters<typeof toast>[1],
   ): void {
@@ -125,12 +58,51 @@ class ToastRateLimiter {
       maxToasts = 1,
       ...toastOptions
     } = options || {};
-    const key = this.createKey("message", message);
+    const key = this.createKey(type, message);
 
     if (this.shouldShow(key, cooldown, maxToasts)) {
-      toast(message, toastOptions);
+      if (type === "message") {
+        toast(message, toastOptions);
+      } else {
+        toast[type](message, toastOptions);
+      }
       this.cleanup(cooldown);
     }
+  }
+
+  success(
+    message: string,
+    options?: ToastRateLimiterOptions & Parameters<typeof toast.success>[1],
+  ): void {
+    this.showToast("success", message, options);
+  }
+
+  error(
+    message: string,
+    options?: ToastRateLimiterOptions & Parameters<typeof toast.error>[1],
+  ): void {
+    this.showToast("error", message, options);
+  }
+
+  warning(
+    message: string,
+    options?: ToastRateLimiterOptions & Parameters<typeof toast.warning>[1],
+  ): void {
+    this.showToast("warning", message, options);
+  }
+
+  info(
+    message: string,
+    options?: ToastRateLimiterOptions & Parameters<typeof toast.info>[1],
+  ): void {
+    this.showToast("info", message, options);
+  }
+
+  message(
+    message: string,
+    options?: ToastRateLimiterOptions & Parameters<typeof toast>[1],
+  ): void {
+    this.showToast("message", message, options);
   }
 
   clear(): void {

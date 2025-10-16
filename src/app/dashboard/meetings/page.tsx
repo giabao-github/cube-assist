@@ -4,7 +4,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { Metadata } from "next";
 import { headers } from "next/headers";
-import { type RedirectType, redirect } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 import type { SearchParams } from "nuqs";
 
 import { auth } from "@/lib/auth/auth";
@@ -33,7 +33,7 @@ const MeetingsPage = async ({ searchParams }: MeetingsPageProps) => {
   });
 
   if (!session) {
-    redirect("/login", "replace" as RedirectType);
+    redirect("/login", RedirectType.replace);
   }
 
   const filters = await loadSearchParams(searchParams);

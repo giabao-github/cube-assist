@@ -25,7 +25,7 @@ const CallPage = async ({ params }: CallPageProps) => {
   });
 
   if (!session) {
-    redirect("/login", "replace" as RedirectType);
+    redirect("/login", RedirectType.replace);
   }
 
   const { meetingId } = await params;

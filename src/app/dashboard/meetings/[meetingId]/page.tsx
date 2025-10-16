@@ -25,7 +25,7 @@ const MeetingPage = async ({ params }: MeetingPageProps) => {
   });
 
   if (!session) {
-    redirect("/login", "replace" as RedirectType);
+    redirect("/login", RedirectType.replace);
   }
 
   const { meetingId } = await params;

@@ -11,7 +11,6 @@ if (!process.env.STREAM_VIDEO_SECRET_KEY) {
   throw new Error("Missing STREAM_VIDEO_SECRET_KEY environment variable");
 }
 
-export const streamVideo = new StreamClient(
-  process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY,
-  process.env.STREAM_VIDEO_SECRET_KEY,
-);
+const apiKey = process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY as string;
+const secret = process.env.STREAM_VIDEO_SECRET_KEY as string;
+export const streamVideo = new StreamClient(apiKey, secret);

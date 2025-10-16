@@ -87,7 +87,7 @@ export const CallLobby = ({
             <Button
               asChild
               variant="ghost"
-              className="border-1 border-neutral-200 hover:ring-1 hover:ring-neutral-300"
+              className="border border-neutral-200 hover:ring-1 hover:ring-neutral-300"
             >
               <Link href={`/dashboard/meetings/${meetingId}`}>Cancel</Link>
             </Button>

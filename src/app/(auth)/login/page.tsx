@@ -25,7 +25,7 @@ const LoginPage = async () => {
   }
 
   if (session) {
-    redirect("/dashboard", "replace" as RedirectType);
+    redirect("/dashboard", RedirectType.replace);
   }
 
   return <LoginView />;

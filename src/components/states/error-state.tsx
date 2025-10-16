@@ -20,6 +20,25 @@ interface ErrorStateProps {
 const errorButtonClassName =
   "mt-4 transition-colors select-none group border-rose-300 text-rose-500 hover:bg-rose-100 hover:border-rose-400 hover:text-rose-600 active:bg-rose-100 active:border-rose-400 active:text-rose-600 hover:shadow-sm active:shadow-sm";
 
+interface ErrorButtonProps {
+  onClick?: () => void;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  iconClassName?: string;
+}
+
+const ErrorButton = ({
+  onClick,
+  icon: Icon,
+  label,
+  iconClassName,
+}: ErrorButtonProps) => (
+  <Button onClick={onClick} variant="outline" className={errorButtonClassName}>
+    <Icon className={iconClassName} />
+    {label}
+  </Button>
+);
+
 export const ErrorState = ({
   title = "Something went wrong",
   description = "We encountered an unexpected error. Please try again or contact support if the problem persists.",
@@ -63,25 +82,21 @@ export const ErrorState = ({
           )}
 
           {showRetry && (
-            <Button
+            <ErrorButton
               onClick={onRetry}
-              variant="outline"
-              className={errorButtonClassName}
-            >
-              <RefreshCwIcon className="w-4 h-4 transition-transform group-hover:rotate-180 group-active:rotate-180" />
-              {retryLabel}
-            </Button>
+              icon={RefreshCwIcon}
+              label={retryLabel}
+              iconClassName="w-4 h-4 transition-transform group-hover:rotate-180 group-active:rotate-180"
+            />
           )}
 
           {showAction && (
-            <Button
+            <ErrorButton
               onClick={onAction}
-              variant="outline"
-              className={errorButtonClassName}
-            >
-              <MoveLeftIcon className="w-4 h-4 transition-transform group-hover:-translate-x-1 group-active:-translate-x-1" />
-              {actionLabel}
-            </Button>
+              icon={MoveLeftIcon}
+              label={actionLabel}
+              iconClassName="w-4 h-4 transition-transform group-hover:-translate-x-1 group-active:-translate-x-1"
+            />
           )}
         </CardContent>
       </Card>

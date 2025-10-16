@@ -25,7 +25,7 @@ const AgentPage = async ({ params }: AgentPageProps) => {
   });
 
   if (!session) {
-    redirect("/login", "replace" as RedirectType);
+    redirect("/login", RedirectType.replace);
   }
 
   const { agentId } = await params;
