@@ -6,7 +6,6 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { GeneratedAvatar } from "@/components/utils/generated-avatar";
 
 import { normalizeInput } from "@/lib/helper/utils";
+import { rToast } from "@/lib/toast-utils";
 
 import { AgentGetOne } from "@/modules/agents/types";
 import { agentsInsertSchema } from "@/modules/agents/zod-schema";
@@ -84,7 +84,7 @@ export const AgentForm = ({
         onSuccess?.();
       },
       onError: (error) => {
-        toast.error(error.message);
+        rToast.error(error.message);
         // TODO: Check if error code is "FORBIDDEN", redirect to "/upgrade"
       },
     }),
@@ -106,7 +106,7 @@ export const AgentForm = ({
         onSuccess?.();
       },
       onError: (error) => {
-        toast.error(error.message);
+        rToast.error(error.message);
         // TODO: Check if error code is "FORBIDDEN", redirect to "/upgrade"
       },
     }),

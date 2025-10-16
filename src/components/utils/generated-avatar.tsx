@@ -1,11 +1,11 @@
 import { botttsNeutral, initials } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
-import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { removeDiacritics } from "@/lib/helper/text-utils";
 import { cn } from "@/lib/helper/utils";
+import { rToast } from "@/lib/toast-utils";
 
 interface GeneratedAvatarProps {
   seed: string;
@@ -55,7 +55,7 @@ export const GeneratedAvatar = ({
     }
   } catch (error) {
     console.warn("Failed to generate avatar:", error);
-    toast.warning("Failed to fetch user avatar");
+    rToast.warning("Failed to fetch user avatar");
   }
 
   // Select gradient based on seed

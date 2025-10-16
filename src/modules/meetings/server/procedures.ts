@@ -172,27 +172,36 @@ export const meetingsRouter = createTRPCRouter({
           .returning();
 
         // Create stream call, upsert stream users
-        const call = streamVideo.video.call("default", createdMeeting.id);
-        await call.create({
-          data: {
-            created_by_id: ctx.auth.user.id,
-            custom: {
-              meetingId: createdMeeting.id,
-              meetingName: createdMeeting.name,
-            },
-            settings_override: {
-              transcription: {
-                language: "en",
-                mode: "auto-on",
-                closed_caption_mode: "auto-on",
+        try {
+          const call = streamVideo.video.call("default", createdMeeting.id);
+          await call.create({
+            data: {
+              created_by_id: ctx.auth.user.id,
+              custom: {
+                meetingId: createdMeeting.id,
+                meetingName: createdMeeting.name,
               },
-              recording: {
-                mode: "auto-on",
-                quality: "1080p",
+              settings_override: {
+                transcription: {
+                  language: "en",
+                  mode: "auto-on",
+                  closed_caption_mode: "auto-on",
+                },
+                recording: {
+                  mode: "auto-on",
+                  quality: "1080p",
+                },
               },
             },
-          },
-        });
+          });
+        } catch (streamError) {
+          await db.delete(meetings).where(eq(meetings.id, createdMeeting.id));
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to initialize video call. Please try again.",
+            cause: streamError,
+          });
+        }
 
         const [existingAgent] = await db
           .select()
@@ -216,6 +225,13 @@ export const meetingsRouter = createTRPCRouter({
               seed: existingAgent.name,
               variant: "botttsNeutral",
             }),
+            ...(() => {
+              const avatar = generateAvatarUri({
+                seed: existingAgent.name,
+                variant: "botttsNeutral",
+              });
+              return avatar ? { image: avatar } : {};
+            })(),
           },
         ]);
 

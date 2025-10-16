@@ -1,16 +1,21 @@
-import { cache } from "react";
-
 import { TRPCError, initTRPC } from "@trpc/server";
 import { headers } from "next/headers";
 
 import { auth } from "@/lib/auth/auth";
 import { getUserRole } from "@/lib/session-cache";
 
-export const createTRPCContext = cache(async () => {
-  return { userId: "user_123" };
-});
+type Context = {
+  auth?: {
+    user?: { id?: string };
+    role?: string;
+  };
+};
 
-const t = initTRPC.create({});
+export const createTRPCContext = async (): Promise<Context> => {
+  return {};
+};
+
+const t = initTRPC.context<Context>().create({});
 
 export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;

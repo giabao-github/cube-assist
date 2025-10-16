@@ -1,11 +1,10 @@
 "use client";
 
-import { toast } from "sonner";
-
 import { LoadingState } from "@/components/states/loading-state";
 import { Button } from "@/components/ui/button";
 
 import { authClient } from "@/lib/auth/auth-client";
+import { rToast } from "@/lib/toast-utils";
 
 import HomeView from "@/modules/home/ui/views/home-view";
 
@@ -30,7 +29,7 @@ export const DashboardView = () => {
               await authClient.signOut();
             } catch (error) {
               console.error("Sign out failed:", error);
-              toast.error("Sign out failed", {
+              rToast.error("Sign out failed", {
                 description: "Please try again or reload the page",
               });
             }

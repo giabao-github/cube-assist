@@ -28,7 +28,7 @@ const DisabledVideoPreview = () => {
               seed: data?.user.name ?? "",
               variant: "initials",
             }),
-        } as StreamVideoParticipant
+        } satisfies Partial<StreamVideoParticipant> as StreamVideoParticipant
       }
     />
   );
@@ -57,8 +57,9 @@ export const CallLobby = ({
   const { useCameraState, useMicrophoneState } = useCallStateHooks();
 
   const { hasBrowserPermission: hasCameraPermission } = useCameraState();
-  const { hasBrowserPermission: hasMicroPermission } = useMicrophoneState();
-  const hasMediaPermission = hasCameraPermission && hasMicroPermission;
+  const { hasBrowserPermission: hasMicrophonePermission } =
+    useMicrophoneState();
+  const hasMediaPermission = hasCameraPermission && hasMicrophonePermission;
 
   return (
     <div className="flex flex-col items-center justify-center h-full bg-radial from-sidebar-accent to-sidebar">

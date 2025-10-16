@@ -1,15 +1,17 @@
 import { botttsNeutral, initials } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
-import { toast } from "sonner";
+
+import { DEFAULT_AVATAR } from "@/constants/numbers";
 
 import { removeDiacritics } from "@/lib/helper/text-utils";
+import { rToast } from "@/lib/toast-utils";
 
 interface AvatarProps {
   seed: string;
   variant: "botttsNeutral" | "initials";
 }
 
-export const generateAvatarUri = ({ seed, variant }: AvatarProps) => {
+export const generateAvatarUri = ({ seed, variant }: AvatarProps): string => {
   let avatar;
   const cleanSeed = removeDiacritics(seed);
 
@@ -27,9 +29,11 @@ export const generateAvatarUri = ({ seed, variant }: AvatarProps) => {
       });
     }
 
-    return avatar.toDataUri();
+    const generatedUri = avatar.toDataUri();
+    return generatedUri || DEFAULT_AVATAR;
   } catch (error) {
     console.warn("Failed to generate avatar:", error);
-    toast.warning("Failed to generate avatar");
+    rToast.warning("Failed to generate avatar");
+    return DEFAULT_AVATAR;
   }
 };

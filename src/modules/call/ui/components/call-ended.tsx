@@ -8,7 +8,7 @@ export const CallEnded = () => {
       <div className="flex items-center justify-center flex-1 px-8 py-4">
         <div className="flex flex-col items-center justify-center p-10 rounded-lg shadow-sm gap-y-6 bg-background">
           <div className="flex flex-col text-center gap-y-4">
-            <h6 className="text-base font-medium">You have ended the call</h6>
+            <h6 className="text-base font-medium">Call Ended</h6>
             <p className="text-sm">
               The call summary will appear in a few minutes.
             </p>

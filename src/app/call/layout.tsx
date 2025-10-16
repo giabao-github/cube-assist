@@ -5,7 +5,7 @@ interface CallLayoutProps {
 }
 
 const CallLayout = ({ children }: CallLayoutProps) => {
-  return <div className="h-screen bg-black">{children}</div>;
+  return <div className="min-h-[100dvh] h-screen bg-black">{children}</div>;
 };
 
 export default CallLayout;

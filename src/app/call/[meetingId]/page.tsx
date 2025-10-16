@@ -42,7 +42,7 @@ const CallPage = async ({ params }: CallPageProps) => {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<CallViewLoading />}>
-        <ErrorBoundary FallbackComponent={CallViewError}>
+        <ErrorBoundary fallback={<CallViewError meetingId={meetingId} />}>
           <CallView meetingId={meetingId} />
         </ErrorBoundary>
       </Suspense>

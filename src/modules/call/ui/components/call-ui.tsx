@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import { StreamTheme, useCall } from "@stream-io/video-react-sdk";
 
+import { rToast } from "@/lib/toast-utils";
+
 import { CallActive } from "@/modules/call/ui/components/call-active";
 import { CallEnded } from "@/modules/call/ui/components/call-ended";
 import { CallLobby } from "@/modules/call/ui/components/call-lobby";
@@ -18,9 +20,13 @@ export const CallUI = ({ meetingId, meetingName }: CallUIProps) => {
   const handleJoin = async () => {
     if (!call) return;
 
-    await call.join();
-
-    setShow("call");
+    try {
+      await call.join();
+      setShow("call");
+    } catch (error) {
+      console.error("Failed to join call:", error);
+      rToast.error("Failed to join call");
+    }
   };
 
   const handleLeave = () => {

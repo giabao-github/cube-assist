@@ -45,13 +45,13 @@ export const CallViewLoading = () => {
   return <LoadingState loadingText="Loading call" type="call" />;
 };
 
-export const CallViewError = () => {
+export const CallViewError = ({ meetingId }: { meetingId: string }) => {
   const queryClient = useQueryClient();
   const trpc = useTRPC();
 
   const handleRetry = () => {
     queryClient.invalidateQueries({
-      queryKey: trpc.meetings.getOne.queryKey(),
+      queryKey: trpc.meetings.getOne.queryKey({ id: meetingId }),
     });
   };
 

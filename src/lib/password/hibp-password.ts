@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import "server-only";
 
 import { categorizeBreachSeverity } from "@/lib/password/password-utils";
 
@@ -29,6 +30,7 @@ export async function checkPasswordPwned(
         method: "GET",
         headers: {
           "User-Agent": "PasswordChecker/1.0",
+          "Add-Padding": "true",
         },
         signal: AbortSignal.timeout(10000),
       },

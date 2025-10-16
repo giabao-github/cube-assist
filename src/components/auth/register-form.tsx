@@ -9,7 +9,6 @@ import { IoWarningOutline } from "react-icons/io5";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { RegisterPasswordFields } from "@/components/auth/register-password-fields";
@@ -35,6 +34,7 @@ import { useRegisterForm } from "@/hooks/use-register-form";
 import { addUser } from "@/lib/actions/user-actions";
 import { authClient } from "@/lib/auth/auth-client";
 import { cn } from "@/lib/helper/utils";
+import { rToast } from "@/lib/toast-utils";
 
 import { registerSchema } from "@/modules/auth/zod-schema";
 
@@ -76,7 +76,7 @@ export const RegisterForm = () => {
       {
         onSuccess: async () => {
           setPending(false);
-          toast.success(SUCCESS_TEXTS.register, {
+          rToast.success(SUCCESS_TEXTS.register, {
             description: DESCRIPTIONS.useRegisteredInfo,
           });
           router.push("/login");

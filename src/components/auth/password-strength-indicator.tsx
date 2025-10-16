@@ -30,7 +30,7 @@ export const PasswordStrengthIndicator = ({
     const timer = setTimeout(() => {
       setDebouncedPassword(password);
       setIsTyping(false);
-    }, 100);
+    }, 500);
 
     if (password !== debouncedPassword) {
       setIsTyping(true);
@@ -44,16 +44,31 @@ export const PasswordStrengthIndicator = ({
   }, [debouncedPassword]);
 
   useEffect(() => {
-    const checkPasswordPwned = async () => {
-      const result = await checkPasswordBreach(password);
-      if (result?.isPwned) {
-        setDescription(`Compromised in a data breach (${result.severity})`);
-      } else {
-        setDescription("");
+    let alive = true;
+    if (!debouncedPassword) {
+      setDescription("");
+      return () => {
+        alive = false;
+      };
+    }
+    const check = async () => {
+      try {
+        const result = await checkPasswordBreach(debouncedPassword);
+        if (!alive) return;
+        if (result?.isPwned) {
+          setDescription(`Compromised in a data breach (${result.severity})`);
+        } else {
+          setDescription("");
+        }
+      } catch {
+        if (alive) setDescription("");
       }
     };
-    checkPasswordPwned();
-  }, [password]);
+    check();
+    return () => {
+      alive = false;
+    };
+  }, [debouncedPassword]);
 
   const updateTooltipPosition = () => {
     if (badgeRef.current) {
