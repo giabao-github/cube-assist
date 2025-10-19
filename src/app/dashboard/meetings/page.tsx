@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   title: "Meetings - Cube Assist",
 };
 
+export const revalidate = 30;
+
 interface MeetingsPageProps {
   searchParams: Promise<SearchParams>;
 }
@@ -42,9 +44,15 @@ const MeetingsPage = async ({ searchParams }: MeetingsPageProps) => {
 
   try {
     await queryClient.prefetchQuery(
-      trpc.meetings.getMany.queryOptions({
-        ...filters,
-      }),
+      trpc.meetings.getMany.queryOptions(
+        {
+          ...filters,
+        },
+        {
+          staleTime: 30 * 1000,
+          gcTime: 5 * 60 * 1000,
+        },
+      ),
     );
   } catch (error) {
     console.error("Prefetch meetings failed:", error);

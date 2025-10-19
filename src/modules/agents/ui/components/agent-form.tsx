@@ -163,7 +163,9 @@ export const AgentForm = ({
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="mb-1 text-sm md:text-base">Name</FormLabel>
+              <FormLabel className="mb-1 text-sm md:text-base">
+                Name *
+              </FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -177,7 +179,7 @@ export const AgentForm = ({
                   }
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="px-1.5" />
             </FormItem>
           )}
         />
@@ -187,7 +189,7 @@ export const AgentForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="mb-1 text-sm md:text-base">
-                Instructions
+                Instructions *
               </FormLabel>
               <FormControl>
                 <Textarea
@@ -206,11 +208,11 @@ export const AgentForm = ({
                   }
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="px-1.5" />
             </FormItem>
           )}
         />
-        <div className="flex justify-between gap-x-2">
+        <div className="flex justify-between mt-4 gap-x-2">
           {onCancel && (
             <Button
               variant="outline"

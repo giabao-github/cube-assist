@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -182,7 +181,7 @@ export const MeetingForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="mb-1 text-sm md:text-base">
-                  Name
+                  Name *
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -197,7 +196,7 @@ export const MeetingForm = ({
                     }
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="px-1.5" />
               </FormItem>
             )}
           />
@@ -207,7 +206,7 @@ export const MeetingForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="mb-1 text-sm md:text-base">
-                  Agent
+                  Agent *
                 </FormLabel>
                 <FormControl>
                   <CommandSelect
@@ -232,21 +231,23 @@ export const MeetingForm = ({
                     label="agents"
                   />
                 </FormControl>
-                <FormDescription className="p-1">
-                  Do not see any suitable agents?{" "}
-                  <button
-                    title="Create a new agent"
-                    type="button"
-                    className="text-custom-600 hover:underline"
-                    onClick={() => setOpenNewAgentDialog(true)}
-                  >
-                    Create a new agent
-                  </button>
-                </FormDescription>
-                <FormMessage />
+                <FormMessage className="px-1.5" />
               </FormItem>
             )}
           />
+          <div className="flex flex-row px-1.5 text-sm gap-x-1">
+            <p className="text-muted-foreground">
+              Do not see any suitable agents?{" "}
+            </p>
+            <button
+              title="Create a new agent"
+              type="button"
+              className="text-custom-600 hover:underline"
+              onClick={() => setOpenNewAgentDialog(true)}
+            >
+              Create a new agent
+            </button>
+          </div>
           <div className="flex justify-between gap-x-2">
             {onCancel && (
               <Button
