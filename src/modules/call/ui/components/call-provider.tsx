@@ -3,7 +3,6 @@
 import { LoadingState } from "@/components/states/loading-state";
 
 import { authClient } from "@/lib/auth/auth-client";
-import { generateAvatarUri } from "@/lib/avatar";
 
 import { CallConnect } from "@/modules/call/ui/components/call-connect";
 
@@ -23,16 +22,5 @@ export const CallProvider = ({ meetingId, meetingName }: CallProviderProps) => {
     );
   }
 
-  return (
-    <CallConnect
-      meetingId={meetingId}
-      meetingName={meetingName}
-      userId={data.user.id}
-      userName={data.user.name}
-      userImage={
-        data.user.image ||
-        generateAvatarUri({ seed: data.user.name, variant: "initials" })
-      }
-    />
-  );
+  return <CallConnect meetingId={meetingId} meetingName={meetingName} />;
 };

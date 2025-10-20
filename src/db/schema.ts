@@ -1,5 +1,6 @@
 import {
   boolean,
+  index,
   pgEnum,
   pgTable,
   text,
@@ -123,4 +124,14 @@ export const meetings = pgTable(
   (table) => [
     unique("meetings_user_id_name_unique").on(table.userId, table.name),
   ],
+);
+
+export const processedWebhooks = pgTable(
+  "processed_webhooks",
+  {
+    id: text("id").primaryKey(),
+    eventType: text("event_type").notNull(),
+    processedAt: timestamp("processed_at").notNull().defaultNow(),
+  },
+  (table) => [index("processed_at_idx").on(table.processedAt)],
 );

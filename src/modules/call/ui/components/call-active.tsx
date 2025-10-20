@@ -31,7 +31,7 @@ export const CallActive = ({ meetingName, onLeave }: CallActiveProps) => {
   return (
     <div className="flex flex-col justify-between h-full p-4 text-white">
       <NavigateConfirmation />
-      <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-amber-200 w-fit">
+      <div className="flex items-center gap-4 px-4 py-1 mb-4 rounded-full md:mb-0 md:py-2 bg-amber-200 w-fit">
         <Link
           href="/dashboard"
           onClick={handleNavigate}
