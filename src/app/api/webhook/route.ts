@@ -256,6 +256,10 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  if (webhookId) {
+    await markWebhookProcessed(webhookId, eventType as string);
+  }
+
   return NextResponse.json({
     success: true,
     message: "Webhook processed successfully",
