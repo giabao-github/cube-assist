@@ -13,12 +13,11 @@ export const EmptyState = ({
   title = "No data available",
   description = "There is nothing to show here.",
   imageSrc = "/empty.svg",
-  imageAlt = "Empty",
+  imageAlt = "Empty data illustration",
 }: EmptyStateProps) => {
   return (
     <div
       className="flex flex-col items-center justify-center"
-      role="status"
       aria-live="polite"
     >
       <Image
@@ -27,6 +26,7 @@ export const EmptyState = ({
         width={360}
         height={293}
         className="max-w-[360px] w-full h-auto"
+        sizes="(max-width: 360px) 100vw, 360px"
       />
       <div className="flex flex-col max-w-lg pb-2 mx-auto text-center gap-y-6">
         <h6 className="text-lg font-medium md:text-xl">{title}</h6>

@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect } from "react";
+
 import {
   DefaultVideoPlaceholder,
   StreamVideoParticipant,
@@ -8,7 +12,7 @@ import {
 } from "@stream-io/video-react-sdk";
 import { LogInIcon } from "lucide-react";
 import Link from "next/link";
-import { RedirectType, redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
@@ -57,6 +61,7 @@ export const CallLobby = ({
   meetingName,
   onJoin,
 }: CallLobbyProps) => {
+  const router = useRouter();
   const { useCameraState, useMicrophoneState } = useCallStateHooks();
 
   const { hasBrowserPermission: hasCameraPermission } = useCameraState();
@@ -65,9 +70,11 @@ export const CallLobby = ({
   const hasMediaPermission =
     hasCameraPermission === true && hasMicrophonePermission === true;
 
-  if (!meetingId) {
-    redirect("/dashboard/meetings", RedirectType.replace);
-  }
+  useEffect(() => {
+    if (!meetingId) {
+      router.replace("/dashboard/meetings");
+    }
+  }, [meetingId, router]);
 
   return (
     <div className="flex flex-col items-center justify-center h-full bg-radial from-sidebar-accent to-sidebar">

@@ -34,6 +34,7 @@ export const CallUI = ({ meetingId, meetingName }: CallUIProps) => {
   const handleLeave = () => {
     if (!call) return;
 
+    // A meeting includes 2 participants: the current user (host) and the associated AI agent, so when the user leaves, the meeting is also terminated
     call.endCall();
 
     setShow("ended");

@@ -1,10 +1,9 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useCallback } from "react";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 
-import { rToast } from "@/lib/toast-utils";
 import { VideoClientProvider } from "@/lib/video-client-provider";
 
 import { useTRPC } from "@/trpc/client";
@@ -22,20 +21,12 @@ interface ProvidersProps {
 
 export function Providers({ children, session }: ProvidersProps) {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
 
   const { mutateAsync: generateToken } = useMutation(
-    trpc.meetings.generateToken.mutationOptions({
-      onSuccess: async () => {
-        await queryClient.invalidateQueries(
-          trpc.meetings.getMany.queryOptions({}),
-        );
-      },
-      onError: (error) => {
-        rToast.error(error.message);
-      },
-    }),
+    trpc.meetings.generateToken.mutationOptions(),
   );
+
+  const tokenProviderCb = useCallback(() => generateToken(), [generateToken]);
 
   if (!session?.user) {
     return <>{children}</>;
@@ -46,7 +37,7 @@ export function Providers({ children, session }: ProvidersProps) {
       userId={session.user.id}
       userName={session.user.name}
       userImage={session.user.image}
-      tokenProvider={generateToken}
+      tokenProvider={tokenProviderCb}
     >
       {children}
     </VideoClientProvider>

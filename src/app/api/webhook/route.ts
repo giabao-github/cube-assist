@@ -1,8 +1,9 @@
+// TODO: handle race condition using database atomic insert or Redis SET NX EX
 import {
   CallSessionParticipantLeftEvent,
   CallSessionStartedEvent,
 } from "@stream-io/node-sdk";
-import { and, eq, gt, not } from "drizzle-orm";
+import { and, eq, lt, not } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 import { streamVideo } from "@/lib/stream-video";
@@ -47,7 +48,7 @@ export async function cleanupOldWebhooks() {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   await db
     .delete(processedWebhooks)
-    .where(gt(processedWebhooks.processedAt, thirtyDaysAgo));
+    .where(lt(processedWebhooks.processedAt, thirtyDaysAgo));
 }
 
 export async function POST(req: NextRequest) {
@@ -77,6 +78,9 @@ export async function POST(req: NextRequest) {
   }
 
   const eventType = (payload as Record<string, unknown>)?.type;
+  if (!eventType || typeof eventType !== "string") {
+    return NextResponse.json({ error: "Missing event type" }, { status: 400 });
+  }
 
   // Replay protection
   const webhookId = extractWebhookId(req.headers);
@@ -173,6 +177,17 @@ export async function POST(req: NextRequest) {
         await markWebhookProcessed(webhookId, eventType as string);
       }
     } catch (error) {
+      if (realtimeClient) {
+        try {
+          await realtimeClient.disconnect?.();
+        } catch (disconnectError) {
+          console.error(
+            "Failed to disconnect OpenAI client during cleanup:",
+            disconnectError,
+          );
+        }
+      }
+
       await db
         .update(meetings)
         .set({
@@ -211,27 +226,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const call = streamVideo.video.call(CALL_TYPE, meetingId);
     try {
-      await call.end();
+      const call = streamVideo.video.call(CALL_TYPE, meetingId);
 
-      await db
-        .update(meetings)
-        .set({
-          status: "processing",
-          endedAt: new Date(),
-        })
-        .where(eq(meetings.id, meetingId));
+      const response = await call.queryCallParticipants();
+
+      if (response.total_participants === 0) {
+        await call.end();
+
+        await db
+          .update(meetings)
+          .set({
+            status: "processing",
+            endedAt: new Date(),
+          })
+          .where(eq(meetings.id, meetingId));
+
+        if (webhookId) {
+          await markWebhookProcessed(webhookId, eventType as string);
+        }
+      }
     } catch (error) {
       console.error("Failed to end call:", error);
       return NextResponse.json(
         { error: "Failed to end call" },
         { status: 500 },
       );
-    }
-
-    if (webhookId) {
-      await markWebhookProcessed(webhookId, eventType as string);
     }
   }
 
