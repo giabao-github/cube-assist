@@ -171,6 +171,7 @@ export const AgentForm = ({
                   {...field}
                   placeholder="Coding assistant"
                   className="text-sm"
+                  aria-required="true"
                   onKeyDown={(e) =>
                     handleRightArrowKeyPress(e, "Coding assistant", "name")
                   }
@@ -195,6 +196,7 @@ export const AgentForm = ({
                 <Textarea
                   {...field}
                   placeholder="You are a senior coding assistant that can answers technology questions, helps resolving bugs, or generate implementation ideas"
+                  aria-required="true"
                   className="text-sm"
                   onKeyDown={(e) =>
                     handleRightArrowKeyPress(

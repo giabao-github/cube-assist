@@ -157,17 +157,7 @@ export const agentsRouter = createTRPCRouter({
         })
         .returning();
 
-      try {
-        return createdAgent;
-      } catch (error) {
-        await db.delete(agents).where(eq(agents.id, createdAgent.id));
-
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create agent. Please try again.",
-          cause: error,
-        });
-      }
+      return createdAgent;
     }),
 
   remove: protectedProcedure
@@ -223,20 +213,12 @@ export const agentsRouter = createTRPCRouter({
         )
         .returning();
 
-      try {
-        if (!updatedAgent) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "This agent does not exist or has been deleted",
-          });
-        }
-        return updatedAgent;
-      } catch (error) {
+      if (!updatedAgent) {
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update agent. Please try again.",
-          cause: error,
+          code: "NOT_FOUND",
+          message: "This agent does not exist or has been deleted",
         });
       }
+      return updatedAgent;
     }),
 });

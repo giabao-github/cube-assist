@@ -280,22 +280,15 @@ export const meetingsRouter = createTRPCRouter({
         )
         .returning();
 
-      try {
-        if (!updatedMeeting) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message:
-              "This meeting is no longer available or you don't have permission to update it",
-          });
-        }
-        return updatedMeeting;
-      } catch (error) {
+      if (!updatedMeeting) {
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update meeting. Please try again.",
-          cause: error,
+          code: "NOT_FOUND",
+          message:
+            "This meeting is no longer available or you don't have permission to update it",
         });
       }
+
+      return updatedMeeting;
     }),
 
   remove: protectedProcedure

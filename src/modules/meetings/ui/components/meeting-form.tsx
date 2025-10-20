@@ -187,6 +187,7 @@ export const MeetingForm = ({
                   <Input
                     {...field}
                     placeholder="Car Workshop"
+                    aria-required="true"
                     className="text-sm"
                     onKeyDown={(e) =>
                       handleRightArrowKeyPress(e, "Car Workshop", "name")
@@ -228,6 +229,7 @@ export const MeetingForm = ({
                     onSearch={setAgentSearch}
                     value={field.value}
                     placeholder="Select an agent"
+                    aria-required="true"
                     label="agents"
                   />
                 </FormControl>

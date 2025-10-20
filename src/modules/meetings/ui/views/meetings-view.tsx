@@ -23,19 +23,9 @@ export const MeetingsView = () => {
   const [filters, setFilters] = useMeetingsFilters();
 
   const { data } = useSuspenseQuery(
-    trpc.meetings.getMany.queryOptions(
-      {
-        ...filters,
-      },
-      {
-        staleTime: 30 * 1000,
-        gcTime: 5 * 60 * 1000,
-        refetchInterval: false,
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        refetchOnReconnect: false,
-      },
-    ),
+    trpc.meetings.getMany.queryOptions({
+      ...filters,
+    }),
   );
 
   usePageValidation(

@@ -25,6 +25,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (apiKey !== process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY) {
+    return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
+  }
+
   const body = await req.text();
 
   if (!verifySignatureWithSDK(body, signature)) {
@@ -38,9 +42,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const evenType = (payload as Record<string, unknown>)?.type;
+  const eventType = (payload as Record<string, unknown>)?.type;
 
-  if (evenType === "call.session_started") {
+  if (eventType === "call.session_started") {
     const event = payload as CallSessionStartedEvent;
     const meetingId = event.call.custom?.meetingId;
 
@@ -52,8 +56,11 @@ export async function POST(req: NextRequest) {
     }
 
     const [existingMeeting] = await db
-      .select()
-      .from(meetings)
+      .update(meetings)
+      .set({
+        status: "active",
+        startedAt: new Date(),
+      })
       .where(
         and(
           eq(meetings.id, meetingId),
@@ -62,22 +69,15 @@ export async function POST(req: NextRequest) {
           not(eq(meetings.status, "cancelled")),
           not(eq(meetings.status, "processing")),
         ),
-      );
+      )
+      .returning();
 
     if (!existingMeeting) {
       return NextResponse.json(
-        { error: "Meeting is not found" },
+        { error: "Meeting not found or already in terminal state" },
         { status: 404 },
       );
     }
-
-    await db
-      .update(meetings)
-      .set({
-        status: "active",
-        startedAt: new Date(),
-      })
-      .where(eq(meetings.id, existingMeeting.id));
 
     const [existingAgent] = await db
       .select()
@@ -92,22 +92,41 @@ export async function POST(req: NextRequest) {
     }
 
     if (!process.env.OPENAI_API_KEY) {
-      throw new Error("Missing OPENAI_API_KEY environment variable");
+      return NextResponse.json(
+        { error: "Server configuration error: missing OpenAI API key" },
+        { status: 500 },
+      );
     }
 
     const openAiKey = process.env.OPENAI_API_KEY as string;
 
-    const call = streamVideo.video.call("default", meetingId);
-    const realtimeClient = await streamVideo.video.connectOpenAi({
-      call,
-      openAiApiKey: openAiKey,
-      agentUserId: existingAgent.id,
-    });
+    let realtimeClient;
+    try {
+      const call = streamVideo.video.call("default", meetingId);
+      realtimeClient = await streamVideo.video.connectOpenAi({
+        call,
+        openAiApiKey: openAiKey,
+        agentUserId: existingAgent.id,
+      });
 
-    realtimeClient.updateSession({
-      instructions: existingAgent.instructions,
-    });
-  } else if (evenType === "call.session_participant_left") {
+      realtimeClient.updateSession({
+        instructions: existingAgent.instructions,
+      });
+    } catch (error) {
+      await db
+        .update(meetings)
+        .set({
+          status: "upcoming",
+          startedAt: null,
+        })
+        .where(eq(meetings.id, existingMeeting.id));
+
+      return NextResponse.json(
+        { error: `Failed to initialize AI agent: ${error}` },
+        { status: 500 },
+      );
+    }
+  } else if (eventType === "call.session_participant_left") {
     const event = payload as CallSessionParticipantLeftEvent;
     const meetingId = event.call_cid.split(":")[1]; // call_cid format: "{type}:{id}"
 
@@ -118,9 +137,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const [existingMeeting] = await db
+      .select()
+      .from(meetings)
+      .where(eq(meetings.id, meetingId));
+
+    if (!existingMeeting) {
+      return NextResponse.json(
+        { error: "Meeting is not found" },
+        { status: 404 },
+      );
+    }
+
     const call = streamVideo.video.call("default", meetingId);
     await call.end();
   }
 
-  return NextResponse.json({ status: 200 });
+  return NextResponse.json({
+    success: true,
+    message: "Webhook processed successfully",
+  });
 }
