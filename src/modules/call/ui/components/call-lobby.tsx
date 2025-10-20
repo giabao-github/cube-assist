@@ -76,6 +76,10 @@ export const CallLobby = ({
     }
   }, [meetingId, router]);
 
+  if (!meetingId) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col items-center justify-center h-full bg-radial from-sidebar-accent to-sidebar">
       <div className="flex items-center justify-center flex-1 px-8 py-4">
@@ -104,7 +108,15 @@ export const CallLobby = ({
               variant="ghost"
               className="border border-neutral-200 hover:ring-1 hover:ring-neutral-300"
             >
-              <Link href={`/dashboard/meetings/${meetingId}`}>Cancel</Link>
+              <Link
+                href={
+                  meetingId
+                    ? `/dashboard/meetings/${meetingId}`
+                    : "/dashboard/meetings"
+                }
+              >
+                Cancel
+              </Link>
             </Button>
             <Button onClick={onJoin}>
               <LogInIcon />

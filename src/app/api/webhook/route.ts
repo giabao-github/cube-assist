@@ -1,5 +1,5 @@
 // TODO: handle race condition using database atomic insert or Redis SET NX EX
-import {
+import type {
   CallSessionParticipantLeftEvent,
   CallSessionStartedEvent,
 } from "@stream-io/node-sdk";
@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
         agentUserId: existingAgent.id,
       });
 
-      realtimeClient.updateSession({
+      await realtimeClient.updateSession({
         instructions: existingAgent.instructions,
       });
 
