@@ -34,25 +34,11 @@ export const CallConnect = ({ meetingId, meetingName }: CallConnectProps) => {
     setCall(_call);
 
     return () => {
-      if (_call.state.callingState !== CallingState.LEFT) {
-        _call.leave();
-        setCall(undefined);
-      }
-    };
-  }, [client, meetingId]);
-
-  useEffect(() => {
-    if (!client) return;
-
-    const _call = client.call("default", meetingId);
-    _call.camera.disable();
-    _call.microphone.disable();
-    setCall(_call);
-
-    return () => {
-      if (_call.state.callingState !== CallingState.LEFT) {
-        _call.leave();
-        _call.endCall();
+      try {
+        if (_call.state.callingState !== CallingState.LEFT) {
+          _call.leave();
+        }
+      } finally {
         setCall(undefined);
       }
     };

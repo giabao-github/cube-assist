@@ -30,15 +30,23 @@ export default async function RootLayout({
     headers: await headers(),
   });
 
+  const transformedSession = session
+    ? {
+        user: {
+          id: session.user.id,
+          name: session.user.name,
+          image: session.user.image ?? undefined,
+        },
+      }
+    : null;
+
   return (
     <html lang="en">
       <body className={`${poppins.className} antialiased`}>
         <NuqsAdapter>
           <TRPCReactProvider>
-            <Providers session={session}>
-              <Toaster />
-              {children}
-            </Providers>
+            <Toaster />
+            <Providers session={transformedSession}>{children}</Providers>
           </TRPCReactProvider>
         </NuqsAdapter>
       </body>

@@ -15,10 +15,9 @@ interface VideoClientContextType {
   isLoading: boolean;
 }
 
-const VideoClientContext = createContext<VideoClientContextType>({
-  client: undefined,
-  isLoading: true,
-});
+const VideoClientContext = createContext<VideoClientContextType | undefined>(
+  undefined,
+);
 
 interface VideoClientProviderProps {
   children: ReactNode;
@@ -39,14 +38,18 @@ export const VideoClientProvider = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setClient(undefined);
+      setIsLoading(false);
+      return;
+    }
 
     let _client: StreamVideoClient;
 
     const initClient = async () => {
       try {
         _client = StreamVideoClient.getOrCreateInstance({
-          apiKey: process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY!,
+          apiKey: process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY || "",
           user: {
             id: userId,
             name: userName,
@@ -63,14 +66,18 @@ export const VideoClientProvider = ({
       }
     };
 
+    if (!process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY) {
+      console.warn("Missing NEXT_PUBLIC_STREAM_VIDEO_API_KEY");
+    }
+
     initClient();
 
     return () => {
-      if (_client) {
+      if (_client === client) {
         _client.disconnectUser().catch(console.error);
       }
     };
-  }, [userId, userName, userImage, tokenProvider]);
+  }, [userId, userName, userImage, tokenProvider, client]);
 
   return (
     <VideoClientContext.Provider value={{ client, isLoading }}>

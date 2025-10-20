@@ -2,58 +2,52 @@ import {
   CallSessionParticipantLeftEvent,
   CallSessionStartedEvent,
 } from "@stream-io/node-sdk";
-import { Redis } from "@upstash/redis";
-import { and, eq, not } from "drizzle-orm";
+import { and, eq, gt, not } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 import { streamVideo } from "@/lib/stream-video";
 
 import { db } from "@/db";
-import { agents, meetings } from "@/db/schema";
+import { agents, meetings, processedWebhooks } from "@/db/schema";
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+const CALL_TYPE = "default";
 
 function verifySignatureWithSDK(body: string, signature: string): boolean {
   return streamVideo.verifyWebhook(body, signature);
 }
 
-function extractWebhookId(payload: Record<string, unknown>): string | null {
-  const eventId = payload.event_id as string | undefined;
-  const createdAt = payload.created_at as string | undefined;
-  const callCid = payload.call_cid as string | undefined;
-
-  if (eventId) return eventId;
-  if (createdAt && callCid) return `${callCid}-${createdAt}`;
-
-  return null;
+function extractWebhookId(headers: Headers): string | null {
+  return headers.get("x-webhook-id");
 }
 
 async function isWebhookProcessed(webhookId: string): Promise<boolean> {
-  try {
-    const result = await redis.get(`webhook:${webhookId}`);
-    return result !== null;
-  } catch (error) {
-    console.error("Redis error checking webhook:", error);
-    return false;
-  }
+  const [existing] = await db
+    .select()
+    .from(processedWebhooks)
+    .where(eq(processedWebhooks.id, webhookId))
+    .limit(1);
+
+  return !!existing;
 }
 
-const CALL_TYPE = "default";
-const WEBHOOK_TTL_SECONDS = 7 * 24 * 60 * 60;
+async function markWebhookProcessed(
+  webhookId: string,
+  eventType: string,
+): Promise<void> {
+  await db
+    .insert(processedWebhooks)
+    .values({
+      id: webhookId,
+      eventType,
+    })
+    .onConflictDoNothing();
+}
 
-async function markWebhookProcessed(webhookId: string): Promise<void> {
-  try {
-    await redis.setex(
-      `webhook:${webhookId}`,
-      WEBHOOK_TTL_SECONDS,
-      Date.now().toString(),
-    );
-  } catch (error) {
-    console.error("Redis error marking webhook:", error);
-  }
+export async function cleanupOldWebhooks() {
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  await db
+    .delete(processedWebhooks)
+    .where(gt(processedWebhooks.processedAt, thirtyDaysAgo));
 }
 
 export async function POST(req: NextRequest) {
@@ -85,16 +79,22 @@ export async function POST(req: NextRequest) {
   const eventType = (payload as Record<string, unknown>)?.type;
 
   // Replay protection
-  const webhookId = extractWebhookId(payload as Record<string, unknown>);
+  const webhookId = extractWebhookId(req.headers);
 
   if (!webhookId) {
-    console.warn("Could not extract webhook ID from payload", { eventType });
+    console.error(
+      "Missing X-WEBHOOK-ID header - webhook cannot be deduplicated",
+      {
+        eventType,
+      },
+    );
   } else {
     if (await isWebhookProcessed(webhookId)) {
       console.info("Duplicate webhook detected and ignored", {
         webhookId,
         eventType,
       });
+
       return NextResponse.json({
         success: true,
         message: "Webhook already processed (duplicate)",
@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (webhookId) {
-        await markWebhookProcessed(webhookId);
+        await markWebhookProcessed(webhookId, eventType as string);
       }
     } catch (error) {
       await db
@@ -186,10 +186,6 @@ export async function POST(req: NextRequest) {
         { error: "Failed to initialize AI agent" },
         { status: 500 },
       );
-    } finally {
-      if (realtimeClient) {
-        await realtimeClient.disconnect();
-      }
     }
   } else if (eventType === "call.session_participant_left") {
     const event = payload as CallSessionParticipantLeftEvent;
@@ -215,7 +211,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const call = streamVideo.video.call("default", meetingId);
+    const call = streamVideo.video.call(CALL_TYPE, meetingId);
     try {
       await call.end();
 
@@ -235,7 +231,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (webhookId) {
-      await markWebhookProcessed(webhookId);
+      await markWebhookProcessed(webhookId, eventType as string);
     }
   }
 

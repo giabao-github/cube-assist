@@ -8,6 +8,7 @@ import {
 } from "@stream-io/video-react-sdk";
 import { LogInIcon } from "lucide-react";
 import Link from "next/link";
+import { RedirectType, redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
@@ -63,6 +64,10 @@ export const CallLobby = ({
     useMicrophoneState();
   const hasMediaPermission =
     hasCameraPermission === true && hasMicrophonePermission === true;
+
+  if (!meetingId) {
+    redirect("/dashboard/meetings", RedirectType.replace);
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-full bg-radial from-sidebar-accent to-sidebar">

@@ -26,7 +26,7 @@ export const EmptyState = ({
         alt={imageAlt}
         width={360}
         height={293}
-        className="w-[360px] h-auto"
+        className="max-w-[360px] w-full h-auto"
       />
       <div className="flex flex-col max-w-lg pb-2 mx-auto text-center gap-y-6">
         <h6 className="text-lg font-medium md:text-xl">{title}</h6>

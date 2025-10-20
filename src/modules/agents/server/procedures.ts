@@ -219,6 +219,7 @@ export const agentsRouter = createTRPCRouter({
           message: "This agent does not exist or has been deleted",
         });
       }
+
       return updatedAgent;
     }),
 });

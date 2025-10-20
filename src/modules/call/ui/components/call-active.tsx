@@ -1,3 +1,5 @@
+"use client";
+
 import { CallControls, SpeakerLayout } from "@stream-io/video-react-sdk";
 import Image from "next/image";
 import Link from "next/link";
@@ -36,11 +38,12 @@ export const CallActive = ({ meetingName, onLeave }: CallActiveProps) => {
           href="/dashboard"
           onClick={handleNavigate}
           className="flex items-center justify-center p-1 rounded-full bg-white/10 w-fit"
+          aria-label="Back to dashboard"
         >
           <Image
             title="Back to dashboard"
             src="/logo.svg"
-            alt="Logo"
+            alt="Back to dashboard"
             width={30}
             height={30}
             className="hover:animate-pulse"
