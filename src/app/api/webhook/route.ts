@@ -18,7 +18,8 @@ function verifySignatureWithSDK(body: string, signature: string): boolean {
 }
 
 function extractWebhookId(headers: Headers): string | null {
-  return headers.get("x-webhook-id");
+  const headerId = headers.get("x-webhook-id");
+  return headerId || null;
 }
 
 async function isWebhookProcessed(webhookId: string): Promise<boolean> {

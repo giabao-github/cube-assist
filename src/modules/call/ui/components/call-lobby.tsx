@@ -51,7 +51,7 @@ const AllowBrowserPermissions = () => {
 };
 
 interface CallLobbyProps {
-  meetingId: string;
+  meetingId?: string;
   meetingName: string;
   onJoin: () => void;
 }

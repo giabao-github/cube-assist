@@ -26,7 +26,14 @@ export function Providers({ children, session }: ProvidersProps) {
     trpc.meetings.generateToken.mutationOptions(),
   );
 
-  const tokenProviderCb = useCallback(() => generateToken(), [generateToken]);
+  const tokenProviderCb = useCallback(async () => {
+    try {
+      return await generateToken();
+    } catch (error) {
+      console.error("Failed to generate video token:", error);
+      throw error;
+    }
+  }, [generateToken]);
 
   if (!session?.user) {
     return <>{children}</>;
