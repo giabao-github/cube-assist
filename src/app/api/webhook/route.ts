@@ -25,10 +25,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (apiKey !== process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY) {
-    return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
-  }
-
   const body = await req.text();
 
   if (!verifySignatureWithSDK(body, signature)) {
@@ -121,8 +117,9 @@ export async function POST(req: NextRequest) {
         })
         .where(eq(meetings.id, existingMeeting.id));
 
+      console.error("Failed to initialize AI agent:", error);
       return NextResponse.json(
-        { error: `Failed to initialize AI agent: ${error}` },
+        { error: "Failed to initialize AI agent" },
         { status: 500 },
       );
     }
