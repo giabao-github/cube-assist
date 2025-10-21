@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 
 import { notosan } from "@/config/fonts";
 
-import { useDebounce } from "@/hooks/use-debounce";
+import { useDebounceValue } from "@/hooks/use-debounce-value";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import { cn } from "@/lib/helper/utils";
@@ -38,7 +38,7 @@ export const SearchBar = () => {
 
   const { suggestions, isLoading, error, fetchSuggestions, clearSuggestions } =
     useSearchStore();
-  const debouncedQuery = useDebounce(query, 300);
+  const debouncedQuery = useDebounceValue(query, 300);
 
   useEffect(() => {
     if (isFocused) {

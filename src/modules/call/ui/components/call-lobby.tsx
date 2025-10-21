@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect } from "react";
+
 import {
   DefaultVideoPlaceholder,
   StreamVideoParticipant,
@@ -8,6 +12,7 @@ import {
 } from "@stream-io/video-react-sdk";
 import { LogInIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
@@ -46,7 +51,7 @@ const AllowBrowserPermissions = () => {
 };
 
 interface CallLobbyProps {
-  meetingId: string;
+  meetingId?: string;
   meetingName: string;
   onJoin: () => void;
 }
@@ -56,6 +61,7 @@ export const CallLobby = ({
   meetingName,
   onJoin,
 }: CallLobbyProps) => {
+  const router = useRouter();
   const { useCameraState, useMicrophoneState } = useCallStateHooks();
 
   const { hasBrowserPermission: hasCameraPermission } = useCameraState();
@@ -63,6 +69,16 @@ export const CallLobby = ({
     useMicrophoneState();
   const hasMediaPermission =
     hasCameraPermission === true && hasMicrophonePermission === true;
+
+  useEffect(() => {
+    if (!meetingId) {
+      router.replace("/dashboard/meetings");
+    }
+  }, [meetingId, router]);
+
+  if (!meetingId) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-full bg-radial from-sidebar-accent to-sidebar">
@@ -92,7 +108,15 @@ export const CallLobby = ({
               variant="ghost"
               className="border border-neutral-200 hover:ring-1 hover:ring-neutral-300"
             >
-              <Link href={`/dashboard/meetings/${meetingId}`}>Cancel</Link>
+              <Link
+                href={
+                  meetingId
+                    ? `/dashboard/meetings/${meetingId}`
+                    : "/dashboard/meetings"
+                }
+              >
+                Cancel
+              </Link>
             </Button>
             <Button onClick={onJoin}>
               <LogInIcon />

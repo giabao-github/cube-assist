@@ -7,58 +7,22 @@ import {
   CallingState,
   StreamCall,
   StreamVideo,
-  StreamVideoClient,
 } from "@stream-io/video-react-sdk";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
-import { useMutation } from "@tanstack/react-query";
 
 import { LoadingState } from "@/components/states/loading-state";
 
-import { useTRPC } from "@/trpc/client";
+import { useVideoClient } from "@/lib/video-client-provider";
 
-import { CallUI } from "./call-ui";
+import { CallUI } from "@/modules/call/ui/components/call-ui";
 
 interface CallConnectProps {
   meetingId: string;
   meetingName: string;
-  userId: string;
-  userName: string;
-  userImage: string | undefined;
 }
 
-export const CallConnect = ({
-  meetingId,
-  meetingName,
-  userId,
-  userName,
-  userImage,
-}: CallConnectProps) => {
-  const trpc = useTRPC();
-  const { mutateAsync: generateToken } = useMutation(
-    trpc.meetings.generateToken.mutationOptions(),
-  );
-
-  const [client, setClient] = useState<StreamVideoClient>();
-
-  useEffect(() => {
-    const _client = new StreamVideoClient({
-      apiKey: process.env.NEXT_PUBLIC_STREAM_VIDEO_API_KEY!,
-      user: {
-        id: userId,
-        name: userName,
-        image: userImage,
-      },
-      tokenProvider: generateToken,
-    });
-
-    setClient(_client);
-
-    return () => {
-      _client.disconnectUser();
-      setClient(undefined);
-    };
-  }, [generateToken, userId, userImage, userName]);
-
+export const CallConnect = ({ meetingId, meetingName }: CallConnectProps) => {
+  const { client, isLoading } = useVideoClient();
   const [call, setCall] = useState<Call>();
 
   useEffect(() => {
@@ -70,15 +34,17 @@ export const CallConnect = ({
     setCall(_call);
 
     return () => {
-      if (_call.state.callingState !== CallingState.LEFT) {
-        _call.leave();
-        _call.endCall();
+      try {
+        if (_call.state.callingState !== CallingState.LEFT) {
+          _call.leave();
+        }
+      } finally {
         setCall(undefined);
       }
     };
   }, [client, meetingId]);
 
-  if (!client || !call) {
+  if (isLoading || !client || !call) {
     return (
       <div className="flex items-center justify-center h-screen bg-radial from-sidebar-accent to-sidebar">
         <LoadingState type="call" loadingText="Loading video call" />

@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import "server-only";
 
 import { categorizeBreachSeverity } from "@/lib/password/password-utils";
 
