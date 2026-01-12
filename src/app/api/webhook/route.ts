@@ -170,7 +170,7 @@ export async function POST(req: NextRequest) {
         agentUserId: existingAgent.id,
       });
 
-      await realtimeClient.updateSession({
+      realtimeClient.updateSession({
         instructions: existingAgent.instructions,
       });
 
@@ -180,7 +180,7 @@ export async function POST(req: NextRequest) {
     } catch (error) {
       if (realtimeClient) {
         try {
-          await realtimeClient.disconnect?.();
+          realtimeClient.disconnect?.();
         } catch (disconnectError) {
           console.error(
             "Failed to disconnect OpenAI client during cleanup:",
@@ -241,23 +241,21 @@ export async function POST(req: NextRequest) {
             status: "processing",
             endedAt: new Date(),
           })
-          .where(eq(meetings.id, meetingId));
-
-        if (webhookId) {
-          await markWebhookProcessed(webhookId, eventType as string);
-        }
+          .where(
+            and(eq(meetings.id, meetingId), eq(meetings.status, "active")),
+          );
       }
     } catch (error) {
+      if (webhookId) {
+        await markWebhookProcessed(webhookId, eventType as string);
+      }
+
       console.error("Failed to end call:", error);
       return NextResponse.json(
         { error: "Failed to end call" },
         { status: 500 },
       );
     }
-  }
-
-  if (webhookId) {
-    await markWebhookProcessed(webhookId, eventType as string);
   }
 
   return NextResponse.json({

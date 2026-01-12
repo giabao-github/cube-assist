@@ -54,12 +54,14 @@ interface CallLobbyProps {
   meetingId?: string;
   meetingName: string;
   onJoin: () => void;
+  isAgentAvailable?: boolean;
 }
 
 export const CallLobby = ({
   meetingId,
   meetingName,
   onJoin,
+  isAgentAvailable = true,
 }: CallLobbyProps) => {
   const router = useRouter();
   const { useCameraState, useMicrophoneState } = useCallStateHooks();
@@ -118,9 +120,9 @@ export const CallLobby = ({
                 Cancel
               </Link>
             </Button>
-            <Button onClick={onJoin}>
+            <Button onClick={onJoin} disabled={!isAgentAvailable}>
               <LogInIcon />
-              Join Call
+              {isAgentAvailable ? "Join Call" : "Agent Unavailable"}
             </Button>
           </div>
         </div>

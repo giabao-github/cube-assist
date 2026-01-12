@@ -49,6 +49,7 @@ export const checkPasswordBreach = async (password: string) => {
     }
   }
 };
+
 export const addPasswordBreachValidation = async (
   data: { password: string },
   ctx: z.RefinementCtx,
