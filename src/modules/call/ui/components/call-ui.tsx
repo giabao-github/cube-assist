@@ -23,14 +23,19 @@ export const CallUI = ({ meetingId, meetingName }: CallUIProps) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [show, setShow] = useState<"lobby" | "call" | "ended">("lobby");
-  const [isAgentAvailable, setIsAgentAvailable] = useState(true);
+  const [isAgentAvailable, setIsAgentAvailable] = useState(false);
 
   useEffect(() => {
     const checkAgentAvailability = async () => {
-      const freshData = await queryClient.fetchQuery(
-        trpc.meetings.checkAgentAvailability.queryOptions(),
-      );
-      setIsAgentAvailable(freshData.isAvailable);
+      try {
+        const freshData = await queryClient.fetchQuery(
+          trpc.meetings.checkAgentAvailability.queryOptions(),
+        );
+        setIsAgentAvailable(freshData.isAvailable);
+      } catch (error) {
+        console.error("Failed to check agent availability:", error);
+        setIsAgentAvailable(false);
+      }
     };
     checkAgentAvailability();
   }, [queryClient, trpc.meetings.checkAgentAvailability]);
