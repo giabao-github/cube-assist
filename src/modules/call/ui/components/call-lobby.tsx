@@ -10,7 +10,7 @@ import {
   VideoPreview,
   useCallStateHooks,
 } from "@stream-io/video-react-sdk";
-import { LogInIcon } from "lucide-react";
+import { LogInIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -54,14 +54,14 @@ interface CallLobbyProps {
   meetingId?: string;
   meetingName: string;
   onJoin: () => void;
-  isAgentAvailable?: boolean;
+  isAgentAvailable: boolean | null;
 }
 
 export const CallLobby = ({
   meetingId,
   meetingName,
   onJoin,
-  isAgentAvailable = true,
+  isAgentAvailable,
 }: CallLobbyProps) => {
   const router = useRouter();
   const { useCameraState, useMicrophoneState } = useCallStateHooks();
@@ -120,9 +120,23 @@ export const CallLobby = ({
                 Cancel
               </Link>
             </Button>
-            <Button onClick={onJoin} disabled={!isAgentAvailable}>
-              <LogInIcon />
-              {isAgentAvailable ? "Join Call" : "Agent Unavailable"}
+            <Button onClick={onJoin} disabled={isAgentAvailable !== true}>
+              {isAgentAvailable === null ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Checking Agent...
+                </>
+              ) : isAgentAvailable === true ? (
+                <>
+                  <LogInIcon />
+                  Join Call
+                </>
+              ) : (
+                <>
+                  <LogInIcon />
+                  Agent Unavailable
+                </>
+              )}
             </Button>
           </div>
         </div>

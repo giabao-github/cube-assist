@@ -173,10 +173,6 @@ export async function POST(req: NextRequest) {
       await realtimeClient.updateSession({
         instructions: existingAgent.instructions,
       });
-
-      if (webhookId) {
-        await markWebhookProcessed(webhookId, eventType as string);
-      }
     } catch (error) {
       if (realtimeClient) {
         try {

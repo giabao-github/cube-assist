@@ -23,7 +23,9 @@ export const CallUI = ({ meetingId, meetingName }: CallUIProps) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [show, setShow] = useState<"lobby" | "call" | "ended">("lobby");
-  const [isAgentAvailable, setIsAgentAvailable] = useState(false);
+  const [isAgentAvailable, setIsAgentAvailable] = useState<boolean | null>(
+    null,
+  );
 
   useEffect(() => {
     const checkAgentAvailability = async () => {
