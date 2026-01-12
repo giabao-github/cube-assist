@@ -334,4 +334,36 @@ export const meetingsRouter = createTRPCRouter({
 
     return token;
   }),
+
+  checkAgentAvailability: protectedProcedure.query(async () => {
+    if (!process.env.OPENAI_API_KEY) {
+      console.error(
+        "Agent availability check failed: OpenAI API key is not configured",
+      );
+      return {
+        isAvailable: false,
+        reason: "Agent is currently unavailable. Please try again later.",
+      };
+    }
+
+    try {
+      // Try to create a test call to verify Stream Video connection (ngrok/webhook setup)
+      const testCallId = `availability-check-${Date.now()}`;
+      const call = streamVideo.video.call("default", testCallId);
+
+      // This attempts to verify the call can be created, which requires ngrok and webhooks to be working
+      await call.get();
+
+      return {
+        isAvailable: true,
+        reason: "Agent is ready",
+      };
+    } catch (error) {
+      console.error("Agent availability check failed:", error);
+      return {
+        isAvailable: false,
+        reason: "Agent is currently unavailable. Please try again later.",
+      };
+    }
+  }),
 });

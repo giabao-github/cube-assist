@@ -173,10 +173,6 @@ export async function POST(req: NextRequest) {
       await realtimeClient.updateSession({
         instructions: existingAgent.instructions,
       });
-
-      if (webhookId) {
-        await markWebhookProcessed(webhookId, eventType as string);
-      }
     } catch (error) {
       if (realtimeClient) {
         try {
@@ -241,11 +237,9 @@ export async function POST(req: NextRequest) {
             status: "processing",
             endedAt: new Date(),
           })
-          .where(eq(meetings.id, meetingId));
-
-        if (webhookId) {
-          await markWebhookProcessed(webhookId, eventType as string);
-        }
+          .where(
+            and(eq(meetings.id, meetingId), eq(meetings.status, "active")),
+          );
       }
     } catch (error) {
       console.error("Failed to end call:", error);
