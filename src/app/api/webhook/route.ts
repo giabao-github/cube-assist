@@ -1,7 +1,10 @@
 // TODO: handle race condition using database atomic insert or Redis SET NX EX
 import type {
+  CallRecordingReadyEvent,
+  CallSessionEndedEvent,
   CallSessionParticipantLeftEvent,
   CallSessionStartedEvent,
+  CallTranscriptionReadyEvent,
 } from "@stream-io/node-sdk";
 import { and, eq, lt, not } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
@@ -20,6 +23,24 @@ function verifySignatureWithSDK(body: string, signature: string): boolean {
 function extractWebhookId(headers: Headers): string | null {
   const headerId = headers.get("x-webhook-id");
   return headerId || null;
+}
+
+async function handleMeeting(meetingId: string | undefined) {
+  if (!meetingId) {
+    return NextResponse.json({ error: "Missing meeting ID" }, { status: 400 });
+  }
+
+  const [existingMeeting] = await db
+    .select()
+    .from(meetings)
+    .where(eq(meetings.id, meetingId));
+
+  if (!existingMeeting) {
+    return NextResponse.json(
+      { error: "Meeting is not found" },
+      { status: 404 },
+    );
+  }
 }
 
 async function isWebhookProcessed(webhookId: string): Promise<boolean> {
@@ -204,47 +225,88 @@ export async function POST(req: NextRequest) {
     const parts = event.call_cid.split(":");
     const meetingId = parts.length === 2 ? parts[1] : undefined;
 
-    if (!meetingId) {
-      return NextResponse.json(
-        { error: "Missing meeting ID" },
-        { status: 400 },
-      );
-    }
-
-    const [existingMeeting] = await db
-      .select()
-      .from(meetings)
-      .where(eq(meetings.id, meetingId));
-
-    if (!existingMeeting) {
-      return NextResponse.json(
-        { error: "Meeting is not found" },
-        { status: 404 },
-      );
-    }
+    handleMeeting(meetingId);
 
     try {
-      const call = streamVideo.video.call(CALL_TYPE, meetingId);
-
-      const response = await call.queryCallParticipants();
-
-      if (response.total_participants === 0) {
-        await call.end();
-
-        await db
-          .update(meetings)
-          .set({
-            status: "processing",
-            endedAt: new Date(),
-          })
-          .where(
-            and(eq(meetings.id, meetingId), eq(meetings.status, "active")),
-          );
-      }
+      const call = streamVideo.video.call(CALL_TYPE, meetingId!);
+      await call.end();
     } catch (error) {
       console.error("Failed to end call:", error);
       return NextResponse.json(
         { error: "Failed to end call" },
+        { status: 500 },
+      );
+    }
+  } else if (eventType === "call.session_ended") {
+    const event = payload as CallSessionEndedEvent;
+    const meetingId = event.call.custom?.meetingId;
+
+    handleMeeting(meetingId);
+
+    try {
+      await db
+        .update(meetings)
+        .set({
+          status: "processing",
+          endedAt: new Date(),
+        })
+        .where(and(eq(meetings.id, meetingId), eq(meetings.status, "active")));
+    } catch (error) {
+      console.error("Failed to end call:", error);
+      return NextResponse.json(
+        { error: "Failed to end call" },
+        { status: 500 },
+      );
+    }
+  } else if (eventType === "call.transcription_ready") {
+    const event = payload as CallTranscriptionReadyEvent;
+    const parts = event.call_cid.split(":");
+    const meetingId = parts.length === 2 ? parts[1] : undefined;
+
+    handleMeeting(meetingId);
+
+    try {
+      const [updatedMeeting] = await db
+        .update(meetings)
+        .set({
+          transcriptUrl: event.call_transcription.url,
+        })
+        .where(eq(meetings.id, meetingId!))
+        .returning();
+
+      if (!updatedMeeting) {
+        return NextResponse.json(
+          { error: "Meeting is not found" },
+          { status: 404 },
+        );
+      }
+
+      // TODO: call Inngest background job to summarize the transcript
+    } catch (error) {
+      console.error("Failed to get transcription url:", error);
+      return NextResponse.json(
+        { error: "Failed to get transcription url" },
+        { status: 500 },
+      );
+    }
+  } else if (eventType === "call.recording_ready") {
+    const event = payload as CallRecordingReadyEvent;
+    const parts = event.call_cid.split(":");
+    const meetingId = parts.length === 2 ? parts[1] : undefined;
+
+    handleMeeting(meetingId);
+
+    try {
+      await db
+        .update(meetings)
+        .set({
+          recordingUrl: event.call_recording.url,
+        })
+        .where(eq(meetings.id, meetingId!));
+    } catch (error) {
+      console.error("Failed to get recording url:", error);
+      return NextResponse.json(
+        { error: "Failed to get recording url" },
         { status: 500 },
       );
     }
